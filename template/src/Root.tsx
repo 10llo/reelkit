@@ -1,4 +1,5 @@
 import { Composition, Folder, Still } from "remotion";
+import { BlockGallery, calculateGalleryMetadata } from "./compositions/BlockGallery";
 import { BlockPreview, calculateBlockPreviewMetadata } from "./compositions/BlockPreview";
 import { CoverFrame } from "./compositions/Cover";
 import { IconSheet } from "./compositions/IconSheet";
@@ -62,6 +63,26 @@ export const RemotionRoot: React.FC = () => {
           talent: null,
         }}
         calculateMetadata={calculateBlockPreviewMetadata}
+      />
+      <Composition
+        id="BlockGallery"
+        component={BlockGallery}
+        durationInFrames={900}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={{ layoutName: "9x16", talent: null }}
+        calculateMetadata={calculateGalleryMetadata}
+      />
+      <Composition
+        id="BlockGallery45"
+        component={BlockGallery}
+        durationInFrames={900}
+        fps={30}
+        width={1080}
+        height={1350}
+        defaultProps={{ layoutName: "4x5", talent: null }}
+        calculateMetadata={calculateGalleryMetadata}
       />
       <Still id="IconSheet" component={IconSheet} width={1080} height={1920} />
     </Folder>

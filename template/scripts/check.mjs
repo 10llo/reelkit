@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Usage: npm run check -- [episodeDir] [--layouts=9x16,4x5]
+// Usage: npm run check -- [episodeDir] [--layouts=9x16,4x5] | npm run check -- --gallery [--block=A,B]
 // With no episodeDir, checks every folder in examples/ that has an episode.json.
 import { bundle } from "@remotion/bundler";
 import { renderStill, selectComposition } from "@remotion/renderer";
@@ -18,6 +18,7 @@ const layouts = JSON.parse(fs.readFileSync(path.join(root, "src/frame/layouts.js
 const COMPOSITIONS = { "9x16": "Episode", "4x5": "Episode45" };
 const FIT_WARN = 0.85;
 const MIN_TEXT_PX = 40;
+const GALLERY_MIN_SCALE = 0.85;
 let failures = 0;
 const fail = (msg) => {
   failures++;
@@ -101,7 +102,70 @@ const checkEpisode = async (episodeDir) => {
   console.log(`Frames: ${outDir}`);
 };
 
+const checkGallery = async () => {
+  const samples = JSON.parse(fs.readFileSync(path.join(root, "src/gallery/samples.json"), "utf8"));
+  const only = args.find((a) => a.startsWith("--block="))?.split("=")[1].split(",");
+  const selected = samples.map((sample, i) => ({ sample, i })).filter(({ sample }) => !only || only.includes(sample.block));
+  if (!selected.length) {
+    fail(`No gallery samples match --block=${only}`);
+    return;
+  }
+  const publicDir = path.join(root, "examples/smoke");
+  console.log("Bundling the gallery…");
+  const serveUrl = await bundle({ entryPoint: path.join(root, "src/index.ts"), publicDir });
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "reelkit-gallery-"));
+  for (const layoutName of layoutNames) {
+    for (const { sample, i } of selected) {
+      const inputProps = {
+        layoutName,
+        block: sample.block,
+        props: sample.props,
+        title: sample.title,
+        durationInFrames: sample.durationInFrames,
+        talent: null,
+      };
+      let composition;
+      try {
+        composition = await selectComposition({ serveUrl, id: "BlockPreview", inputProps });
+      } catch (err) {
+        fail(`${layoutName} ${sample.block}: the sample did not validate:\n${err.message}`);
+        continue;
+      }
+      let scale = 1;
+      let minFont = null;
+      const output = path.join(outDir, `${layoutName}-${String(i).padStart(2, "0")}-${sample.block}.png`);
+      await renderStill({
+        serveUrl,
+        composition,
+        frame: composition.durationInFrames - 1,
+        output,
+        imageFormat: "png",
+        inputProps,
+        onBrowserLog: (log) => {
+          const fit = parseFitLog(log.text);
+          if (fit) scale = Math.min(scale, fit.scale);
+          const font = parseMinFontLog(log.text);
+          if (font) minFont = minFont === null ? font.px : Math.min(minFont, font.px);
+        },
+      });
+      const problems = [];
+      if (scale < GALLERY_MIN_SCALE) problems.push(`scaled to ${scale.toFixed(2)}`);
+      if (minFont !== null && minFont < MIN_TEXT_PX) problems.push(`text at ${minFont} px`);
+      if (problems.length) {
+        fail(`${layoutName} ${sample.block}: ${problems.join(", ")} (${output})`);
+      } else {
+        console.log(`✓ ${layoutName} ${sample.block}: fit ${scale.toFixed(2)}, smallest text ${minFont ?? "-"} px`);
+      }
+    }
+  }
+  console.log(`Frames: ${outDir}`);
+};
+
 const main = async () => {
+  if (args.includes("--gallery")) {
+    await checkGallery();
+    return;
+  }
   if (dirArg) {
     await checkEpisode(path.resolve(dirArg));
     return;

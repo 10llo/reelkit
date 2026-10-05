@@ -1,0 +1,135 @@
+[
+  {
+    "block": "Hook",
+    "title": null,
+    "durationInFrames": 90,
+    "props": {
+      "line1": "¿Sabes qué pasa si tu perro",
+      "line2": "¿COME CHOCOLATE?",
+      "chip": "Guía rápida para tutores · 30 segundos",
+      "hero": { "animation": "bites", "color": "accent" },
+      "stamp": "paw"
+    }
+  },
+  {
+    "block": "BigStat",
+    "title": { "text": "¿CUÁNTO basta?", "accent": "CUÁNTO" },
+    "durationInFrames": 150,
+    "props": {
+      "value": 1250,
+      "prefix": "≈",
+      "unit": "mg/kg",
+      "label": "de metilxantinas bastan para síntomas en un perro pequeño",
+      "source": "Merck Veterinary Manual, Chocolate Toxicosis in Animals, febrero 2026"
+    }
+  },
+  {
+    "block": "Compare",
+    "title": { "text": "¿CUÁNDO preocuparte?", "accent": "CUÁNDO" },
+    "durationInFrames": 105,
+    "props": {
+      "items": [
+        { "label": "Blanco", "color": "#F3E3C7" },
+        { "label": "De leche", "color": "#A8693D" },
+        { "label": "Semiamargo", "color": "#6B3F23" },
+        { "label": "Amargo", "color": "#3B2114" }
+      ],
+      "conclusion": { "text": "Más oscuro = más tóxico para tu perro", "accent": "más tóxico", "tone": "danger" }
+    }
+  },
+  {
+    "block": "Timer",
+    "title": { "text": "¿CUÁNDO preocuparte?", "accent": "CUÁNDO" },
+    "durationInFrames": 105,
+    "props": {
+      "low": 6,
+      "high": 12,
+      "unit": "h",
+      "caption": "Los síntomas\npueden tardar",
+      "chips": [
+        { "icon": "vomit", "label": "Vómito y diarrea" },
+        { "icon": "panting", "label": "Inquietud y jadeo" },
+        { "icon": "tremor", "label": "Temblores musculares" }
+      ]
+    }
+  },
+  {
+    "block": "Chips",
+    "title": { "text": "¿QUÉ la daña?", "accent": "QUÉ" },
+    "durationInFrames": 150,
+    "props": {
+      "items": [
+        { "icon": "warning", "label": "Calor del cargador" },
+        { "icon": "clock", "label": "Carga al 100 % siempre" },
+        { "icon": "info", "label": "Cargadores genéricos" },
+        { "icon": "x", "label": "Descarga total seguida" },
+        { "icon": "warning", "label": "Fundas muy gruesas" },
+        { "icon": "info", "label": "Apps en segundo plano" }
+      ]
+    }
+  },
+  {
+    "block": "DoDont",
+    "title": { "text": "¿CÓMO actuar?", "accent": "CÓMO" },
+    "durationInFrames": 105,
+    "props": {
+      "cards": [
+        { "icon": "milk", "label": "Darle leche para neutralizar", "verdict": "no" },
+        { "icon": "spoonDrop", "label": "Hacerlo vomitar por tu cuenta", "verdict": "no" }
+      ]
+    }
+  },
+  {
+    "block": "Checklist",
+    "title": { "text": "¿CÓMO actuar?", "accent": "CÓMO" },
+    "durationInFrames": 105,
+    "props": {
+      "rows": [
+        "Guarda el empaque del producto",
+        "Calcula cuánto comió y a qué hora",
+        "Anota los síntomas que observes",
+        "Llama ya a tu veterinaria"
+      ],
+      "pill": "Las primeras 2 horas cuentan"
+    }
+  },
+  {
+    "block": "Quantity",
+    "title": { "text": "¿CUÁNTO es peligroso?", "accent": "CUÁNTO" },
+    "durationInFrames": 255,
+    "props": {
+      "chip": { "icon": "dog", "label": "Ejemplo: perro de 5 kg" },
+      "unit": "g",
+      "approx": true,
+      "rows": [
+        { "label": "Chocolate de leche suave", "value": 45, "color": "#A8693D" },
+        { "label": "Semiamargo para repostería", "value": 20, "color": "#6B3F23" },
+        { "label": "Amargo (100 % cacao)", "value": 7, "color": "#3B2114", "outline": "danger" }
+      ],
+      "highlight": "last",
+      "conclusion": "Con esta cantidad ya hay síntomas",
+      "footnote": "Dosis orientativa. Cada perro es distinto: ante la duda, llama a tu veterinaria."
+    }
+  },
+  {
+    "block": "MythFact",
+    "title": { "text": "¿MITO o realidad?", "accent": "MITO" },
+    "durationInFrames": 150,
+    "props": {
+      "myth": "Dejarlo cargando toda la noche daña la batería",
+      "fact": "El cargador corta la corriente cuando llega al 100 %"
+    }
+  },
+  {
+    "block": "Close",
+    "title": null,
+    "durationInFrames": 135,
+    "props": {
+      "line1": "Guárdalo y compártelo hoy",
+      "line2": { "text": "antes del 31 de octubre", "accent": "31" },
+      "accentIcon": "pumpkin",
+      "actions": ["bookmark", "share", "star"],
+      "teaser": "Próximo: uvas y pasas, ¿son peligrosas?"
+    }
+  }
+]
