@@ -6,6 +6,7 @@ import { compareSchema } from "./Compare.schema";
 import { cycleSchema } from "./Cycle.schema";
 import { definitionSchema } from "./Definition.schema";
 import { doDontSchema } from "./DoDont.schema";
+import { gaugeSchema } from "./Gauge.schema";
 import { hookSchema } from "./Hook.schema";
 import { mythFactSchema } from "./MythFact.schema";
 import { processSchema } from "./Process.schema";
@@ -13,6 +14,7 @@ import { proportionSchema } from "./Proportion.schema";
 import { quantitySchema } from "./Quantity.schema";
 import { timelineSchema } from "./Timeline.schema";
 import { timerSchema } from "./Timer.schema";
+import { trendSchema } from "./Trend.schema";
 import { versusSchema } from "./Versus.schema";
 
 // Node-safe: schemas only, no components. Each block task adds its entry here.
@@ -25,6 +27,7 @@ export const BLOCK_SCHEMAS = {
   Cycle: cycleSchema,
   Definition: definitionSchema,
   DoDont: doDontSchema,
+  Gauge: gaugeSchema,
   Hook: hookSchema,
   MythFact: mythFactSchema,
   Process: processSchema,
@@ -32,6 +35,7 @@ export const BLOCK_SCHEMAS = {
   Quantity: quantitySchema,
   Timeline: timelineSchema,
   Timer: timerSchema,
+  Trend: trendSchema,
   Versus: versusSchema,
 } as const;
 

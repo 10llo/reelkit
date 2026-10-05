@@ -6,6 +6,7 @@ import { Compare } from "./Compare";
 import { Cycle } from "./Cycle";
 import { Definition } from "./Definition";
 import { DoDont } from "./DoDont";
+import { Gauge } from "./Gauge";
 import { Hook } from "./Hook";
 import { MythFact } from "./MythFact";
 import { Process } from "./Process";
@@ -13,6 +14,7 @@ import { Proportion } from "./Proportion";
 import { Quantity } from "./Quantity";
 import { Timeline } from "./Timeline";
 import { Timer } from "./Timer";
+import { Trend } from "./Trend";
 import { Versus } from "./Versus";
 import type { BlockName } from "./schemas";
 import type { BlockComponent } from "./types";
@@ -27,6 +29,7 @@ export const BLOCKS: { [K in BlockName]: BlockComponent<K> } = {
   Cycle,
   Definition,
   DoDont,
+  Gauge,
   Hook,
   MythFact,
   Process,
@@ -34,5 +37,6 @@ export const BLOCKS: { [K in BlockName]: BlockComponent<K> } = {
   Quantity,
   Timeline,
   Timer,
+  Trend,
   Versus,
 };

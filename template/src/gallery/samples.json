@@ -218,5 +218,47 @@
       "label": "de los perros atendidos por intoxicación comieron chocolate",
       "source": "Dato de ejemplo para la galería de bloques, no es una estadística real"
     }
+  },
+  {
+    "block": "Gauge",
+    "title": { "text": "¿TIENE fiebre?", "accent": "TIENE" },
+    "durationInFrames": 210,
+    "props": {
+      "value": 39.6,
+      "unit": "°C",
+      "decimals": 1,
+      "min": 36,
+      "max": 42,
+      "zones": [
+        { "to": 39.2, "label": "Normal", "tone": "ok" },
+        { "to": 40, "label": "Fiebre leve", "tone": "warn" },
+        { "to": 41, "label": "Fiebre alta", "tone": "danger" },
+        { "to": 42, "label": "Urgencia", "tone": "danger" }
+      ],
+      "needleLabel": "Temperatura de tu perro hoy"
+    }
+  },
+  {
+    "block": "Trend",
+    "title": { "text": "¿CUÁNDO hay más casos?", "accent": "CUÁNDO" },
+    "durationInFrames": 210,
+    "props": {
+      "points": [
+        { "x": "Ene", "y": 12 },
+        { "x": "Feb", "y": 10 },
+        { "x": "Mar", "y": 14 },
+        { "x": "Abr", "y": 18 },
+        { "x": "May", "y": 15 },
+        { "x": "Jun", "y": 13 },
+        { "x": "Jul", "y": 16 },
+        { "x": "Ago", "y": 17 },
+        { "x": "Sep", "y": 20 },
+        { "x": "Oct", "y": 41 },
+        { "x": "Nov", "y": 22 },
+        { "x": "Dic", "y": 35 }
+      ],
+      "yUnit": "casos",
+      "annotate": { "index": 9, "label": "Pico por Halloween" }
+    }
   }
 ]
