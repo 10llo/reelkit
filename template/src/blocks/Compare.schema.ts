@@ -5,7 +5,7 @@ export const compareSchema = z.strictObject({
   items: z
     .array(
       z
-        .strictObject({ label: z.string().min(1).max(12), color: colorRef.optional(), icon: iconName.optional() })
+        .strictObject({ label: z.string().min(1).max(10), color: colorRef.optional(), icon: iconName.optional() })
         .refine((i) => i.color !== undefined || i.icon !== undefined, { message: "each item needs a color or an icon" }),
     )
     .min(2)

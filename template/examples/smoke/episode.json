@@ -34,7 +34,7 @@
           "block": "MythFact",
           "props": {
             "myth": "Dejarlo enchufado toda la noche lo explota",
-            "fact": "El cargador corta la corriente al llegar al 100 % (dato de ejemplo)"
+            "fact": "El cargador corta la corriente al llegar al 100 %"
           }
         }
       ]

@@ -21,3 +21,6 @@ it("accepts 2–4 items only", () => {
   expect(compareSchema.safeParse({ items: [DANI.items[0]] }).success).toBe(false);
   expect(compareSchema.safeParse({ items: [...DANI.items, DANI.items[0]] }).success).toBe(false);
 });
+it("limits item labels to 10 characters", () => {
+  expect(compareSchema.safeParse({ items: [{ label: "x".repeat(11), color: "accent" }, DANI.items[0]] }).success).toBe(false);
+});

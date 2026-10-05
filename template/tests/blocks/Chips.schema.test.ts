@@ -1,10 +1,15 @@
 import { expect, it } from "vitest";
-import { chipsSchema } from "../../src/blocks/Chips.schema";
+import { chipColumns, chipsSchema } from "../../src/blocks/Chips.schema";
 
 const item = (label: string) => ({ icon: "info", label });
 
-it("defaults to two columns", () => {
-  expect(chipsSchema.parse({ items: [item("a"), item("b")] }).columns).toBe(2);
+it("defaults to auto columns: two only when every label is ≤ 14 characters", () => {
+  const short = chipsSchema.parse({ items: [item("Calor"), item("Polvo")] });
+  expect(short.columns).toBe("auto");
+  expect(chipColumns(short.items, short.columns)).toBe(2);
+  const long = chipsSchema.parse({ items: [item("Calor"), item("Cargadores genéricos")] });
+  expect(chipColumns(long.items, long.columns)).toBe(1);
+  expect(chipColumns(long.items, 2)).toBe(2);
 });
 it("accepts 2–6 items", () => {
   expect(chipsSchema.safeParse({ items: [item("a")] }).success).toBe(false);

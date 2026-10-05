@@ -59,7 +59,7 @@ export const Compare: BlockComponent<"Compare"> = ({ props, timing }) => {
               </div>
               <div
                 style={{
-                  ...headStyle(fitFontSize(item.label, colWidth - 16, LABEL_SIZE, FONT_HEAD, WEIGHT_HEAD)),
+                  ...headStyle(fitFontSize(item.label, colWidth - 4, LABEL_SIZE, FONT_HEAD, WEIGHT_HEAD)),
                   color: c.text,
                   marginTop: 14,
                   whiteSpace: "nowrap",

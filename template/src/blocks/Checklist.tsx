@@ -16,6 +16,7 @@ export const Checklist: BlockComponent<"Checklist"> = ({ props, timing }) => {
   const { fps } = useVideoConfig();
   const c = usePalette();
   const { at } = timing;
+  const rowSize = props.rows.length > 3 ? 44 : 52;
   const pill = pop(frame, fps, at(rowAt(props.rows.length - 1) + PILL_AFTER));
 
   return (
@@ -61,7 +62,7 @@ export const Checklist: BlockComponent<"Checklist"> = ({ props, timing }) => {
                 />
               </svg>
             </div>
-            <div style={{ ...bodyStyle(52), color: c.text, lineHeight: 1.15 }}>{row}</div>
+            <div style={{ ...bodyStyle(rowSize), color: c.text, lineHeight: 1.15 }}>{row}</div>
           </div>
         );
       })}

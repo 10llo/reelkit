@@ -12,7 +12,7 @@ const DANI = {
   ],
   highlight: "last",
   conclusion: "Con esto ya hay síntomas",
-  footnote: "Dosis orientativa. Cada perro es distinto: ante la duda, llama.",
+  footnote: "Dosis orientativa; ante la duda, llama a tu veterinaria.",
 };
 
 describe("strict props", () => {
@@ -40,4 +40,11 @@ describe("highlightIndex", () => {
     expect(highlightIndex(rows, "min")).toBe(2);
     expect(highlightIndex(rows, "none")).toBe(-1);
   });
+});
+it("accepts at most 3 rows", () => {
+  expect(quantitySchema.safeParse({ ...DANI, rows: [...DANI.rows, DANI.rows[0]] }).success).toBe(false);
+});
+it("limits the footnote to 60 characters", () => {
+  expect(quantitySchema.safeParse({ ...DANI, footnote: "x".repeat(60) }).success).toBe(true);
+  expect(quantitySchema.safeParse({ ...DANI, footnote: "x".repeat(61) }).success).toBe(false);
 });

@@ -1,6 +1,7 @@
 import { useCurrentFrame, useVideoConfig } from "remotion";
 import { enter } from "../frame/timing";
 import { Chip } from "./parts/Chip";
+import { chipColumns } from "./Chips.schema";
 import type { BlockComponent } from "./types";
 
 const FIRST_AT = 0.1;
@@ -15,7 +16,7 @@ export const Chips: BlockComponent<"Chips"> = ({ props, timing }) => {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: `repeat(${props.columns}, max-content)`,
+        gridTemplateColumns: `repeat(${chipColumns(props.items, props.columns)}, max-content)`,
         justifyContent: "center",
         gap: "20px 28px",
       }}
