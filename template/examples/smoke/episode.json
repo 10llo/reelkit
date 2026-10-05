@@ -14,7 +14,19 @@
   ],
   "sceneStarts": null,
   "scenes": {
-    "hook": { "beats": [{ "block": "BigStat", "props": { "value": 100, "unit": "%", "label": "toda la noche enchufado" } }] },
+    "hook": {
+      "beats": [
+        {
+          "block": "Hook",
+          "props": {
+            "line1": "¿Cargas el celular",
+            "line2": "TODA LA NOCHE?",
+            "chip": "Mitos y verdades · prueba",
+            "hero": { "animation": "shake", "icon": "warning", "color": "accent" }
+          }
+        }
+      ]
+    },
     "step1": {
       "title": { "text": "¿MITO o realidad?", "accent": "MITO" },
       "beats": [{ "block": "BigStat", "props": { "value": 1, "label": "dato de ejemplo" } }]
