@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { continueRender, delayRender } from "remotion";
 import { useLayout } from "./contexts";
-import { measureMinFont } from "./minFont";
+import { countOverflow, measureMinFont } from "./minFont";
 
 /**
  * Confines a scene to the stage. Content is laid out at least at the stage width (wider content widens the box); if it is
@@ -30,6 +30,10 @@ export const FitStage: React.FC<{
     const minFont = measureMinFont(el);
     if (minFont !== null) {
       console.log(`[reelkit:minfont] ${name} ${minFont.toFixed(1)}`);
+    }
+    const overflow = countOverflow(el);
+    if (overflow > 0) {
+      console.log(`[reelkit:overflow] ${name} ${overflow}`);
     }
     setFit({ scale, offsetX: (stage.width - w * scale) / 2, offsetY: (stage.height - h * scale) / 2 });
     continueRender(handle);

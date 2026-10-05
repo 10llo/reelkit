@@ -15,3 +15,8 @@ it("accepts 3–6 stages with labels ≤ 16 characters", () => {
 it("limits the centre label to 10 characters", () => {
   expect(cycleSchema.safeParse({ stages: [stage("a"), stage("b"), stage("c")], centerLabel: "x".repeat(11) }).success).toBe(false);
 });
+it("limits each centre label word to 7 characters", () => {
+  const stages = [stage("a"), stage("b"), stage("c")];
+  expect(cycleSchema.safeParse({ stages, centerLabel: "ABCDEFGH" }).success).toBe(false);
+  expect(cycleSchema.safeParse({ stages, centerLabel: "3 SEMANAS" }).success).toBe(true);
+});

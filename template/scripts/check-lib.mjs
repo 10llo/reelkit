@@ -80,3 +80,8 @@ export const parseMinFontLog = (text) => {
   const match = /^\[reelkit:minfont\] (\S+) ([0-9.]+)$/.exec(text);
   return match ? { name: match[1], px: Number(match[2]) } : null;
 };
+
+export const parseOverflowLog = (text) => {
+  const match = /^\[reelkit:overflow\] (\S+) ([0-9]+)$/.exec(text);
+  return match ? { name: match[1], count: Number(match[2]) } : null;
+};

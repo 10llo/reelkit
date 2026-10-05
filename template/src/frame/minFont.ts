@@ -24,3 +24,22 @@ export const measureMinFont = (root: Element, fontSizeOf: (el: Element) => numbe
   visit(root);
   return min;
 };
+
+/** Counts text-holding elements (outside small-text subtrees) whose content is wider than their box. */
+export const countOverflow = (root: Element): number => {
+  let count = 0;
+  const visit = (el: Element) => {
+    if (el.hasAttribute(SMALL_TEXT_ATTR)) {
+      return;
+    }
+    const hasOwnText = Array.from(el.childNodes).some(
+      (node) => node.nodeType === 3 && (node.textContent ?? "").trim() !== "",
+    );
+    if (hasOwnText && el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 1) {
+      count++;
+    }
+    Array.from(el.children).forEach(visit);
+  };
+  visit(root);
+  return count;
+};

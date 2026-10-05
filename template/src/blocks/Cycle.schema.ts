@@ -3,7 +3,11 @@ import { iconName } from "./schema-parts";
 
 export const cycleSchema = z.strictObject({
   stages: z.array(z.strictObject({ icon: iconName, label: z.string().min(1).max(16) })).min(3).max(6),
-  centerLabel: z.string().max(10).default(""),
+  centerLabel: z
+    .string()
+    .max(10)
+    .refine((s) => s.split(/\s+/).every((w) => w.length <= 7), { message: "centre label words must be at most 7 characters" })
+    .default(""),
   direction: z.enum(["cw", "ccw"]).default("cw"),
 });
 

@@ -135,9 +135,9 @@ export const Cycle: BlockComponent<"Cycle"> = ({ props, timing }) => {
         <div
           style={{
             position: "absolute",
-            left: cx - 85,
+            left: cx - 90,
             top: cy - 50,
-            width: 170,
+            width: 180,
             height: 100,
             display: "flex",
             alignItems: "center",

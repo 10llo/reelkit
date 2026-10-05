@@ -8,7 +8,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PNG } from "pngjs";
-import { compareRegion, keyFrames, parseFitLog, parseMinFontLog, slotRegion } from "./check-lib.mjs";
+import { compareRegion, keyFrames, parseFitLog, parseMinFontLog, parseOverflowLog, slotRegion } from "./check-lib.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -48,6 +48,7 @@ const checkLayout = async (serveUrl, raw, layoutName, outDir) => {
   const images = {};
   const fits = new Map();
   const minFonts = new Map();
+  const overflows = new Map();
   for (const frame of frames) {
     const output = path.join(outDir, `${layoutName}-${frame}.png`);
     await renderStill({
@@ -62,6 +63,8 @@ const checkLayout = async (serveUrl, raw, layoutName, outDir) => {
         if (fit) fits.set(fit.name, Math.min(fits.get(fit.name) ?? 1, fit.scale));
         const font = parseMinFontLog(log.text);
         if (font) minFonts.set(font.name, Math.min(minFonts.get(font.name) ?? Infinity, font.px));
+        const overflow = parseOverflowLog(log.text);
+        if (overflow) overflows.set(overflow.name, Math.max(overflows.get(overflow.name) ?? 0, overflow.count));
       },
     });
     images[frame] = PNG.sync.read(fs.readFileSync(output));
@@ -80,6 +83,9 @@ const checkLayout = async (serveUrl, raw, layoutName, outDir) => {
   }
   for (const [name, px] of minFonts) {
     if (px < MIN_TEXT_PX) console.warn(`⚠ ${layoutName}: scene "${name}" has text at ${px} px`);
+  }
+  for (const [name, count] of overflows) {
+    console.warn(`⚠ ${layoutName}: scene "${name}" has ${count} overflowing text element(s)`);
   }
   if (failures === before) {
     console.log(`✓ ${layoutName}: ${frames.length} frames checked, slot clear, ${composition.durationInFrames} frames`);
@@ -133,6 +139,7 @@ const checkGallery = async () => {
       }
       let scale = 1;
       let minFont = null;
+      let overflow = 0;
       const output = path.join(outDir, `${layoutName}-${String(i).padStart(2, "0")}-${sample.block}.png`);
       await renderStill({
         serveUrl,
@@ -146,11 +153,14 @@ const checkGallery = async () => {
           if (fit) scale = Math.min(scale, fit.scale);
           const font = parseMinFontLog(log.text);
           if (font) minFont = minFont === null ? font.px : Math.min(minFont, font.px);
+          const over = parseOverflowLog(log.text);
+          if (over) overflow = Math.max(overflow, over.count);
         },
       });
       const problems = [];
       if (scale < GALLERY_MIN_SCALE) problems.push(`scaled to ${scale.toFixed(2)}`);
       if (minFont !== null && minFont < MIN_TEXT_PX) problems.push(`text at ${minFont} px`);
+      if (overflow > 0) problems.push(`text overflows its box (${overflow})`);
       if (problems.length) {
         fail(`${layoutName} ${sample.block}: ${problems.join(", ")} (${output})`);
       } else {

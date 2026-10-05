@@ -183,10 +183,10 @@
     "durationInFrames": 210,
     "props": {
       "events": [
-        { "when": "Hora 0", "label": "Come el chocolate", "icon": "clock" },
+        { "when": "Hora 0", "label": "Come el dulce", "icon": "clock" },
         { "when": "Hora 2", "label": "Vómito y sed intensa", "icon": "vomit" },
-        { "when": "Hora 6", "label": "Inquietud y jadeo", "icon": "panting" },
-        { "when": "Hora 12", "label": "Temblores posibles", "icon": "tremor" },
+        { "when": "Hora 6", "label": "Jadeo y temblor", "icon": "panting" },
+        { "when": "Hora 12", "label": "Ayuda urgente", "icon": "tremor" },
         { "when": "Día 2", "label": "Mejora con apoyo", "icon": "heart" }
       ],
       "nowMarker": 1
