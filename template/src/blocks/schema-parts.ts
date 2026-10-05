@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ICON_NAMES } from "../icons/names";
+import { DIAGRAM_NAMES, ICON_NAMES } from "../icons/names";
 
 export const iconName = z.enum(ICON_NAMES);
 
@@ -20,3 +20,7 @@ export const accented = z
 export type Accented = z.infer<typeof accented>;
 
 export const chipItem = z.strictObject({ icon: iconName, label: z.string().min(1).max(22) });
+
+export const diagramName = z.enum(DIAGRAM_NAMES);
+export const tone = z.enum(["ok", "warn", "danger"]);
+export type Tone = z.infer<typeof tone>;

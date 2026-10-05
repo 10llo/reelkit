@@ -21,3 +21,6 @@ export const ICON_NAMES = [
   "arrowRight", "arrowUp", "arrowDown", "refresh", "plus", "minus", "search", "star", "question",
 ] as const;
 export type IconName = (typeof ICON_NAMES)[number];
+
+export const DIAGRAM_NAMES = ["dog", "cat", "tooth", "human"] as const;
+export type DiagramName = (typeof DIAGRAM_NAMES)[number];
