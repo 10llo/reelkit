@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "talent": "dani",
+  "slug": "2026-10-chocolate",
+  "durationSeconds": 30,
+  "stage": "built",
+  "frame": { "steps": ["CUÁNDO", "CÓMO", "CUÁNTO"] },
+  "script": [
+    "¿Tu perro se comió un chocolate? Mira esto.",
+    "¿Cuándo preocuparte? Entre más oscuro, más tóxico. Y los síntomas pueden tardar hasta doce horas.",
+    "¿Cómo actuar? Ni leche ni hacerlo vomitar por tu cuenta. Guarda el empaque y llama a tu veterinaria.",
+    "¿Cuánto? Perro de cinco kilos: cuarenta y cinco gramos de chocolate de leche, o apenas siete del amargo, ya dan síntomas.",
+    "Soy Dogtora Dani. Compártelo antes del treinta y uno."
+  ],
+  "sceneStarts": null,
+  "scenes": {
+    "hook": {
+      "beats": [
+        {
+          "block": "Hook",
+          "props": {
+            "line1": "¿Tu perro se comió",
+            "line2": "UN CHOCOLATE?",
+            "chip": "Halloween · guía de 30 segundos",
+            "hero": { "animation": "bites", "color": "chocoMilk" },
+            "stamp": "paw"
+          }
+        }
+      ]
+    },
+    "step1": {
+      "title": { "text": "¿CUÁNDO preocuparte?", "accent": "CUÁNDO" },
+      "beats": [
+        {
+          "block": "Compare",
+          "props": {
+            "items": [
+              { "label": "Blanco", "color": "chocoWhite" },
+              { "label": "De leche", "color": "chocoMilk" },
+              { "label": "Semiamargo", "color": "chocoSemi" },
+              { "label": "Amargo", "color": "chocoDark" }
+            ],
+            "conclusion": { "text": "Más oscuro = más tóxico", "accent": "más tóxico", "tone": "danger" }
+          }
+        },
+        {
+          "block": "Timer",
+          "props": {
+            "low": 6,
+            "high": 12,
+            "unit": "h",
+            "caption": "Los síntomas\npueden tardar",
+            "chips": [
+              { "icon": "vomit", "label": "Vómito" },
+              { "icon": "panting", "label": "Inquietud y jadeo" },
+              { "icon": "tremor", "label": "Temblores" }
+            ]
+          }
+        }
+      ]
+    },
+    "step2": {
+      "title": { "text": "¿CÓMO actuar?", "accent": "CÓMO" },
+      "beats": [
+        {
+          "block": "DoDont",
+          "props": {
+            "cards": [
+              { "icon": "milk", "label": "Leche", "verdict": "no" },
+              { "icon": "spoonDrop", "label": "Hacerlo vomitar por tu cuenta", "verdict": "no" }
+            ]
+          }
+        },
+        {
+          "block": "Checklist",
+          "props": {
+            "rows": ["Guarda el empaque", "Calcula cuánto comió y a qué hora", "Llama a tu veterinaria"],
+            "pill": "Las primeras 2 horas cuentan"
+          }
+        }
+      ]
+    },
+    "step3": {
+      "title": { "text": "¿CUÁNTO es peligroso?", "accent": "CUÁNTO" },
+      "beats": [
+        {
+          "block": "Quantity",
+          "props": {
+            "chip": { "icon": "dog", "label": "Ejemplo: perro de 5 kg" },
+            "unit": "g",
+            "approx": true,
+            "rows": [
+              { "label": "De leche", "value": 45, "color": "chocoMilk" },
+              { "label": "Semiamargo", "value": 20, "color": "chocoSemi" },
+              { "label": "Amargo (100 % cacao)", "value": 7, "color": "chocoDark", "outline": "danger" }
+            ],
+            "highlight": "last",
+            "conclusion": "Con esto ya hay síntomas",
+            "footnote": "Dosis orientativa. Cada perro es distinto: ante la duda, llama."
+          }
+        }
+      ]
+    },
+    "close": {
+      "beats": [
+        {
+          "block": "Close",
+          "props": {
+            "line1": "Guárdalo y compártelo",
+            "line2": { "text": "antes del 31", "accent": "31" },
+            "accentIcon": "pumpkin"
+          }
+        }
+      ]
+    }
+  },
+  "facts": [
+    { "claim": "Signos leves desde ≈ 20 mg/kg de metilxantinas", "source": "Merck Veterinary Manual, Chocolate Toxicosis in Animals, Feb 2026" },
+    { "claim": "≈ 45 g leche · ≈ 20 g semiamargo · ≈ 7 g amargo para un perro de 5 kg", "source": "Merck Veterinary Manual, Feb 2026 (2,3 / 5,3–5,6 / 15,5 mg/g)" },
+    { "claim": "Síntomas a las 6–12 h", "source": "Merck Veterinary Manual, Feb 2026" }
+  ],
+  "coverFrame": 60
+}
