@@ -1,9 +1,11 @@
+import { Anatomy } from "./Anatomy";
 import { BigStat } from "./BigStat";
 import { Checklist } from "./Checklist";
 import { Chips } from "./Chips";
 import { Close } from "./Close";
 import { Compare } from "./Compare";
 import { Cycle } from "./Cycle";
+import { Decision } from "./Decision";
 import { Definition } from "./Definition";
 import { DoDont } from "./DoDont";
 import { Gauge } from "./Gauge";
@@ -21,12 +23,14 @@ import type { BlockComponent } from "./types";
 
 // Each block task adds its component here, matching BLOCK_SCHEMAS.
 export const BLOCKS: { [K in BlockName]: BlockComponent<K> } = {
+  Anatomy,
   BigStat,
   Checklist,
   Chips,
   Close,
   Compare,
   Cycle,
+  Decision,
   Definition,
   DoDont,
   Gauge,

@@ -260,5 +260,36 @@
       "yUnit": "casos",
       "annotate": { "index": 9, "label": "Pico por Halloween" }
     }
+  },
+  {
+    "block": "Anatomy",
+    "title": { "text": "¿DÓNDE revisar?", "accent": "DÓNDE" },
+    "durationInFrames": 210,
+    "props": {
+      "subject": { "diagram": "dog" },
+      "callouts": [
+        { "label": "Nariz y olfato", "x": 9, "y": 31 },
+        { "label": "Ojos brillantes", "x": 22, "y": 27 },
+        { "label": "Patas delanteras", "x": 41, "y": 76 },
+        { "label": "Pelaje y piel", "x": 57, "y": 46 },
+        { "label": "Cola", "x": 88, "y": 32 },
+        { "label": "Patas traseras", "x": 76, "y": 76 }
+      ],
+      "highlight": 0
+    }
+  },
+  {
+    "block": "Decision",
+    "title": { "text": "¿QUÉ hago ahora?", "accent": "QUÉ" },
+    "durationInFrames": 255,
+    "props": {
+      "question": "¿Tu perro comió chocolate amargo en las últimas dos horas?",
+      "yes": {
+        "question": "¿Ya tiene vómito, temblores o jadeo?",
+        "yes": { "label": "Urgencias ahora mismo", "tone": "danger" },
+        "no": { "label": "Llama a tu veterinaria", "tone": "warn" }
+      },
+      "no": { "label": "Observa 12 horas y guarda el empaque", "tone": "ok" }
+    }
   }
 ]
