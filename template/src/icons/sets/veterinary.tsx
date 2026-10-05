@@ -30,7 +30,7 @@ export const VETERINARY_ICONS = {
     <g>
       <path d="M26 56 C26 34 44 24 60 30 C72 34 74 50 66 62 C58 74 38 78 26 56 Z" fill={c} />
       <path d="M30 60 L6 86 L40 76 Z" fill={c} />
-      <path d="M66 36 L94 44 L68 52 Z" fill={a} />
+      <path d="M66 36 L94 44 L68 52 Z" fill={a === c ? "#00000066" : a} />
       <circle cx="58" cy="40" r="4" fill={a === c ? "#00000066" : a} />
       <path d="M46 84 V94 M58 80 V94" stroke={c} strokeWidth="7" strokeLinecap="round" />
     </g>
@@ -44,11 +44,11 @@ export const VETERINARY_ICONS = {
   )),
   flea: icon((c, a) => (
     <g>
-      <ellipse cx="56" cy="46" rx="28" ry="22" fill={c} transform="rotate(-25 56 46)" />
-      <circle cx="26" cy="32" r="12" fill={c} />
-      <circle cx="23" cy="30" r="3.5" fill={a} />
-      <path d="M44 62 L40 90 M60 66 L66 90 M72 58 L94 40 L96 88" stroke={c} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <path d="M52 30 L64 56" stroke={a} strokeWidth="5" strokeLinecap="round" />
+      <ellipse cx="50" cy="56" rx="18" ry="26" fill={c} />
+      <circle cx="50" cy="24" r="11" fill={c} />
+      <path d="M46 15 L38 5 M54 15 L62 5" stroke={c} strokeWidth="5" strokeLinecap="round" fill="none" />
+      <path d="M36 44 L18 32 M64 44 L82 32 M34 56 L10 56 M66 56 L90 56 M38 68 L22 82 L14 96 M62 68 L78 82 L86 96" stroke={c} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d="M33 58 H67" stroke={a === c ? "#00000055" : a} strokeWidth="5" strokeLinecap="round" />
     </g>
   )),
   bowl: icon((c, a) => (
@@ -62,7 +62,7 @@ export const VETERINARY_ICONS = {
     <g fill="none" strokeLinecap="round" strokeLinejoin="round">
       <rect x="8" y="8" width="30" height="34" rx="15" stroke={c} strokeWidth="10" />
       <path d="M30 40 C46 50 40 66 58 74 C70 80 74 82 78 84" stroke={c} strokeWidth="10" />
-      <circle cx="84" cy="86" r="10" stroke={a} strokeWidth="8" />
+      <circle cx="84" cy="86" r="10" stroke={a === c ? "#00000066" : a} strokeWidth="8" />
     </g>
   )),
   weight: icon((c, a) => (
