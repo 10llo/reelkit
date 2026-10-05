@@ -101,14 +101,14 @@ One row per scene: `# · scene · time range · exact words · direction` (pause
 ### Frame (shared by all episodes)
 
 - `layout.ts` (1080×1920) — the Dani regions: top safe 0–220, tracker 220–296, stage 60–1020 × 320–940, captions 60–510 × 1040–1400, disclaimer 1420–1500, slot 550,1000 380×500 r40 plus 16 px clearance, right gutter background-only, bottom safe 1500–1920.
-- `layout45.ts` (1080×1350): stage x 60–1020, y 160–700 (tracker y 60–136); captions x 60–600, y 760–1150; disclaimer y 1170–1250; slot x 700, y 830, 320×420, r36 plus 16 px clearance. No platform-UI dead zones on feed posts, only 60 px margins.
+- `layout45.ts` (1080×1350): stage x 60–1020, y 160–780 (h 620) (tracker y 60–136); captions x 60–600, y 800–1150 (h 350); disclaimer y 1170–1250; slot x 700, y 830, 320×420, r36 plus 16 px clearance. No platform-UI dead zones on feed posts, only 60 px margins.
 - Persistent layers: background (radial gradient + drifting pattern masked from the slot), step tracker (labels from the episode), captions, disclaimer, slot frame + name pill, optional music, guides.
 - Fonts: Baloo 2 800 and Inter 600 by default, overridable per talent; latin subset.
 - All existing safeguards carry over: scene-relative keyframes scaled to actual scene length, `FitStage` auto-fit, fonts gate before measuring, no emoji, no external images, no CSS animation.
 
 ### Scenes and duration
 
-- 5 scenes: `hook`, `step1`, `step2`, `step3`, `close`. Default share of the duration: 10 % / 23 % / 23 % / 28 % / 16 % (the Dani ratio), overridden by `sceneStarts` after sync.
+- 5 scenes: `hook`, `step1`, `step2`, `step3`, `close`. Default share of the duration: 10 % / 23 % / 23 % / 28 % / 15 % (the Dani ratio, 90/210/210/255/135 of 900 frames), overridden by `sceneStarts` after sync.
 - Duration comes from `episode.durationSeconds` via `calculateMetadata`; never longer.
 - Each step scene has 1–2 beats; each beat is one block. Beat B enters when beat A leaves (existing grid-overlay pattern).
 
@@ -202,7 +202,7 @@ A `BlockGallery` composition shows every block with sample props at its maximum 
 
 ### Block contract (for new blocks)
 
-Renders inside `FitStage`. Uses `enter` / `pop` / `pulse` and scene timing (`at`). Exports a zod props schema and is registered in `blocks/registry.ts`. Text ≥ 40 px except footnotes. Every interpolate is clamped. Appears in `BlockGallery`. Passes `npm run check`.
+Renders inside `FitStage`. Uses `enter` / `pop` / `pulse` and scene timing (`at`). Exports a zod props schema and is registered in `blocks/registry.ts`. Text ≥ 40 px except footnotes. Every frame-driven interpolate is clamped; interpolations of a spring's own progress used for pops may be unclamped (overshoot is intended). Scene titles live on the scene (`scene.title`), not on blocks. Appears in `BlockGallery`. Passes `npm run check`.
 
 ### `npm run check`
 

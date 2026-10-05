@@ -30,12 +30,12 @@ export const Timer: BlockComponent<"Timer"> = ({ props, timing }) => {
       />
       <div style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "flex-start" }}>
         <div style={{ ...bodyStyle(52), color: c.text, marginBottom: 6 }}>
-          {props.caption.split("\n").map((line) => (
-            <div key={line}>{line}</div>
+          {props.caption.split("\n").map((line, i) => (
+            <div key={`${i}-${line}`}>{line}</div>
           ))}
         </div>
         {props.chips.map((chip, i) => (
-          <Chip key={chip.label} icon={chip.icon} label={chip.label} progress={enter(frame, fps, at(chipAt(i)))} />
+          <Chip key={`${i}-${chip.label}`} icon={chip.icon} label={chip.label} progress={enter(frame, fps, at(chipAt(i)))} />
         ))}
       </div>
     </div>

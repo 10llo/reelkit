@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const bigStatSchema = z.object({
+export const bigStatSchema = z.strictObject({
   value: z.number(),
   decimals: z.number().int().min(0).max(2).default(0),
   prefix: z.string().max(3).default(""),

@@ -2,7 +2,7 @@ import { AbsoluteFill, type CalculateMetadataFunction } from "remotion";
 import type { Accented } from "../blocks/schema-parts";
 import { fetchJson } from "../episode/fetchJson";
 import type { Talent } from "../episode/talent";
-import { validateBeat, validateTalent } from "../episode/validate";
+import { validateBeat, validateBeatColors, validateTalent } from "../episode/validate";
 import { Background } from "../frame/Background";
 import { LayoutContext, PaletteContext, TalentContext } from "../frame/contexts";
 import { LAYOUTS, type LayoutName } from "../frame/layout";
@@ -22,6 +22,7 @@ export type BlockPreviewProps = {
 export const calculateBlockPreviewMetadata: CalculateMetadataFunction<BlockPreviewProps> = async ({ props }) => {
   const talent = validateTalent(props.talent ?? (await fetchJson("talent.json")));
   const beat = validateBeat({ block: props.block, props: props.props }, "preview");
+  validateBeatColors(beat, "preview", talent);
   const { width, height } = LAYOUTS[props.layoutName].canvas;
   return {
     durationInFrames: props.durationInFrames,

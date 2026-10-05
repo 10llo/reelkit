@@ -2,10 +2,12 @@ import { Video } from "@remotion/media";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { useLayout, usePalette } from "./contexts";
 import { resolveSrc } from "./resolveSrc";
-import { FONT_HEAD, WEIGHT_HEAD } from "./theme";
+import { fitFontSize } from "./fit";
+import { FONT_HEAD, WEIGHT_HEAD, useFontsReady } from "./theme";
 import { CLAMP, enter } from "./timing";
 
 const SLOT_FILL = "#120A18";
+const PILL_PADDING = 30;
 const OBJECT_POSITION = "50% 22%";
 
 export const TalentSlot: React.FC<{
@@ -17,6 +19,10 @@ export const TalentSlot: React.FC<{
   const { fps } = useVideoConfig();
   const c = usePalette();
   const { slot, slotBorder, slotRing, namePill } = useLayout();
+  const fontsReady = useFontsReady();
+  const pillFont = fontsReady
+    ? fitFontSize(pillName, namePill.maxWidth - PILL_PADDING * 2, namePill.fontSize, FONT_HEAD, WEIGHT_HEAD)
+    : namePill.fontSize;
   const scale = interpolate(enter(frame, fps, 0), [0, 1], [0.96, 1], CLAMP);
 
   return (
@@ -53,14 +59,14 @@ export const TalentSlot: React.FC<{
           translate: "-50% 0",
           height: namePill.height,
           maxWidth: namePill.maxWidth,
-          padding: "0 30px",
+          padding: `0 ${PILL_PADDING}px`,
           boxSizing: "border-box",
           borderRadius: namePill.height / 2,
           backgroundColor: c.text,
           color: c.bg,
           fontFamily: FONT_HEAD,
           fontWeight: WEIGHT_HEAD,
-          fontSize: namePill.fontSize,
+          fontSize: pillFont,
           lineHeight: `${namePill.height + 4}px`,
           whiteSpace: "nowrap",
           overflow: "hidden",

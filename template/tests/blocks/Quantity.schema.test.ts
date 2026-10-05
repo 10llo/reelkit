@@ -15,6 +15,14 @@ const DANI = {
   footnote: "Dosis orientativa. Cada perro es distinto: ante la duda, llama.",
 };
 
+describe("strict props", () => {
+  it("rejects a misspelled prop and names the key", () => {
+    const result = quantitySchema.safeParse({ ...DANI, footnot: "x" });
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toMatch(/footnot/);
+  });
+});
+
 describe("quantitySchema", () => {
   it("accepts the Dani chart", () => {
     expect(quantitySchema.parse(DANI).rows).toHaveLength(3);

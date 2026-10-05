@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Usage: npm run check -- [episodeDir] [--layouts=9x16,4x5]
+// With no episodeDir, checks every folder in examples/ that has an episode.json.
 import { bundle } from "@remotion/bundler";
 import { renderStill, selectComposition } from "@remotion/renderer";
 import fs from "node:fs";
@@ -11,7 +12,7 @@ import { compareRegion, keyFrames, parseFitLog, slotRegion } from "./check-lib.m
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
-const episodeDir = path.resolve(args.find((a) => !a.startsWith("--")) ?? "examples/smoke");
+const dirArg = args.find((a) => !a.startsWith("--"));
 const layoutNames = (args.find((a) => a.startsWith("--layouts=")) ?? "--layouts=9x16,4x5").split("=")[1].split(",");
 const layouts = JSON.parse(fs.readFileSync(path.join(root, "src/frame/layouts.json"), "utf8"));
 const COMPOSITIONS = { "9x16": "Episode", "4x5": "Episode45" };
@@ -77,7 +78,7 @@ const checkLayout = async (serveUrl, raw, layoutName, outDir) => {
   }
 };
 
-const main = async () => {
+const checkEpisode = async (episodeDir) => {
   const episodeFile = path.join(episodeDir, "episode.json");
   if (!fs.existsSync(episodeFile)) {
     fail(`No episode.json in ${episodeDir}`);
@@ -91,6 +92,33 @@ const main = async () => {
     await checkLayout(serveUrl, raw, layoutName, outDir);
   }
   console.log(`Frames: ${outDir}`);
+};
+
+const main = async () => {
+  if (dirArg) {
+    await checkEpisode(path.resolve(dirArg));
+    return;
+  }
+  const examplesDir = path.join(root, "examples");
+  const dirs = fs.existsSync(examplesDir)
+    ? fs
+        .readdirSync(examplesDir)
+        .sort()
+        .map((name) => path.join(examplesDir, name))
+        .filter((dir) => fs.existsSync(path.join(dir, "episode.json")))
+    : [];
+  if (!dirs.length) {
+    fail(`No examples with an episode.json in ${examplesDir}`);
+    return;
+  }
+  for (const dir of dirs) {
+    console.log(`\n== ${path.basename(dir)}`);
+    try {
+      await checkEpisode(dir);
+    } catch (err) {
+      fail(err.stack ?? String(err));
+    }
+  }
 };
 
 main()

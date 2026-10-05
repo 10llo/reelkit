@@ -33,8 +33,8 @@ export const Disclaimer: React.FC<{ readonly lines: readonly [string, string] }>
         whiteSpace: "nowrap",
       }}
     >
-      {lines.map((line) => (
-        <div key={line}>{line}</div>
+      {lines.map((line, i) => (
+        <div key={`${i}-${line}`}>{line}</div>
       ))}
     </div>
   );

@@ -50,9 +50,8 @@ export const resolveColor = (ref: string, palette: Palette): string => {
   if (isBaseKey(ref)) {
     return palette[ref];
   }
-  const extra = palette.extra[ref];
-  if (extra) {
-    return extra;
+  if (Object.prototype.hasOwnProperty.call(palette.extra, ref)) {
+    return palette.extra[ref];
   }
   throw new Error(
     `Unknown color "${ref}". Use #RRGGBB or one of: ${[...BASE_KEYS, ...Object.keys(palette.extra)].join(", ")}`,

@@ -33,7 +33,7 @@ export const Compare: BlockComponent<"Compare"> = ({ props, timing }) => {
           const p = enter(frame, fps, at(ITEMS_AT) + i * STAGGER);
           return (
             <div
-              key={item.label}
+              key={`${i}-${item.label}`}
               style={{
                 flex: 1,
                 display: "flex",

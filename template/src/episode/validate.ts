@@ -2,7 +2,7 @@ import type { z } from "zod";
 import { BLOCK_SCHEMAS, isBlockName } from "../blocks/schemas";
 import { SCENE_IDS, totalFrames } from "../frame/timing";
 import { episodeSchema, type Beat, type Episode } from "./schema";
-import { talentSchema, type Talent } from "./talent";
+import { resolveColor, talentSchema, type Talent } from "./talent";
 
 export class EpisodeError extends Error {}
 
@@ -57,4 +57,47 @@ export const validateTalent = (raw: unknown): Talent => {
     throw new EpisodeError(formatIssues("talent", parsed.error));
   }
   return parsed.data;
+};
+
+const COLOR_KEYS = ["color", "outline"];
+
+const collectColorProblems = (value: unknown, path: string, talent: Talent, problems: string[]) => {
+  if (Array.isArray(value)) {
+    value.forEach((item, i) => collectColorProblems(item, `${path}[${i}]`, talent, problems));
+  } else if (value !== null && typeof value === "object") {
+    for (const [key, child] of Object.entries(value)) {
+      const childPath = `${path}.${key}`;
+      if (COLOR_KEYS.includes(key) && typeof child === "string") {
+        try {
+          resolveColor(child, talent.colors);
+        } catch (err) {
+          problems.push(`${childPath}: ${(err as Error).message}`);
+        }
+      } else {
+        collectColorProblems(child, childPath, talent, problems);
+      }
+    }
+  }
+};
+
+/** Checks every `color`, `outline` and `hero.color` prop of one beat against the talent palette. */
+export const validateBeatColors = (beat: Beat, path: string, talent: Talent): void => {
+  const problems: string[] = [];
+  collectColorProblems(beat.props, `${path}.props`, talent, problems);
+  if (problems.length) {
+    throw new EpisodeError(problems.join("\n"));
+  }
+};
+
+/** Run after both files validate: a typo'd color token fails here instead of mid-render. */
+export const validateColors = (episode: Episode, talent: Talent): void => {
+  const problems: string[] = [];
+  for (const id of SCENE_IDS) {
+    episode.scenes[id].beats.forEach((beat, i) => {
+      collectColorProblems(beat.props, `scenes.${id}.beats[${i}].props`, talent, problems);
+    });
+  }
+  if (problems.length) {
+    throw new EpisodeError(problems.join("\n"));
+  }
 };

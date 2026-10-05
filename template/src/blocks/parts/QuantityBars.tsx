@@ -40,7 +40,7 @@ export const QuantityBars: React.FC<{
 
         return (
           <div
-            key={row.label}
+            key={`${i}-${row.label}`}
             style={{
               opacity: appear * (isHighlight || highlight < 0 ? 1 : dim),
               translate: `${interpolate(appear, [0, 1], [-40, 0])}px 0px`,

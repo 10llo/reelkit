@@ -1,14 +1,14 @@
 import { z } from "zod";
 import { chipItem, colorRef } from "./schema-parts";
 
-const row = z.object({
+const row = z.strictObject({
   label: z.string().min(1).max(28),
   value: z.number().positive(),
   color: colorRef,
   outline: colorRef.optional(),
 });
 
-export const quantitySchema = z.object({
+export const quantitySchema = z.strictObject({
   chip: chipItem.optional(),
   unit: z.string().max(4).default(""),
   approx: z.boolean().default(false),

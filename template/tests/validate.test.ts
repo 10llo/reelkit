@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { validateEpisode } from "../src/episode/validate";
-import { minimalEpisode } from "./fixtures";
+import { validateColors, validateEpisode, validateTalent } from "../src/episode/validate";
+import { DANI_TALENT, minimalEpisode } from "./fixtures";
 
 describe("validateEpisode", () => {
   it("accepts a minimal episode and fills defaults", () => {
@@ -35,5 +35,42 @@ describe("validateEpisode", () => {
     const raw = minimalEpisode();
     raw.scenes.step2.beats.push(raw.scenes.step2.beats[0]);
     expect(() => validateEpisode(raw)).toThrow(/scenes\.step2\.beats/);
+  });
+});
+
+describe("validateColors", () => {
+  const talent = validateTalent(DANI_TALENT);
+  const withBeat = (block: string, props: Record<string, unknown>) => {
+    const raw = minimalEpisode();
+    raw.scenes.step3.beats[0] = { block, props } as never;
+    return validateEpisode(raw);
+  };
+  it("accepts base tokens, extra tokens and hex", () => {
+    const episode = withBeat("Quantity", {
+      rows: [
+        { label: "A", value: 1, color: "chocoMilk" },
+        { label: "B", value: 2, color: "#112233", outline: "danger" },
+      ],
+    });
+    expect(() => validateColors(episode, talent)).not.toThrow();
+  });
+  it("names the path of a typo'd token", () => {
+    const episode = withBeat("Quantity", {
+      rows: [
+        { label: "A", value: 1, color: "chocoSemii" },
+        { label: "B", value: 2, color: "accent", outline: "dangr" },
+      ],
+    });
+    expect(() => validateColors(episode, talent)).toThrow(
+      /scenes\.step3\.beats\[0\]\.props\.rows\[0\]\.color: Unknown color "chocoSemii"\. Use #RRGGBB or one of: .*\n.*rows\[1\]\.outline: Unknown color "dangr"/,
+    );
+  });
+  it("checks hero.color", () => {
+    const episode = withBeat("Hook", {
+      line1: "A",
+      line2: "B",
+      hero: { animation: "pop", icon: "dog", color: "accentt" },
+    });
+    expect(() => validateColors(episode, talent)).toThrow(/props\.hero\.color: Unknown color "accentt"/);
   });
 });

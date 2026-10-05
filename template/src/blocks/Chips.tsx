@@ -4,11 +4,13 @@ import { Chip } from "./parts/Chip";
 import type { BlockComponent } from "./types";
 
 const FIRST_AT = 0.1;
-const CHIP_STAGGER = 9;
+const MAX_STAGGER = 9;
+const ENTER_SPAN = 0.5;
 
 export const Chips: BlockComponent<"Chips"> = ({ props, timing }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const stagger = Math.min(MAX_STAGGER, (timing.duration * ENTER_SPAN) / props.items.length);
   return (
     <div
       style={{
@@ -20,10 +22,10 @@ export const Chips: BlockComponent<"Chips"> = ({ props, timing }) => {
     >
       {props.items.map((item, i) => (
         <Chip
-          key={item.label}
+          key={`${i}-${item.label}`}
           icon={item.icon}
           label={item.label}
-          progress={enter(frame, fps, timing.at(FIRST_AT) + i * CHIP_STAGGER)}
+          progress={enter(frame, fps, timing.at(FIRST_AT) + i * stagger)}
         />
       ))}
     </div>

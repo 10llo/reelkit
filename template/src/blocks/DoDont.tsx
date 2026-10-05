@@ -26,7 +26,7 @@ export const DoDont: BlockComponent<"DoDont"> = ({ props, timing }) => {
         const isNo = card.verdict === "no";
         return (
           <div
-            key={card.label}
+            key={`${i}-${card.label}`}
             style={{
               position: "relative",
               width: CARD.width,

@@ -6,7 +6,7 @@ import { FPS, resolveSceneStarts, totalFrames } from "../frame/timing";
 import { fetchJson } from "./fetchJson";
 import type { Episode } from "./schema";
 import type { Talent } from "./talent";
-import { validateEpisode, validateTalent } from "./validate";
+import { validateColors, validateEpisode, validateTalent } from "./validate";
 
 export type EpisodeProps = {
   layoutName: LayoutName;
@@ -37,6 +37,7 @@ const warnIfClipOverruns = async (episode: Episode, total: number) => {
 const loadEpisode = async (props: EpisodeProps) => {
   const episode = validateEpisode(props.episode ?? (await fetchJson("episode.json")));
   const talent = validateTalent(props.talent ?? (await fetchJson("talent.json")));
+  validateColors(episode, talent);
   const total = totalFrames(episode.durationSeconds);
   const { starts, warning } = resolveSceneStarts(episode.sceneStarts, total);
   if (warning) {

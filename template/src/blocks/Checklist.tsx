@@ -26,7 +26,7 @@ export const Checklist: BlockComponent<"Checklist"> = ({ props, timing }) => {
         const draw = interpolate(frame, [start + 4, start + 4 + CHECK_DRAW_FRAMES], [0, 1], CLAMP);
         return (
           <div
-            key={row}
+            key={`${i}-${row}`}
             style={{
               display: "flex",
               alignItems: "center",

@@ -1,25 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { resolveColor, talentSchema } from "../src/episode/talent";
-
-export const DANI_TALENT = {
-  id: "dani",
-  displayName: "Dogtora Dani",
-  pillName: "Dogtora Dani",
-  profession: "Médica veterinaria",
-  city: "Manizales",
-  country: "CO",
-  locale: "es-CO",
-  colors: {
-    bg: "#1A1023",
-    bg2: "#2A1838",
-    accent: "#FF7A1A",
-    text: "#FFF3E0",
-    danger: "#FF4D4D",
-    safe: "#3DDC97",
-    extra: { chocoWhite: "#F3E3C7", chocoMilk: "#A8693D", chocoSemi: "#6B3F23", chocoDark: "#3B2114" },
-  },
-  disclaimer: ["Contenido educativo.", "No reemplaza la consulta veterinaria."],
-};
+import { DANI_TALENT } from "./fixtures";
 
 describe("talentSchema", () => {
   it("accepts the Dani profile and fills defaults", () => {
@@ -42,6 +23,10 @@ describe("resolveColor", () => {
   it("resolves base and extra tokens", () => {
     expect(resolveColor("accent", palette)).toBe("#FF7A1A");
     expect(resolveColor("chocoMilk", palette)).toBe("#A8693D");
+  });
+  it("rejects inherited object keys as tokens", () => {
+    expect(() => resolveColor("constructor", palette)).toThrow(/Unknown color "constructor"/);
+    expect(() => resolveColor("toString", palette)).toThrow(/Unknown color "toString"/);
   });
   it("names the valid tokens when a token is unknown", () => {
     expect(() => resolveColor("chocoMilks", palette)).toThrow(/Unknown color "chocoMilks".*chocoMilk/);

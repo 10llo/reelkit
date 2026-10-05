@@ -2,7 +2,7 @@ import { z } from "zod";
 import { chipItem } from "./schema-parts";
 
 export const timerSchema = z
-  .object({
+  .strictObject({
     low: z.number().min(0),
     high: z.number().positive(),
     unit: z.string().min(1).max(4),

@@ -17,22 +17,29 @@ import { CLAMP, enter } from "./timing";
 
 const useCaptionFile = (captionsSrc: string) => {
   const [captions, setCaptions] = useState<Caption[] | null>(null);
-  const [handle] = useState(() => (captionsSrc ? delayRender("Loading captions") : null));
   useEffect(() => {
-    if (!captionsSrc || handle === null) {
+    if (!captionsSrc) {
+      setCaptions(null);
       return;
     }
+    const handle = delayRender("Loading captions");
+    let ignore = false;
     fetch(resolveSrc(captionsSrc))
       .then((res) => res.json())
       .then((data: Caption[]) => {
-        setCaptions(data);
+        if (!ignore) {
+          setCaptions(data);
+        }
         continueRender(handle);
       })
       .catch((err) => {
         console.warn(`[reelkit] Could not load captions ${captionsSrc}; using script timing.`, err);
         continueRender(handle);
       });
-  }, [captionsSrc, handle]);
+    return () => {
+      ignore = true;
+    };
+  }, [captionsSrc]);
   return captions;
 };
 

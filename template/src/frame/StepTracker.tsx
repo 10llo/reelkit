@@ -54,7 +54,7 @@ export const StepTracker: React.FC<{
 
         return (
           <div
-            key={label}
+            key={`${i}-${label}`}
             style={{
               position: "absolute",
               left: i * (pillW + GAP),
