@@ -1,0 +1,19 @@
+{
+  "id": "smoke",
+  "displayName": "Equipo reelkit",
+  "pillName": "reelkit",
+  "profession": "Plantilla de prueba",
+  "city": "Manizales",
+  "country": "CO",
+  "locale": "es-CO",
+  "colors": {
+    "bg": "#1A1023",
+    "bg2": "#2A1838",
+    "accent": "#FF7A1A",
+    "text": "#FFF3E0",
+    "danger": "#FF4D4D",
+    "safe": "#3DDC97",
+    "extra": {}
+  },
+  "disclaimer": ["Contenido de prueba.", "Datos de ejemplo, no reales."]
+}

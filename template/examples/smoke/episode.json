@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "talent": "smoke",
+  "slug": "smoke",
+  "durationSeconds": 20,
+  "stage": "built",
+  "frame": { "steps": ["MITO", "CUÁNTO", "QUÉ HACER"] },
+  "script": [
+    "¿Cargas el celular toda la noche? Mira esto.",
+    "¿Mito o realidad? Dejarlo enchufado no lo explota.",
+    "¿Cuánto dura? Unos quinientos ciclos completos.",
+    "¿Qué hacer? Carga entre veinte y ochenta.",
+    "Guárdalo y compártelo antes de dormir."
+  ],
+  "sceneStarts": null,
+  "scenes": {
+    "hook": { "beats": [{ "block": "BigStat", "props": { "value": 100, "unit": "%", "label": "toda la noche enchufado" } }] },
+    "step1": {
+      "title": { "text": "¿MITO o realidad?", "accent": "MITO" },
+      "beats": [{ "block": "BigStat", "props": { "value": 1, "label": "dato de ejemplo" } }]
+    },
+    "step2": {
+      "title": { "text": "¿CUÁNTO dura?", "accent": "CUÁNTO" },
+      "beats": [
+        { "block": "BigStat", "props": { "value": 500, "unit": "ciclos", "label": "de carga completos", "source": "Dato de ejemplo" } },
+        { "block": "BigStat", "props": { "value": 2.5, "decimals": 1, "unit": "años", "label": "de uso típico" } }
+      ]
+    },
+    "step3": {
+      "title": { "text": "¿QUÉ hacer?", "accent": "QUÉ" },
+      "beats": [{ "block": "BigStat", "props": { "value": 80, "unit": "%", "label": "límite de carga recomendado" } }]
+    },
+    "close": { "beats": [{ "block": "BigStat", "props": { "value": 31, "label": "Guárdalo y compártelo" } }] }
+  },
+  "coverFrame": 40
+}
