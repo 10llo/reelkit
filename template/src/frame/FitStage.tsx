@@ -3,7 +3,7 @@ import { continueRender, delayRender } from "remotion";
 import { useLayout } from "./contexts";
 
 /**
- * Confines a scene to the stage. Content is laid out at the stage width; if it is
+ * Confines a scene to the stage. Content is laid out at least at the stage width (wider content widens the box); if it is
  * taller or wider than the stage, the whole group scales down uniformly to fit,
  * and anything outside the stage is clipped. Logs the scale for `npm run check`.
  */
@@ -14,7 +14,7 @@ export const FitStage: React.FC<{
 }> = ({ name, children, style }) => {
   const { stage } = useLayout();
   const ref = useRef<HTMLDivElement>(null);
-  const [fit, setFit] = useState<{ scale: number; offsetY: number } | null>(null);
+  const [fit, setFit] = useState<{ scale: number; offsetX: number; offsetY: number } | null>(null);
   const [handle] = useState(() => delayRender(`Fitting ${name} to the stage`));
 
   useLayoutEffect(() => {
@@ -22,11 +22,11 @@ export const FitStage: React.FC<{
     if (!el) {
       return;
     }
-    const w = Math.max(el.scrollWidth, el.offsetWidth);
+    const w = el.offsetWidth;
     const h = el.offsetHeight;
     const scale = Math.min(1, stage.width / w, stage.height / h);
     console.log(`[reelkit:fit] ${name} ${scale.toFixed(3)}`);
-    setFit({ scale, offsetY: (stage.height - h * scale) / 2 });
+    setFit({ scale, offsetX: (stage.width - w * scale) / 2, offsetY: (stage.height - h * scale) / 2 });
     continueRender(handle);
   }, [handle, name, stage]);
 
@@ -45,11 +45,12 @@ export const FitStage: React.FC<{
         ref={ref}
         style={{
           position: "absolute",
-          left: 0,
+          left: fit?.offsetX ?? 0,
           top: fit?.offsetY ?? 0,
-          width: stage.width,
+          width: "fit-content",
+          minWidth: stage.width,
           scale: fit?.scale ?? 1,
-          transformOrigin: "top center",
+          transformOrigin: "top left",
           visibility: fit ? "visible" : "hidden",
           ...style,
         }}
