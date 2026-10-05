@@ -3,6 +3,7 @@ import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { usePalette, useTalent } from "../frame/contexts";
 import { FONT_HEAD, WEIGHT_HEAD, headStyle } from "../frame/theme";
 import { CLAMP, pop } from "../frame/timing";
+import { pickCandidate, type Rect, type Segment } from "./parts/placeLabel";
 import { trendScale } from "./Trend.schema";
 import type { BlockComponent } from "./types";
 
@@ -18,6 +19,10 @@ const AREA_FROM = 0.3;
 const AREA_TO = 0.6;
 const ANNOTATE_AT = 0.68;
 const BUBBLE_PAD = 46; // 2 × 20 px padding + 2 × 3 px border
+const BUBBLE_H = 58; // 42 px line + 10 px padding + 2 × 3 px border
+const RING = 26;
+const DOT = 14;
+const GAP = 12;
 
 export const Trend: BlockComponent<"Trend"> = ({ props, timing }) => {
   const frame = useCurrentFrame();
@@ -34,11 +39,54 @@ export const Trend: BlockComponent<"Trend"> = ({ props, timing }) => {
   const format = new Intl.NumberFormat(locale, { minimumFractionDigits: props.decimals, maximumFractionDigits: props.decimals });
   const line = props.points.map((p, i) => `${i === 0 ? "M" : "L"}${px(i)} ${py(p.y)}`).join(" ");
   const last = props.points[n - 1];
-  const showLabel = (i: number) => n <= 7 || i === n - 1 || (i % 2 === 0 && i < n - 2);
+  const showLabel = (i: number) => n <= 7 || (n - 1 - i) % 2 === 0;
   const note = props.annotate;
-  const bubbleHalf = note
-    ? (measureText({ text: note.label, fontFamily: FONT_HEAD, fontWeight: WEIGHT_HEAD, fontSize: 40 }).width + BUBBLE_PAD) / 2
-    : 0;
+  const measure = (text: string, fontSize: number) => measureText({ text, fontFamily: FONT_HEAD, fontWeight: WEIGHT_HEAD, fontSize }).width;
+  const lastX = px(n - 1);
+  const lastY = py(last.y);
+  const segments: Segment[] = props.points.slice(1).map((p, i) => ({ x1: px(i), y1: py(props.points[i].y), x2: px(i + 1), y2: py(p.y) }));
+  const around = (x: number, y: number, r: number): Rect => ({ x: x - r, y: y - r, w: 2 * r, h: 2 * r });
+  const dots = props.points.map((p, i) => around(px(i), py(p.y), DOT));
+  const axisLabels: Rect[] = [
+    { x: 0, y: TOP - 24, w: LEFT - 20, h: 42 },
+    { x: 0, y: BOTTOM - 24, w: LEFT - 20, h: 42 },
+  ];
+  const box: Rect = { x: 0, y: 0, w: W, h: BOTTOM };
+  const ring = note ? around(px(note.index), py(props.points[note.index].y), RING) : null;
+  const valueW = Math.ceil(measure(format.format(last.y), 64) + (props.yUnit ? measure(props.yUnit, 40) + 8 : 0)) + 4;
+  const valueH = 68;
+  const placeValue = (avoid: Rect | null) =>
+    pickCandidate(
+      [
+        { x: lastX - valueW, y: lastY - RING - 4 - valueH, w: valueW, h: valueH },
+        { x: lastX - valueW, y: lastY + RING + 4, w: valueW, h: valueH },
+        { x: lastX - valueW - RING - 4, y: lastY - valueH / 2, w: valueW, h: valueH },
+        // Last resort: float further above the point, clear of a steep line.
+        { x: lastX - valueW, y: lastY - RING - 4 - valueH - 40, w: valueW, h: valueH },
+        { x: lastX - valueW, y: lastY - RING - 4 - valueH - 80, w: valueW, h: valueH },
+      ],
+      { box, segments, rects: [...dots.slice(0, -1), ...axisLabels, ...(ring ? [ring] : []), ...(avoid ? [avoid] : [])] },
+    );
+  const placeBubble = (avoid: Rect | null): Rect | null => {
+    if (!note || !ring) return null;
+    const bw = Math.ceil(measure(note.label, 40) + BUBBLE_PAD);
+    const nx = px(note.index);
+    const ny = py(props.points[note.index].y);
+    const cx = Math.min(Math.max(nx - bw / 2, 0), W - bw);
+    const d = RING + GAP;
+    return pickCandidate(
+      [
+        { x: cx, y: ny - d - BUBBLE_H, w: bw, h: BUBBLE_H },
+        { x: cx, y: ny + d, w: bw, h: BUBBLE_H },
+        { x: nx - d - bw, y: ny - BUBBLE_H / 2, w: bw, h: BUBBLE_H },
+        { x: nx + d, y: ny - BUBBLE_H / 2, w: bw, h: BUBBLE_H },
+      ],
+      { box, segments, rects: [...dots, ...axisLabels, ...(avoid ? [avoid] : [])] },
+    );
+  };
+  // The bubble is placed first against the data, then the value label around it, then the bubble is re-checked against the label.
+  const valueRect = placeValue(placeBubble(null));
+  const bubble = placeBubble(valueRect);
   const noteIn = pop(frame, fps, at(ANNOTATE_AT));
 
   return (
@@ -96,9 +144,10 @@ export const Trend: BlockComponent<"Trend"> = ({ props, timing }) => {
       <div
         style={{
           position: "absolute",
-          left: px(n - 1),
-          top: py(last.y) - 84,
-          translate: "-100% 0",
+          left: valueRect.x,
+          top: valueRect.y,
+          width: valueRect.w,
+          textAlign: "right",
           ...headStyle(64),
           color: c.accent,
           whiteSpace: "nowrap",
@@ -108,13 +157,12 @@ export const Trend: BlockComponent<"Trend"> = ({ props, timing }) => {
         {format.format(last.y * draw)}
         {props.yUnit ? <span style={{ fontSize: 40, marginLeft: 8 }}>{props.yUnit}</span> : null}
       </div>
-      {note ? (
+      {note && bubble ? (
         <div
           style={{
             position: "absolute",
-            left: Math.min(Math.max(px(note.index), bubbleHalf), W - bubbleHalf),
-            top: py(props.points[note.index].y) > TOP + 110 ? py(props.points[note.index].y) - 120 : py(props.points[note.index].y) + 40,
-            translate: "-50% 0",
+            left: bubble.x,
+            top: bubble.y,
             ...headStyle(40),
             color: c.text,
             backgroundColor: c.bg2,
