@@ -1,0 +1,32 @@
+{
+  "9x16": {
+    "canvas": { "width": 1080, "height": 1920 },
+    "safe": { "top": 220, "bottom": 420, "left": 60, "right": 60 },
+    "tracker": { "x": 60, "y": 220, "width": 960, "height": 76 },
+    "stage": { "x": 60, "y": 320, "width": 960, "height": 620 },
+    "captions": { "x": 60, "y": 1040, "width": 450, "height": 360 },
+    "disclaimer": { "x": 60, "y": 1420, "width": 450, "height": 80 },
+    "slot": { "x": 550, "y": 1000, "width": 380, "height": 500, "radius": 40 },
+    "slotClearance": 16,
+    "slotBorder": 6,
+    "slotRing": 3,
+    "namePill": { "height": 60, "maxWidth": 340, "fontSize": 40 },
+    "captionsBaseSize": 64,
+    "rightGutter": 150
+  },
+  "4x5": {
+    "canvas": { "width": 1080, "height": 1350 },
+    "safe": { "top": 60, "bottom": 60, "left": 60, "right": 60 },
+    "tracker": { "x": 60, "y": 60, "width": 960, "height": 76 },
+    "stage": { "x": 60, "y": 160, "width": 960, "height": 540 },
+    "captions": { "x": 60, "y": 760, "width": 540, "height": 390 },
+    "disclaimer": { "x": 60, "y": 1170, "width": 540, "height": 80 },
+    "slot": { "x": 700, "y": 830, "width": 320, "height": 420, "radius": 36 },
+    "slotClearance": 16,
+    "slotBorder": 6,
+    "slotRing": 3,
+    "namePill": { "height": 52, "maxWidth": 290, "fontSize": 34 },
+    "captionsBaseSize": 56,
+    "rightGutter": 60
+  }
+}
