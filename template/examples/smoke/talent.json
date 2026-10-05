@@ -5,6 +5,7 @@
   "profession": "Plantilla de prueba",
   "city": "Manizales",
   "country": "CO",
+  "handles": { "instagram": "@reelkit.prueba" },
   "locale": "es-CO",
   "colors": {
     "bg": "#1A1023",

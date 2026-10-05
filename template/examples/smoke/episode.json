@@ -29,7 +29,15 @@
     },
     "step1": {
       "title": { "text": "¿MITO o realidad?", "accent": "MITO" },
-      "beats": [{ "block": "BigStat", "props": { "value": 1, "label": "dato de ejemplo" } }]
+      "beats": [
+        {
+          "block": "MythFact",
+          "props": {
+            "myth": "Dejarlo enchufado toda la noche lo explota",
+            "fact": "El cargador corta la corriente al llegar al 100 % (dato de ejemplo)"
+          }
+        }
+      ]
     },
     "step2": {
       "title": { "text": "¿CUÁNTO dura?", "accent": "CUÁNTO" },
@@ -60,7 +68,19 @@
         }
       ]
     },
-    "close": { "beats": [{ "block": "BigStat", "props": { "value": 31, "label": "Guárdalo y compártelo" } }] }
+    "close": {
+      "beats": [
+        {
+          "block": "Close",
+          "props": {
+            "line1": "Guárdalo y compártelo",
+            "line2": { "text": "antes de dormir", "accent": "dormir" },
+            "accentIcon": "clock",
+            "teaser": "Próximo: cables baratos"
+          }
+        }
+      ]
+    }
   },
   "coverFrame": 40
 }
