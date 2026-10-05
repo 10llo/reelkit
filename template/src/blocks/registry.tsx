@@ -4,6 +4,7 @@ import { Chips } from "./Chips";
 import { Compare } from "./Compare";
 import { DoDont } from "./DoDont";
 import { Hook } from "./Hook";
+import { Quantity } from "./Quantity";
 import { Timer } from "./Timer";
 import type { BlockName } from "./schemas";
 import type { BlockComponent } from "./types";
@@ -16,5 +17,6 @@ export const BLOCKS: { [K in BlockName]: BlockComponent<K> } = {
   Compare,
   DoDont,
   Hook,
+  Quantity,
   Timer,
 };
