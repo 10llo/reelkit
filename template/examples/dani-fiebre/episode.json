@@ -83,7 +83,7 @@
             "rows": [
               { "attribute": "Es confiable", "left": "Sí", "right": "No", "winner": "left" },
               { "attribute": "Da un número", "left": "Exacto", "right": "Ninguno", "winner": "left" },
-              { "attribute": "Rapidez", "left": "1 minuto", "right": "Al instante", "winner": "right" }
+              { "attribute": "Rapidez", "left": "1 minuto", "right": "Al instante", "winner": "tie" }
             ]
           }
         }
@@ -98,9 +98,9 @@
             "question": "¿Pasa de 40 °C o está muy decaído?",
             "yes": { "label": "Llama hoy a tu veterinaria", "tone": "danger" },
             "no": {
-              "question": "¿Está entre 39,3 y 40 °C?",
+              "question": "¿Pasa de 39,2 °C?",
               "yes": { "label": "Hidrata y mide en 2 h", "tone": "warn" },
-              "no": { "label": "Temperatura normal", "tone": "ok" }
+              "no": { "label": "Es normal", "tone": "ok" }
             }
           }
         }
