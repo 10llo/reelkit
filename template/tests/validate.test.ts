@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateColors, validateEpisode, validateTalent } from "../src/episode/validate";
+import { validateBeat, validateColors, validateEpisode, validateTalent } from "../src/episode/validate";
 import { DANI_TALENT, minimalEpisode } from "./fixtures";
 
 describe("validateEpisode", () => {
@@ -72,5 +72,36 @@ describe("validateColors", () => {
       hero: { animation: "pop", icon: "dog", color: "accentt" },
     });
     expect(() => validateColors(episode, talent)).toThrow(/props\.hero\.color: Unknown color "accentt"/);
+  });
+});
+
+describe("union errors are actionable", () => {
+  const message = (block: string, props: Record<string, unknown>) => {
+    try {
+      validateBeat({ block, props } as never, "b");
+    } catch (err) {
+      return (err as Error).message;
+    }
+    return "";
+  };
+  it("names the bad Anatomy diagram and lists the valid ones", () => {
+    const m = message("Anatomy", { subject: { diagram: "horse" }, callouts: [{ label: "Uno", x: 10, y: 10 }, { label: "Dos", x: 80, y: 10 }] });
+    expect(m).toMatch(/subject\.diagram/);
+    expect(m).toMatch(/dog/);
+    expect(m).not.toMatch(/Invalid input$/m);
+  });
+  it("names the bad tone in a Decision branch and lists the valid tones", () => {
+    const m = message("Decision", { question: "¿Algo?", yes: { label: "Sí", tone: "maybe" }, no: { label: "No", tone: "ok" } });
+    expect(m).toMatch(/yes\.tone/);
+    expect(m).toMatch(/ok/);
+    expect(m).toMatch(/danger/);
+  });
+  it("names the bad tone inside a follow-up", () => {
+    const m = message("Decision", {
+      question: "¿Algo?",
+      yes: { question: "¿Más?", yes: { label: "Sí", tone: "maybe" }, no: { label: "No", tone: "ok" } },
+      no: { label: "No", tone: "ok" },
+    });
+    expect(m).toMatch(/yes\.yes\.tone/);
   });
 });

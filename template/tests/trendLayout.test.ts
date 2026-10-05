@@ -41,9 +41,23 @@ it("handles peaks at the first and last points", () => {
 });
 it("draws a leader only for a non-adjacent bubble", () => {
   const { out } = run([41, 38, 33, 30, 24, 20, 17, 14, 12, 10, 9, 8], 11);
-  if (out.leader) expect(Math.hypot(out.leader.x2 - out.leader.x1, out.leader.y2 - out.leader.y1)).toBeGreaterThan(0);
+  expect(out.leader).not.toBeNull();
+  expect(Math.hypot(out.leader!.x2 - out.leader!.x1, out.leader!.y2 - out.leader!.y1)).toBeGreaterThan(0);
 });
 it("prefers earlier candidates and falls back to the least bad", () => {
   expect(pickBy([3, 0, 0], (c) => c)).toEqual({ pick: 0, score: 0 });
   expect(pickBy([3, 2, 2], (c) => c)).toEqual({ pick: 2, score: 2 });
+});
+it("places the value label next to the last dot, not another point's", () => {
+  const n = MONTHS.length;
+  const { lo, hi } = trendScale(MONTHS.map((y) => ({ y })));
+  const px = (i: number) => LEFT + ((RIGHT - LEFT) * i) / (n - 1);
+  const py = (v: number) => BOTTOM - ((v - lo) / (hi - lo)) * (BOTTOM - TOP);
+  const nearestTo = (r: Rect) => {
+    const dist = (i: number) => Math.hypot(px(i) - (r.x + r.w / 2), py(MONTHS[i]) - (r.y + r.h / 2));
+    return MONTHS.map((_, i) => i).sort((a, b) => dist(a) - dist(b))[0];
+  };
+  for (const index of [9, 10, 11]) {
+    expect(nearestTo(run(MONTHS, index).out.valueRect)).toBe(n - 1);
+  }
 });

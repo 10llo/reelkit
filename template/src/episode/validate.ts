@@ -6,10 +6,20 @@ import { resolveColor, talentSchema, type Talent } from "./talent";
 
 export class EpisodeError extends Error {}
 
-const formatIssues = (path: string, error: z.ZodError) =>
-  error.issues
-    .map((issue) => `${path}${issue.path.length ? `.${issue.path.join(".")}` : ""}: ${issue.message}`)
-    .join("\n");
+const joinPath = (base: string, keys: PropertyKey[]) =>
+  keys.reduce<string>((acc, key) => (typeof key === "number" ? `${acc}[${key}]` : `${acc}.${String(key)}`), base);
+
+/** Lines for one issue; a union failure reports the branch with the fewest issues (the first on ties). */
+const issueLines = (path: string, issue: z.core.$ZodIssue): string[] => {
+  const here = joinPath(path, issue.path);
+  if (issue.code === "invalid_union" && issue.errors.length) {
+    const best = issue.errors.reduce((a, b) => (b.length < a.length ? b : a));
+    return best.flatMap((inner) => issueLines(here, inner));
+  }
+  return [`${here}: ${issue.message}`];
+};
+
+const formatIssues = (path: string, error: z.ZodError) => error.issues.flatMap((issue) => issueLines(path, issue)).join("\n");
 
 export const validateBeat = (beat: Beat, path: string): Beat => {
   if (!isBlockName(beat.block)) {

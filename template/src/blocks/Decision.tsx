@@ -100,14 +100,14 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
     </div>
   );
 
-  const branchView = (b: DecisionBranch, start: number) => {
-    const p = enter(frame, fps, start);
+  const branchView = (b: DecisionBranch, branchAt: number) => {
+    const p = enter(frame, fps, at(branchAt));
     if (!isFollowUp(b)) {
       return (
         <div style={{ width: COL, display: "flex", justifyContent: "center" }}>{outcomeBox(b.label, b.tone, OUTCOME, false, p)}</div>
       );
     }
-    const innerLines = interpolate(frame, [start + 8, start + 16], [0, 1], CLAMP);
+    const innerLines = interpolate(frame, [at(branchAt + 0.06), at(branchAt + 0.11)], [0, 1], CLAMP);
     return (
       <div style={{ width: COL, display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div
@@ -130,8 +130,8 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
           {connector(60, COL, SUB / 2, COL - SUB / 2, innerLines)}
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", width: COL }}>
-          {outcomeBox(b.yes.label, b.yes.tone, SUB, true, enter(frame, fps, start + 16))}
-          {outcomeBox(b.no.label, b.no.tone, SUB, true, enter(frame, fps, start + 22))}
+          {outcomeBox(b.yes.label, b.yes.tone, SUB, true, enter(frame, fps, at(branchAt + 0.11)))}
+          {outcomeBox(b.no.label, b.no.tone, SUB, true, enter(frame, fps, at(branchAt + 0.16)))}
         </div>
       </div>
     );
@@ -162,8 +162,8 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
         {tag(props.noLabel, W - LEFT_CENTER - 60)}
       </div>
       <div style={{ display: "flex", justifyContent: "space-around", width: W, alignItems: "flex-start" }}>
-        {branchView(props.yes, at(YES_AT))}
-        {branchView(props.no, at(NO_AT))}
+        {branchView(props.yes, YES_AT)}
+        {branchView(props.no, NO_AT)}
       </div>
     </div>
   );

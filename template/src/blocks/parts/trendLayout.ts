@@ -55,18 +55,44 @@ export const layoutTrendLabels = (input: {
   const ring = note ? around(nx, ny, RING) : null;
 
   const valueW = Math.ceil(measure(input.valueText, 64) + (input.unit ? measure(input.unit, 40) + 8 : 0)) + 4;
-  const placeValue = (avoid: Rect | null) => {
-    const o = { box, segments, rects: [...dots.slice(0, -1), ...axisLabels, ...(ring ? [ring] : []), ...(avoid ? [avoid] : [])] };
-    return pickBy(
-      [
-        { x: lastX - valueW - 12, y: lastY - RING - 4 - VALUE_H, w: valueW, h: VALUE_H },
-        { x: lastX - valueW - 12, y: lastY + RING + 4, w: valueW, h: VALUE_H },
-        { x: lastX - valueW - RING - 4, y: lastY - VALUE_H / 2, w: valueW, h: VALUE_H },
-        { x: lastX - valueW - 12, y: lastY - RING - 4 - VALUE_H - 40, w: valueW, h: VALUE_H },
-        { x: lastX - valueW - 12, y: lastY - RING - 4 - VALUE_H - 80, w: valueW, h: VALUE_H },
-      ],
-      (r) => overlapScore(r, o),
-    );
+  /** Index of the data dot closest to the centre of a rectangle. */
+  const nearestDot = (r: Rect) => {
+    let best = 0;
+    let bestD = Infinity;
+    ys.forEach((y, i) => {
+      const d = Math.hypot(px(i) - (r.x + r.w / 2), py(y) - (r.y + r.h / 2));
+      if (d < bestD - 1e-9) {
+        best = i;
+        bestD = d;
+      }
+    });
+    return best;
+  };
+  const placeValue = (avoid: Rect | null, extra?: (r: Rect) => number) => {
+    // Dots drawn at their true visual radius (10 + half the 4 px stroke) so a label may sit flush beside one.
+    const o = { box, segments, rects: [...ys.slice(0, -1).map((y, i) => around(px(i), py(y), 12)), ...axisLabels, ...(ring ? [ring] : []), ...(avoid ? [avoid] : [])] };
+    const score = (r: Rect) => overlapScore(r, o) + (extra ? extra(r) : 0);
+    // Spots hugging the last dot come first, so the value cannot be read as another point's.
+    const preferred: Rect[] = [
+      { x: lastX + 40 - valueW, y: lastY - DOT - 8 - VALUE_H, w: valueW, h: VALUE_H },
+      { x: lastX + 40 - valueW, y: lastY + DOT + 8, w: valueW, h: VALUE_H },
+      { x: W - valueW, y: lastY - DOT - 8 - VALUE_H, w: valueW, h: VALUE_H },
+      { x: W - valueW, y: lastY + DOT + 8, w: valueW, h: VALUE_H },
+      { x: W - valueW, y: lastY - DOT - 8 - VALUE_H - 40, w: valueW, h: VALUE_H },
+      { x: W - valueW, y: lastY - DOT - 8 - VALUE_H - 80, w: valueW, h: VALUE_H },
+      { x: lastX - valueW - 12, y: lastY - RING - 4 - VALUE_H, w: valueW, h: VALUE_H },
+      { x: lastX - valueW - 12, y: lastY + RING + 4, w: valueW, h: VALUE_H },
+      { x: lastX - valueW - RING - 4, y: lastY - VALUE_H / 2, w: valueW, h: VALUE_H },
+    ];
+    const hugging = preferred.filter((r) => nearestDot(r) === n - 1);
+    const others: Rect[] = [
+      { x: lastX - valueW - 12, y: lastY - RING - 4 - VALUE_H - 40, w: valueW, h: VALUE_H },
+      { x: lastX - valueW - 12, y: lastY - RING - 4 - VALUE_H - 80, w: valueW, h: VALUE_H },
+    ];
+    const first = pickBy(hugging, score);
+    if (hugging.length && first.score === 0) return first;
+    const rest = pickBy([...preferred, ...others], score);
+    return hugging.length && first.score <= rest.score ? first : rest;
   };
 
   const nearest = (r: Rect) => ({ x: clamp(nx, r.x, r.x + r.w), y: clamp(ny, r.y, r.y + r.h) });
@@ -122,7 +148,7 @@ export const layoutTrendLabels = (input: {
   let chosen: { bubble: Rect | null; valueRect: Rect; clear: boolean } | null = null;
   for (const b of candidates) {
     if (scoreBubble(b, null) !== 0) continue;
-    const v = placeValue(b);
+    const v = placeValue(b, (r) => scoreBubble(b, r));
     if (v.score === 0 && scoreBubble(b, v.pick) === 0) {
       chosen = { bubble: b, valueRect: v.pick, clear: true };
       break;

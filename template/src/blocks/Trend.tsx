@@ -27,6 +27,7 @@ export const Trend: BlockComponent<"Trend"> = ({ props, timing }) => {
   const area = interpolate(frame, [at(AREA_FROM), at(AREA_TO)], [0, 1], CLAMP);
   const format = new Intl.NumberFormat(locale, { minimumFractionDigits: props.decimals, maximumFractionDigits: props.decimals });
   const line = props.points.map((p, i) => `${i === 0 ? "M" : "L"}${px(i)} ${py(p.y)}`).join(" ");
+  const first = props.points[0];
   const last = props.points[n - 1];
   const showLabel = (i: number) => n <= 7 || (n - 1 - i) % 2 === 0;
   const note = props.annotate;
@@ -113,7 +114,7 @@ export const Trend: BlockComponent<"Trend"> = ({ props, timing }) => {
           opacity: draw > 0 ? 1 : 0,
         }}
       >
-        {format.format(last.y * draw)}
+        {format.format(first.y + (last.y - first.y) * draw)}
         {props.yUnit ? <span style={{ fontSize: 40, marginLeft: 8 }}>{props.yUnit}</span> : null}
       </div>
       {note && bubble ? (

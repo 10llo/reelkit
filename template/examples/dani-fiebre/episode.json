@@ -49,10 +49,10 @@
             "min": 36,
             "max": 42,
             "zones": [
+              { "to": 37.5, "label": "Baja", "tone": "warn" },
               { "to": 39.2, "label": "Normal", "tone": "ok" },
               { "to": 40, "label": "Fiebre", "tone": "warn" },
-              { "to": 41, "label": "Fiebre alta", "tone": "danger" },
-              { "to": 42, "label": "Urgencia", "tone": "danger" }
+              { "to": 42, "label": "Muy alta", "tone": "danger" }
             ],
             "needleLabel": "Ejemplo de lectura"
           }
@@ -123,7 +123,8 @@
   "facts": [
     { "claim": "Temperatura normal del perro hasta ≈ 39,2 °C; fiebre por encima", "source": "Para confirmar con Dani (referencia clínica general)" },
     { "claim": "Más de 40 °C o decaimiento marcado: consulta el mismo día", "source": "Para confirmar con Dani" },
-    { "claim": "La nariz seca no indica fiebre; solo el termómetro rectal da un dato fiable", "source": "Para confirmar con Dani" }
+    { "claim": "La nariz seca no indica fiebre; solo el termómetro rectal da un dato fiable", "source": "Para confirmar con Dani" },
+    { "claim": "Por debajo de 37,5 °C también es una alerta (hipotermia)", "source": "Para confirmar con Dani" }
   ],
   "coverFrame": 60
 }

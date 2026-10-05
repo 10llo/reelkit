@@ -19,11 +19,27 @@ export const trendSchema = z
     path: ["yMin"],
   });
 
-/** Vertical range: from yMin (or 0, or the lowest value if negative) to the highest value plus 10 % of the span. */
+const niceFloor = (v: number, step: number) => Math.floor(v / step + 1e-9) * step;
+
+/**
+ * Vertical range: from yMin when set; otherwise 0, unless every value is positive and close together
+ * (min/max > 0.5), where the baseline sits 10 % of the span below the lowest value, rounded down to a nice step.
+ * The top is the highest value plus 10 % of the span.
+ */
 export const trendScale = (points: { y: number }[], yMin?: number) => {
   const ys = points.map((p) => p.y);
-  const lo = yMin ?? Math.min(0, ...ys);
+  const min = Math.min(...ys);
   const top = Math.max(...ys);
+  let lo = yMin ?? Math.min(0, ...ys);
+  if (yMin === undefined && min > 0 && min / top > 0.5) {
+    const range = top - min;
+    if (range > 0) {
+      const raw = range / 10;
+      const mag = 10 ** Math.floor(Math.log10(raw));
+      const step = [1, 2, 5, 10].map((m) => m * mag).find((v) => v >= raw) ?? raw;
+      lo = Math.round(niceFloor(min - range * HEADROOM, step) * 1e6) / 1e6;
+    }
+  }
   const span = top - lo || 1;
   return { lo, hi: Math.round((top + span * HEADROOM) * 1e6) / 1e6 };
 };

@@ -64,6 +64,7 @@ export const Versus: BlockComponent<"Versus"> = ({ props, timing }) => {
     text: string,
     isWinner: boolean,
     isLoser: boolean,
+    isTie: boolean,
     align: "left" | "right",
   ) => (
     <div
@@ -71,7 +72,7 @@ export const Versus: BlockComponent<"Versus"> = ({ props, timing }) => {
         width: SIDE,
         display: "flex",
         alignItems: "center",
-        justifyContent: align === "right" ? "flex-end" : "flex-start",
+        justifyContent: "flex-end",
         flexDirection: align === "right" ? "row" : "row-reverse",
         gap: 12,
         opacity: isLoser ? loserDim : 1,
@@ -87,6 +88,19 @@ export const Versus: BlockComponent<"Versus"> = ({ props, timing }) => {
             scale: interpolate(winners, [0, 1], [0.3, 1]),
           }}
         />
+      ) : null}
+      {isTie ? (
+        <svg
+          width={44}
+          height={44}
+          viewBox="0 0 44 44"
+          style={{
+            opacity: interpolate(winners, [0, 0.2], [0, 1], CLAMP),
+            scale: interpolate(winners, [0, 1], [0.3, 1]),
+          }}
+        >
+          <path d="M9 16 H35 M9 28 H35" stroke={c.text} strokeWidth={6} strokeLinecap="round" fill="none" />
+        </svg>
       ) : null}
       <div
         style={{
@@ -162,6 +176,7 @@ export const Versus: BlockComponent<"Versus"> = ({ props, timing }) => {
               row.left,
               row.winner === "left",
               row.winner === "right",
+              row.winner === "tie",
               "right",
             )}
             <div
@@ -180,6 +195,7 @@ export const Versus: BlockComponent<"Versus"> = ({ props, timing }) => {
               row.right,
               row.winner === "right",
               row.winner === "left",
+              row.winner === "tie",
               "left",
             )}
           </div>
