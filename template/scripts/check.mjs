@@ -8,7 +8,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PNG } from "pngjs";
-import { compareRegion, keyFrames, parseFitLog, slotRegion } from "./check-lib.mjs";
+import { compareRegion, keyFrames, parseFitLog, parseMinFontLog, slotRegion } from "./check-lib.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -17,6 +17,7 @@ const layoutNames = (args.find((a) => a.startsWith("--layouts=")) ?? "--layouts=
 const layouts = JSON.parse(fs.readFileSync(path.join(root, "src/frame/layouts.json"), "utf8"));
 const COMPOSITIONS = { "9x16": "Episode", "4x5": "Episode45" };
 const FIT_WARN = 0.85;
+const MIN_TEXT_PX = 40;
 let failures = 0;
 const fail = (msg) => {
   failures++;
@@ -45,6 +46,7 @@ const checkLayout = async (serveUrl, raw, layoutName, outDir) => {
   const frames = keyFrames(composition.props.sceneStarts, composition.durationInFrames, raw.scenes);
   const images = {};
   const fits = new Map();
+  const minFonts = new Map();
   for (const frame of frames) {
     const output = path.join(outDir, `${layoutName}-${frame}.png`);
     await renderStill({
@@ -57,6 +59,8 @@ const checkLayout = async (serveUrl, raw, layoutName, outDir) => {
       onBrowserLog: (log) => {
         const fit = parseFitLog(log.text);
         if (fit) fits.set(fit.name, Math.min(fits.get(fit.name) ?? 1, fit.scale));
+        const font = parseMinFontLog(log.text);
+        if (font) minFonts.set(font.name, Math.min(minFonts.get(font.name) ?? Infinity, font.px));
       },
     });
     images[frame] = PNG.sync.read(fs.readFileSync(output));
@@ -72,6 +76,9 @@ const checkLayout = async (serveUrl, raw, layoutName, outDir) => {
   }
   for (const [name, scale] of fits) {
     if (scale < FIT_WARN) console.warn(`⚠ ${layoutName}: scene "${name}" is scaled to ${scale.toFixed(2)} to fit the stage`);
+  }
+  for (const [name, px] of minFonts) {
+    if (px < MIN_TEXT_PX) console.warn(`⚠ ${layoutName}: scene "${name}" has text at ${px} px`);
   }
   if (failures === before) {
     console.log(`✓ ${layoutName}: ${frames.length} frames checked, slot clear, ${composition.durationInFrames} frames`);

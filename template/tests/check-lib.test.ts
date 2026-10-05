@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compareRegion, insideRoundedRect, keyFrames, parseFitLog, slotRegion } from "../scripts/check-lib.mjs";
+import { compareRegion, insideRoundedRect, keyFrames, parseFitLog, parseMinFontLog, slotRegion } from "../scripts/check-lib.mjs";
 import layouts from "../src/frame/layouts.json";
 
 const scenes = {
@@ -58,4 +58,9 @@ describe("compareRegion", () => {
 it("parses FitStage logs", () => {
   expect(parseFitLog("[reelkit:fit] step3 0.912")).toEqual({ name: "step3", scale: 0.912 });
   expect(parseFitLog("something else")).toBeNull();
+});
+
+it("parses min-font logs", () => {
+  expect(parseMinFontLog("[reelkit:minfont] step2 44.0")).toEqual({ name: "step2", px: 44 });
+  expect(parseMinFontLog("[reelkit:fit] step2 1.000")).toBeNull();
 });

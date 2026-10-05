@@ -87,7 +87,7 @@ export const Quantity: BlockComponent<"Quantity"> = ({ props, timing }) => {
         </div>
       ) : null}
       {props.footnote ? (
-        <div style={{ ...bodyStyle(30), color: c.text, opacity: 0.7 * footnote, marginTop: 6 }}>{props.footnote}</div>
+        <div data-reelkit-small="" style={{ ...bodyStyle(30), color: c.text, opacity: 0.7 * footnote, marginTop: 6 }}>{props.footnote}</div>
       ) : null}
     </div>
   );

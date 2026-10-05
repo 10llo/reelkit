@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { continueRender, delayRender } from "remotion";
 import { useLayout } from "./contexts";
+import { measureMinFont } from "./minFont";
 
 /**
  * Confines a scene to the stage. Content is laid out at least at the stage width (wider content widens the box); if it is
@@ -26,6 +27,10 @@ export const FitStage: React.FC<{
     const h = el.offsetHeight;
     const scale = Math.min(1, stage.width / w, stage.height / h);
     console.log(`[reelkit:fit] ${name} ${scale.toFixed(3)}`);
+    const minFont = measureMinFont(el);
+    if (minFont !== null) {
+      console.log(`[reelkit:minfont] ${name} ${minFont.toFixed(1)}`);
+    }
     setFit({ scale, offsetX: (stage.width - w * scale) / 2, offsetY: (stage.height - h * scale) / 2 });
     continueRender(handle);
   }, [handle, name, stage]);

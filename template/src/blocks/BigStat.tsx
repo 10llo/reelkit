@@ -55,7 +55,7 @@ export const BigStat: BlockComponent<"BigStat"> = ({ props, timing }) => {
         {props.label}
       </div>
       {props.source ? (
-        <div style={{ ...bodyStyle(30), color: c.text, opacity: 0.7 * sourceIn, marginTop: 14 }}>{props.source}</div>
+        <div data-reelkit-small="" style={{ ...bodyStyle(30), color: c.text, opacity: 0.7 * sourceIn, marginTop: 14 }}>{props.source}</div>
       ) : null}
     </div>
   );

@@ -75,3 +75,8 @@ export const parseFitLog = (text) => {
   const match = /^\[reelkit:fit\] (\S+) ([0-9.]+)$/.exec(text);
   return match ? { name: match[1], scale: Number(match[2]) } : null;
 };
+
+export const parseMinFontLog = (text) => {
+  const match = /^\[reelkit:minfont\] (\S+) ([0-9.]+)$/.exec(text);
+  return match ? { name: match[1], px: Number(match[2]) } : null;
+};
