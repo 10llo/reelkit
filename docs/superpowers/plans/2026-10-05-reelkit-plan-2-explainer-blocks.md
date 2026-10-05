@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Grow the template from 10 to 20 blocks so it can explain any subject, back them with ~100 icons and 7 anatomy diagrams, and prove every block fits the stage at its maximum content with a gallery check.
+**Goal:** Grow the template from 10 to 20 blocks so it can explain any subject, back them with ~70 veterinary-first icons and 4 anatomy diagrams (dog, cat, tooth, human), and prove every block fits the stage at its maximum content with a gallery check.
 
 **Architecture:** Builds on Plan 1's `template/` (merged on `main`). New blocks follow the existing contract: a node-safe `<Block>.schema.ts` (strict zod objects, enforced content limits), a component taking `{ props, timing }` whose keyframes are fractions of the beat, and an entry in `schemas.ts` + `registry.tsx`. A `samples.json` file holds one maximum-content sample per block; it drives a `BlockGallery` composition for Studio and `npm run check -- --gallery`, which renders each sample's last frame in both layouts and fails if the stage had to scale below 0.85 or any readable text is under 40 px.
 
@@ -24,7 +24,7 @@
 ## Review Focus
 
 1. **Maximum-length content in a block** (labels at their character limit, the maximum item count): must fit the stage at ≥ 0.85 with no text under 40 px in both layouts. Pinned by the gallery check on every block (Tasks 5, 6, 7–11).
-2. **Short beats** (a 15 s episode gives a two-beat scene ~50 frames per beat): staggers must still finish inside the beat. Pinned by staggers computed from `timing.duration` and by a 15 s variant of the engineering example in Task 12.
+2. **Short beats** (a 15 s episode gives a two-beat scene ~50 frames per beat): staggers must still finish inside the beat. Pinned by staggers computed from `timing.duration` and by a 15 s variant of the fever example in Task 12.
 3. **Cross-field mistakes in props** (a highlight index past the list, a gauge value outside its range, zones not ascending, two nested decision branches): must fail validation with a message naming the field. Pinned by schema tests in each block task.
 4. **An icon or diagram name that doesn't exist**: must fail validation listing the valid names. Pinned by `z.enum` on names and the icon/diagram registry tests (Tasks 1–3).
 5. **Existing episodes after limits tighten** (Task 6): smoke and Dani examples must still validate and pass `npm run check`. Pinned by `examples.test.ts` and the check run in Task 6.
@@ -38,13 +38,13 @@ template/
   package.json                       + jsdom devDependency, "check:gallery" script
   src/
     icons/
-      names.ts                       ICON_NAMES (105 names), DIAGRAM_NAMES (7)
+      names.ts                       ICON_NAMES (68 names), DIAGRAM_NAMES (4)
       svg.tsx                        Svg wrapper, IconProps, IconComponent, icon() helper
       sets/core.tsx                  the 15 Plan 1 icons (moved)
-      sets/health.tsx  veterinary.tsx  food.tsx  engineering.tsx  energy.tsx  technology.tsx  money.tsx
-      sets/education.tsx  nature.tsx  home.tsx  transport.tsx  time.tsx  people.tsx  warnings.tsx  actions.tsx
+      paw.tsx                        PawShape (moved)
+      sets/health.tsx  veterinary.tsx  food.tsx  home.tsx  time.tsx  people.tsx  warnings.tsx  actions.tsx
       index.tsx                      ICONS (all sets), Icon, PawShape (re-export)
-      diagrams.tsx                   DIAGRAMS, Diagram (400×400 silhouettes)
+      diagrams.tsx                   DIAGRAMS, Diagram (dog, cat, tooth, human; 400×400)
     frame/
       minFont.ts                     SMALL_TEXT_ATTR, measureMinFont
       FitStage.tsx                   + logs [reelkit:minfont]
@@ -61,24 +61,26 @@ template/
     check-lib.mjs                    + parseMinFontLog
     check.mjs                        + --gallery mode, min-font warnings in episode mode
   tests/
-    icons.test.ts  diagrams.test.ts  minFont.test.ts  gallery.test.ts  registry.test.ts
+    icons.test.ts  diagrams.test.ts  minFont.test.ts  gallery.test.ts  registry.test.ts  vet-example.test.ts
     blocks/<Block>.schema.test.ts    × 10 new
   examples/
-    engineering-sample/              episode.json, talent.json (45 s, new blocks only)
+    dani-fiebre/                     episode.json, talent.json (45 s vet episode, new blocks only)
 ```
 
 ---
 
-### Task 1: Icon library restructure + domains A (health, veterinary, food, engineering, energy, technology, money)
+### Task 1: Icon library restructure + health, veterinary and food icons
 
 **Files:**
-- Create: `template/src/icons/svg.tsx`, `template/src/icons/sets/core.tsx`, `sets/health.tsx`, `sets/veterinary.tsx`, `sets/food.tsx`, `sets/engineering.tsx`, `sets/energy.tsx`, `sets/technology.tsx`, `sets/money.tsx`, `template/src/compositions/IconSheet.tsx`
+- Create: `template/src/icons/svg.tsx`, `template/src/icons/paw.tsx`, `template/src/icons/sets/core.tsx`, `sets/health.tsx`, `sets/veterinary.tsx`, `sets/food.tsx`, `template/src/compositions/IconSheet.tsx`
 - Modify: `template/src/icons/names.ts`, `template/src/icons/index.tsx`, `template/src/Root.tsx`
 - Test: `template/tests/icons.test.ts`
 
 **Interfaces:**
 - Consumes: Plan 1 `Icon`, `ICONS`, `PawShape`, `IconProps` (all importers keep working: `import { Icon, PawShape } from "../icons"`).
-- Produces: `IconComponent = React.FC<IconProps>`; `icon(render)` helper; `ICON_NAMES` grows by 44 names (listed below); `IconSheet` still composition (1080×1920) for visual review.
+- Produces: `IconComponent = React.FC<IconProps>`; `icon(render)` helper; `ICON_NAMES` grows by 24 names (listed below); `IconSheet` still composition (1080×1920) for visual review.
+
+Scope note: the first audience is veterinary content (Dogtora Dani). Icon domains for engineering, energy, technology, money, education, nature and transport, and the car/house/circuit diagrams, are deferred to a later plan; the blocks themselves stay subject-agnostic.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -107,8 +109,8 @@ describe.each([...ICON_NAMES])("icon %s", (name) => {
   });
 });
 
-it("includes the domain A icons", () => {
-  for (const name of ["heart", "pill", "cat", "apple", "wrench", "lightning", "phone", "coin"]) {
+it("includes the health, veterinary and food icons", () => {
+  for (const name of ["heart", "pill", "thermometer", "cat", "flea", "bowl", "apple", "drop"]) {
     expect(ICON_NAMES).toContain(name);
   }
 });
@@ -117,7 +119,7 @@ it("includes the domain A icons", () => {
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `cd template && npx vitest run tests/icons.test.ts`
-Expected: FAIL — `includes the domain A icons` (names missing).
+Expected: FAIL — `includes the health, veterinary and food icons` (names missing).
 
 - [ ] **Step 3: Create the SVG helper and move the core icons**
 
@@ -177,7 +179,7 @@ export const PawShape: React.FC<{ readonly fill: string }> = ({ fill }) => (
 ```
 The moved entries keep their exact JSX; only their imports change (`Svg` now comes from `../svg`).
 
-- [ ] **Step 4: Add the domain A sets**
+- [ ] **Step 4: Add the health, veterinary and food sets**
 
 `template/src/icons/sets/health.tsx`:
 ```tsx
@@ -280,6 +282,41 @@ export const VETERINARY_ICONS = {
       <circle cx="50" cy="74" r="11" fill={a} />
     </g>
   )),
+  flea: icon((c, a) => (
+    <g>
+      <ellipse cx="54" cy="52" rx="26" ry="20" fill={c} transform="rotate(-20 54 52)" />
+      <circle cx="26" cy="40" r="11" fill={c} />
+      <path d="M44 66 L30 88 M56 68 L52 90 M66 64 L84 86 M30 34 L14 20" stroke={a} strokeWidth="5" strokeLinecap="round" fill="none" />
+    </g>
+  )),
+  bowl: icon((c, a) => (
+    <g>
+      <path d="M22 40 H78 L72 26 H28 Z" fill={a} />
+      <path d="M8 46 H92 L80 80 H20 Z" fill={c} />
+      <rect x="4" y="40" width="92" height="10" rx="5" fill={c} />
+    </g>
+  )),
+  leash: icon((c, a) => (
+    <g fill="none" strokeLinecap="round">
+      <path d="M18 18 C40 18 40 50 56 62 C70 72 74 80 78 88" stroke={c} strokeWidth="7" />
+      <rect x="10" y="8" width="20" height="26" rx="10" stroke={c} strokeWidth="7" />
+      <circle cx="80" cy="88" r="7" fill={a} stroke="none" />
+    </g>
+  )),
+  weight: icon((c, a) => (
+    <g>
+      <rect x="8" y="34" width="84" height="56" rx="12" fill={c} />
+      <path d="M30 60 A20 20 0 0 1 70 60" stroke={a === c ? "#00000066" : a} strokeWidth="6" fill="none" />
+      <path d="M50 60 L60 46" stroke={a === c ? "#00000066" : a} strokeWidth="6" strokeLinecap="round" />
+      <rect x="40" y="22" width="20" height="14" rx="4" fill={c} />
+    </g>
+  )),
+  leaf: icon((c, a) => (
+    <g>
+      <path d="M86 14 C40 14 14 40 14 70 C14 78 18 86 18 86 C18 86 26 90 34 90 C66 90 86 60 86 14 Z" fill={c} />
+      <path d="M22 82 L66 34" stroke={a === c ? "#00000055" : a} strokeWidth="5" strokeLinecap="round" />
+    </g>
+  )),
 } satisfies Partial<Record<IconName, IconComponent>>;
 ```
 
@@ -329,248 +366,21 @@ export const FOOD_ICONS = {
 } satisfies Partial<Record<IconName, IconComponent>>;
 ```
 
-`template/src/icons/sets/engineering.tsx`:
-```tsx
-import { icon, type IconComponent } from "../svg";
-import type { IconName } from "../names";
-
-const TEETH = [0, 45, 90, 135, 180, 225, 270, 315];
-
-export const ENGINEERING_ICONS = {
-  wrench: icon((c) => (
-    <path
-      d="M66 8 A24 24 0 0 0 44 40 L12 72 A10 10 0 0 0 28 88 L60 56 A24 24 0 0 0 92 34 L78 46 L64 42 L58 28 L70 14 Z"
-      fill={c}
-    />
-  )),
-  gear: icon((c, a) => (
-    <g>
-      {TEETH.map((deg) => (
-        <rect key={deg} x="43" y="4" width="14" height="22" rx="3" fill={c} transform={`rotate(${deg} 50 50)`} />
-      ))}
-      <circle cx="50" cy="50" r="30" fill={c} />
-      <circle cx="50" cy="50" r="11" fill={a === c ? "#00000066" : a} />
-    </g>
-  )),
-  hammer: icon((c, a) => (
-    <g transform="rotate(-40 50 50)">
-      <rect x="44" y="34" width="12" height="60" rx="5" fill={a} />
-      <path d="M22 16 H72 L80 26 L72 36 H22 Z" fill={c} />
-    </g>
-  )),
-  screwdriver: icon((c, a) => (
-    <g transform="rotate(-45 50 50)">
-      <rect x="38" y="6" width="24" height="38" rx="8" fill={c} />
-      <rect x="46" y="44" width="8" height="38" fill={a} />
-      <path d="M44 82 H56 L50 94 Z" fill={a} />
-    </g>
-  )),
-  ruler: icon((c, a) => (
-    <g transform="rotate(-35 50 50)">
-      <rect x="4" y="36" width="92" height="28" rx="4" fill={c} />
-      <path d="M16 36 V48 M28 36 V44 M40 36 V48 M52 36 V44 M64 36 V48 M76 36 V44 M88 36 V48" stroke={a === c ? "#00000066" : a} strokeWidth="3" />
-    </g>
-  )),
-  helmet: icon((c, a) => (
-    <g>
-      <path d="M14 66 C14 40 30 22 50 22 C70 22 86 40 86 66 Z" fill={c} />
-      <rect x="6" y="64" width="88" height="12" rx="6" fill={c} />
-      <path d="M50 22 V46" stroke={a === c ? "#00000055" : a} strokeWidth="7" strokeLinecap="round" />
-    </g>
-  )),
-  magnet: icon((c, a) => (
-    <g>
-      <path d="M26 16 V52 A24 24 0 0 0 74 52 V16" stroke={c} strokeWidth="18" fill="none" />
-      <rect x="17" y="10" width="18" height="16" fill={a} />
-      <rect x="65" y="10" width="18" height="16" fill={a} />
-    </g>
-  )),
-} satisfies Partial<Record<IconName, IconComponent>>;
-```
-
-`template/src/icons/sets/energy.tsx`:
-```tsx
-import { icon, type IconComponent } from "../svg";
-import type { IconName } from "../names";
-
-const RAYS = [0, 45, 90, 135, 180, 225, 270, 315];
-
-export const ENERGY_ICONS = {
-  lightning: icon((c) => <path d="M56 6 L18 56 H46 L40 94 L82 40 H54 Z" fill={c} strokeLinejoin="round" />),
-  battery: icon((c, a) => (
-    <g>
-      <rect x="8" y="30" width="74" height="40" rx="7" fill="none" stroke={c} strokeWidth="7" />
-      <rect x="84" y="42" width="9" height="16" rx="2" fill={c} />
-      <rect x="17" y="39" width="38" height="22" rx="3" fill={a} />
-    </g>
-  )),
-  plug: icon((c, a) => (
-    <g>
-      <rect x="36" y="12" width="8" height="26" rx="3" fill={c} />
-      <rect x="56" y="12" width="8" height="26" rx="3" fill={c} />
-      <rect x="26" y="36" width="48" height="32" rx="8" fill={c} />
-      <path d="M50 68 V92" stroke={a} strokeWidth="8" strokeLinecap="round" />
-    </g>
-  )),
-  bulb: icon((c, a) => (
-    <g>
-      <circle cx="50" cy="40" r="28" fill={c} />
-      <rect x="38" y="64" width="24" height="9" rx="3" fill={a} />
-      <rect x="40" y="77" width="20" height="9" rx="3" fill={a} />
-    </g>
-  )),
-  sun: icon((c, a) => (
-    <g>
-      {RAYS.map((deg) => (
-        <path key={deg} d="M50 6 V18" stroke={a} strokeWidth="7" strokeLinecap="round" transform={`rotate(${deg} 50 50)`} />
-      ))}
-      <circle cx="50" cy="50" r="22" fill={c} />
-    </g>
-  )),
-  flame: icon((c, a) => (
-    <g>
-      <path d="M50 6 C56 30 80 40 80 62 A30 30 0 0 1 20 62 C20 48 30 40 34 28 C40 42 46 44 50 44 C46 30 46 18 50 6 Z" fill={c} />
-      <path d="M50 58 C54 66 62 70 62 78 A12 12 0 0 1 38 78 C38 70 46 66 50 58 Z" fill={a === c ? "#FFFFFF55" : a} />
-    </g>
-  )),
-} satisfies Partial<Record<IconName, IconComponent>>;
-```
-
-`template/src/icons/sets/technology.tsx`:
-```tsx
-import { icon, type IconComponent } from "../svg";
-import type { IconName } from "../names";
-
-const PINS = [34, 50, 66];
-
-export const TECHNOLOGY_ICONS = {
-  phone: icon((c, a) => (
-    <g>
-      <rect x="28" y="6" width="44" height="88" rx="9" fill={c} />
-      <rect x="34" y="16" width="32" height="58" rx="3" fill={a === c ? "#00000055" : a} />
-      <circle cx="50" cy="84" r="4" fill={a === c ? "#00000055" : a} />
-    </g>
-  )),
-  laptop: icon((c, a) => (
-    <g>
-      <rect x="18" y="18" width="64" height="46" rx="5" fill={c} />
-      <rect x="24" y="24" width="52" height="34" rx="2" fill={a === c ? "#00000055" : a} />
-      <path d="M6 70 H94 L88 82 H12 Z" fill={c} />
-    </g>
-  )),
-  wifi: icon((c) => (
-    <g fill="none" stroke={c} strokeWidth="8" strokeLinecap="round">
-      <path d="M12 40 A54 54 0 0 1 88 40" />
-      <path d="M25 55 A34 34 0 0 1 75 55" />
-      <path d="M38 70 A16 16 0 0 1 62 70" />
-      <circle cx="50" cy="82" r="5" fill={c} stroke="none" />
-    </g>
-  )),
-  chip: icon((c, a) => (
-    <g>
-      {PINS.map((p) => (
-        <g key={p} stroke={c} strokeWidth="5" strokeLinecap="round">
-          <path d={`M${p} 8 V22 M${p} 78 V92 M8 ${p} H22 M78 ${p} H92`} />
-        </g>
-      ))}
-      <rect x="22" y="22" width="56" height="56" rx="8" fill={c} />
-      <rect x="38" y="38" width="24" height="24" rx="3" fill={a === c ? "#00000055" : a} />
-    </g>
-  )),
-  lock: icon((c, a) => (
-    <g>
-      <path d="M32 46 V32 A18 18 0 0 1 68 32 V46" stroke={c} strokeWidth="9" fill="none" />
-      <rect x="20" y="44" width="60" height="46" rx="8" fill={c} />
-      <circle cx="50" cy="62" r="7" fill={a === c ? "#00000066" : a} />
-      <rect x="47" y="64" width="6" height="14" rx="3" fill={a === c ? "#00000066" : a} />
-    </g>
-  )),
-  code: icon((c, a) => (
-    <g fill="none" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M34 26 L12 50 L34 74 M66 26 L88 50 L66 74" stroke={c} />
-      <path d="M57 18 L43 82" stroke={a} />
-    </g>
-  )),
-  database: icon((c, a) => (
-    <g>
-      <path d="M16 22 V78 C16 88 84 88 84 78 V22 Z" fill={c} />
-      <ellipse cx="50" cy="22" rx="34" ry="12" fill={a === c ? "#FFFFFF44" : a} />
-      <path d="M16 42 C16 52 84 52 84 42 M16 60 C16 70 84 70 84 60" stroke={a === c ? "#00000055" : a} strokeWidth="4" fill="none" />
-    </g>
-  )),
-} satisfies Partial<Record<IconName, IconComponent>>;
-```
-
-`template/src/icons/sets/money.tsx`:
-```tsx
-import { icon, type IconComponent } from "../svg";
-import type { IconName } from "../names";
-
-export const MONEY_ICONS = {
-  coin: icon((c, a) => (
-    <g>
-      <circle cx="50" cy="50" r="40" fill={c} />
-      <circle cx="50" cy="50" r="29" fill="none" stroke={a === c ? "#00000044" : a} strokeWidth="5" />
-      <path d="M50 34 V66 M42 40 H56 A6 6 0 0 1 56 52 H44 A6 6 0 0 0 44 64 H58" stroke={a === c ? "#00000066" : a} strokeWidth="5" fill="none" strokeLinecap="round" />
-    </g>
-  )),
-  bill: icon((c, a) => (
-    <g>
-      <rect x="6" y="26" width="88" height="48" rx="6" fill={c} />
-      <circle cx="50" cy="50" r="13" fill={a === c ? "#00000044" : a} />
-      <circle cx="20" cy="50" r="4" fill={a === c ? "#00000044" : a} />
-      <circle cx="80" cy="50" r="4" fill={a === c ? "#00000044" : a} />
-    </g>
-  )),
-  card: icon((c, a) => (
-    <g>
-      <rect x="8" y="22" width="84" height="56" rx="8" fill={c} />
-      <rect x="8" y="34" width="84" height="11" fill={a === c ? "#00000055" : a} />
-      <rect x="18" y="56" width="20" height="12" rx="2" fill={a === c ? "#FFFFFF55" : a} />
-    </g>
-  )),
-  piggy: icon((c, a) => (
-    <g>
-      <ellipse cx="48" cy="54" rx="36" ry="26" fill={c} />
-      <path d="M28 34 L24 20 L38 30 Z" fill={c} />
-      <rect x="22" y="72" width="10" height="16" rx="3" fill={c} />
-      <rect x="60" y="72" width="10" height="16" rx="3" fill={c} />
-      <ellipse cx="86" cy="52" rx="8" ry="10" fill={c} />
-      <rect x="40" y="34" width="20" height="5" rx="2.5" fill={a === c ? "#00000055" : a} />
-      <circle cx="30" cy="48" r="3.5" fill={a === c ? "#00000066" : a} />
-    </g>
-  )),
-  trendUp: icon((c, a) => (
-    <g fill="none" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M10 78 L36 52 L52 64 L86 28" stroke={c} />
-      <path d="M64 26 H88 V50" stroke={a} />
-    </g>
-  )),
-} satisfies Partial<Record<IconName, IconComponent>>;
-```
-
 - [ ] **Step 5: Declare the names and assemble the registry**
 
 `template/src/icons/names.ts`:
 ```ts
 // Node-safe list of every icon name (used by zod schemas). Grouped by domain; Task 2 adds the rest.
+// Engineering, energy, technology, money, education, nature and transport domains are deferred.
 export const ICON_NAMES = [
   // core (Plan 1)
   "paw", "check", "x", "milk", "spoonDrop", "vomit", "panting", "tremor", "dog", "pumpkin", "bookmark", "share", "clock", "warning", "info",
   // health
   "heart", "pill", "syringe", "thermometer", "stethoscope", "bandage", "tooth", "lungs",
   // veterinary
-  "cat", "bone", "fish", "bird", "collar",
+  "cat", "bone", "fish", "bird", "collar", "flea", "bowl", "leash", "weight", "leaf",
   // food
   "apple", "drop", "coffee", "salt", "sugar", "bread",
-  // engineering and tools
-  "wrench", "gear", "hammer", "screwdriver", "ruler", "helmet", "magnet",
-  // energy
-  "lightning", "battery", "plug", "bulb", "sun", "flame",
-  // technology
-  "phone", "laptop", "wifi", "chip", "lock", "code", "database",
-  // money
-  "coin", "bill", "card", "piggy", "trendUp",
 ] as const;
 export type IconName = (typeof ICON_NAMES)[number];
 ```
@@ -579,12 +389,8 @@ export type IconName = (typeof ICON_NAMES)[number];
 ```tsx
 import type { IconName } from "./names";
 import { CORE_ICONS } from "./sets/core";
-import { ENERGY_ICONS } from "./sets/energy";
-import { ENGINEERING_ICONS } from "./sets/engineering";
 import { FOOD_ICONS } from "./sets/food";
 import { HEALTH_ICONS } from "./sets/health";
-import { MONEY_ICONS } from "./sets/money";
-import { TECHNOLOGY_ICONS } from "./sets/technology";
 import { VETERINARY_ICONS } from "./sets/veterinary";
 import type { IconComponent, IconProps } from "./svg";
 
@@ -596,10 +402,6 @@ export const ICONS = {
   ...HEALTH_ICONS,
   ...VETERINARY_ICONS,
   ...FOOD_ICONS,
-  ...ENGINEERING_ICONS,
-  ...ENERGY_ICONS,
-  ...TECHNOLOGY_ICONS,
-  ...MONEY_ICONS,
 } satisfies Record<IconName, IconComponent>;
 
 export const Icon: React.FC<IconProps & { readonly name: IconName }> = ({ name, ...rest }) => {
@@ -657,138 +459,46 @@ cd template
 npx vitest run && npm run lint
 mkdir -p out && npx remotion still IconSheet out/icon-sheet.png --public-dir examples/smoke --log=error
 ```
-Expected: all tests PASS (icons: 59 names, each renders); lint exit 0. Open `out/icon-sheet.png` with the Read tool: every icon is recognisable, centred in its cell, inside its 100×100 box (no clipped shapes), and uses the cream main color with orange accents. Fix any icon whose shape is broken by editing its path and re-render; report which ones you changed.
+Expected: all tests PASS (icons: 39 names, each renders); lint exit 0. Open `out/icon-sheet.png` with the Read tool: every icon is recognisable, centred in its cell, inside its 100×100 box (no clipped shapes), and uses the cream main color with orange accents. Fix any icon whose shape is broken by editing its path and re-render; report which ones you changed.
 
 - [ ] **Step 8: Commit**
 
 ```bash
 git add template/src/icons template/src/compositions/IconSheet.tsx template/src/Root.tsx template/tests/icons.test.ts
-git commit -m "feat(icons): split icon sets by domain and add health, vet, food, engineering, energy, tech and money icons"
+git commit -m "feat(icons): split icon sets by domain and add health, veterinary and food icons"
 ```
 
 ---
 
-### Task 2: Icon domains B (education, nature, home, transport, time, people, warnings, actions)
+### Task 2: Home, time, people, warning and action icons
 
 **Files:**
-- Create: `template/src/icons/sets/education.tsx`, `nature.tsx`, `home.tsx`, `transport.tsx`, `time.tsx`, `people.tsx`, `warnings.tsx`, `actions.tsx`
+- Create: `template/src/icons/sets/home.tsx`, `time.tsx`, `people.tsx`, `warnings.tsx`, `actions.tsx`
 - Modify: `template/src/icons/names.ts`, `template/src/icons/index.tsx`
 - Test: `template/tests/icons.test.ts`
 
 **Interfaces:**
 - Consumes: `icon`, `IconComponent` (Task 1).
-- Produces: 46 more names (105 total), including `person`, `ban`, `house`, `sofa`, `shield`, `refresh`, `star`, `question`, `arrowRight` used by later blocks and examples.
+- Produces: 29 more names (68 total), including `person`, `hand`, `ban`, `house`, `sofa`, `shield`, `refresh`, `star`, `calendar`, `question`, `arrowRight` used by later blocks and examples.
 
 - [ ] **Step 1: Write the failing test**
 
 Append to `template/tests/icons.test.ts`:
 ```ts
-it("includes the domain B icons and at least 100 icons in total", () => {
-  for (const name of ["book", "leaf", "house", "car", "calendar", "person", "shield", "arrowRight", "question"]) {
+it("includes the home, time, people, warning and action icons", () => {
+  for (const name of ["house", "calendar", "person", "hand", "shield", "ban", "arrowRight", "question"]) {
     expect(ICON_NAMES).toContain(name);
   }
-  expect(ICON_NAMES.length).toBeGreaterThanOrEqual(100);
+  expect(ICON_NAMES.length).toBe(68);
 });
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `cd template && npx vitest run tests/icons.test.ts`
-Expected: FAIL — the new test (names missing, 59 < 100).
+Expected: FAIL — the new test (names missing).
 
 - [ ] **Step 3: Add the sets**
-
-`template/src/icons/sets/education.tsx`:
-```tsx
-import { icon, type IconComponent } from "../svg";
-import type { IconName } from "../names";
-
-export const EDUCATION_ICONS = {
-  book: icon((c, a) => (
-    <g>
-      <path d="M50 26 C38 18 22 18 10 22 V82 C22 78 38 78 50 86 C62 78 78 78 90 82 V22 C78 18 62 18 50 26 Z" fill={c} />
-      <path d="M50 26 V86" stroke={a === c ? "#00000055" : a} strokeWidth="4" />
-    </g>
-  )),
-  gradCap: icon((c, a) => (
-    <g>
-      <path d="M50 18 L94 38 L50 58 L6 38 Z" fill={c} />
-      <path d="M26 48 V68 C26 78 74 78 74 68 V48 L50 60 Z" fill={c} />
-      <path d="M88 40 V66" stroke={a} strokeWidth="5" strokeLinecap="round" />
-      <circle cx="88" cy="70" r="5" fill={a} />
-    </g>
-  )),
-  pencil: icon((c, a) => (
-    <g transform="rotate(-45 50 50)">
-      <rect x="38" y="4" width="24" height="64" rx="3" fill={c} />
-      <rect x="38" y="4" width="24" height="12" rx="3" fill={a} />
-      <path d="M38 68 H62 L50 94 Z" fill={a === c ? "#00000055" : a} />
-    </g>
-  )),
-  flask: icon((c, a) => (
-    <g>
-      <path d="M30 82 H70 L58 58 H42 Z" fill={a} />
-      <path d="M40 8 H60 M44 8 V38 L18 82 A6 6 0 0 0 24 90 H76 A6 6 0 0 0 82 82 L56 38 V8" stroke={c} strokeWidth="7" fill="none" strokeLinejoin="round" strokeLinecap="round" />
-    </g>
-  )),
-  barChart: icon((c, a) => (
-    <g>
-      <rect x="12" y="52" width="18" height="36" rx="3" fill={c} />
-      <rect x="41" y="30" width="18" height="58" rx="3" fill={a} />
-      <rect x="70" y="12" width="18" height="76" rx="3" fill={c} />
-    </g>
-  )),
-} satisfies Partial<Record<IconName, IconComponent>>;
-```
-
-`template/src/icons/sets/nature.tsx`:
-```tsx
-import { icon, type IconComponent } from "../svg";
-import type { IconName } from "../names";
-
-const CLOUD = "M28 74 A18 18 0 0 1 28 38 A24 24 0 0 1 72 34 A20 20 0 0 1 74 74 Z";
-
-export const NATURE_ICONS = {
-  leaf: icon((c, a) => (
-    <g>
-      <path d="M86 14 C40 14 14 40 14 70 C14 78 18 86 18 86 C18 86 26 90 34 90 C66 90 86 60 86 14 Z" fill={c} />
-      <path d="M22 82 L66 34" stroke={a === c ? "#00000055" : a} strokeWidth="5" strokeLinecap="round" />
-    </g>
-  )),
-  tree: icon((c, a) => (
-    <g>
-      <rect x="44" y="58" width="12" height="34" rx="3" fill={a} />
-      <circle cx="50" cy="38" r="30" fill={c} />
-    </g>
-  )),
-  cloud: icon((c) => <path d={CLOUD} fill={c} />),
-  rain: icon((c, a) => (
-    <g>
-      <path d={CLOUD} fill={c} transform="translate(0 -14)" />
-      <path d="M34 72 L28 88 M52 72 L46 88 M70 72 L64 88" stroke={a} strokeWidth="6" strokeLinecap="round" />
-    </g>
-  )),
-  snow: icon((c) => (
-    <g stroke={c} strokeWidth="7" strokeLinecap="round">
-      <path d="M50 10 V90 M15 30 L85 70 M15 70 L85 30" />
-      <path d="M40 16 L50 26 L60 16 M40 84 L50 74 L60 84" fill="none" />
-    </g>
-  )),
-  wind: icon((c, a) => (
-    <g fill="none" strokeWidth="7" strokeLinecap="round">
-      <path d="M8 38 H62 A12 12 0 1 0 50 26" stroke={c} />
-      <path d="M8 56 H78 A12 12 0 1 1 66 68" stroke={c} />
-      <path d="M8 74 H40" stroke={a} />
-    </g>
-  )),
-  mountain: icon((c, a) => (
-    <g>
-      <path d="M4 86 L38 28 L56 58 L68 42 L96 86 Z" fill={c} />
-      <path d="M38 28 L48 45 L42 50 L36 44 L30 48 Z" fill={a === c ? "#FFFFFF66" : a} />
-    </g>
-  )),
-} satisfies Partial<Record<IconName, IconComponent>>;
-```
 
 `template/src/icons/sets/home.tsx`:
 ```tsx
@@ -831,60 +541,6 @@ export const HOME_ICONS = {
       <rect x="40" y="6" width="20" height="10" rx="3" fill={c} />
       <path d="M22 32 H78 L72 92 H28 Z" fill={c} />
       <path d="M40 44 V80 M60 44 V80" stroke={a === c ? "#00000055" : a} strokeWidth="5" strokeLinecap="round" />
-    </g>
-  )),
-} satisfies Partial<Record<IconName, IconComponent>>;
-```
-
-`template/src/icons/sets/transport.tsx`:
-```tsx
-import { icon, type IconComponent } from "../svg";
-import type { IconName } from "../names";
-
-const wheel = (cx: number, cy: number, c: string, a: string) => (
-  <g key={`${cx}-${cy}`}>
-    <circle cx={cx} cy={cy} r="10" fill={c} />
-    <circle cx={cx} cy={cy} r="4" fill={a === c ? "#00000066" : a} />
-  </g>
-);
-
-export const TRANSPORT_ICONS = {
-  car: icon((c, a) => (
-    <g>
-      <path d="M8 64 L16 42 C18 36 24 32 30 32 H70 C76 32 82 36 84 42 L92 64 V76 H8 Z" fill={c} />
-      <path d="M26 44 L30 38 H48 V50 H24 Z M54 38 H70 L76 50 H54 Z" fill={a === c ? "#00000055" : a} />
-      {wheel(28, 78, c, a)}
-      {wheel(72, 78, c, a)}
-    </g>
-  )),
-  bike: icon((c, a) => (
-    <g fill="none" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="24" cy="66" r="16" stroke={c} />
-      <circle cx="76" cy="66" r="16" stroke={c} />
-      <path d="M24 66 L42 36 H64 L76 66 M42 36 L54 66 H24 M60 26 H70" stroke={a} />
-    </g>
-  )),
-  bus: icon((c, a) => (
-    <g>
-      <rect x="14" y="10" width="72" height="72" rx="10" fill={c} />
-      <rect x="22" y="20" width="56" height="28" rx="3" fill={a === c ? "#00000055" : a} />
-      {wheel(30, 84, c, a)}
-      {wheel(70, 84, c, a)}
-    </g>
-  )),
-  plane: icon((c) => (
-    <path
-      d="M50 6 C54 6 56 12 56 18 V40 L92 58 V66 L56 56 V76 L68 86 V92 L50 86 L32 92 V86 L44 76 V56 L8 66 V58 L44 40 V18 C44 12 46 6 50 6 Z"
-      fill={c}
-    />
-  )),
-  truck: icon((c, a) => (
-    <g>
-      <rect x="6" y="24" width="56" height="46" rx="4" fill={c} />
-      <path d="M62 36 H80 L94 54 V70 H62 Z" fill={c} />
-      <path d="M68 42 H78 L86 54 H68 Z" fill={a === c ? "#00000055" : a} />
-      {wheel(24, 74, c, a)}
-      {wheel(78, 74, c, a)}
     </g>
   )),
 } satisfies Partial<Record<IconName, IconComponent>>;
@@ -1060,14 +716,8 @@ export const ACTION_ICONS = {
 
 In `template/src/icons/names.ts`, extend the array (before `] as const;`):
 ```ts
-  // education
-  "book", "gradCap", "pencil", "flask", "barChart",
-  // nature and weather
-  "leaf", "tree", "cloud", "rain", "snow", "wind", "mountain",
   // home
   "house", "door", "bed", "sofa", "trash",
-  // transport
-  "car", "bike", "bus", "plane", "truck",
   // time
   "calendar", "hourglass", "alarm", "stopwatch",
   // people
@@ -1077,22 +727,16 @@ In `template/src/icons/names.ts`, extend the array (before `] as const;`):
   // actions and arrows
   "arrowRight", "arrowUp", "arrowDown", "refresh", "plus", "minus", "search", "star", "question",
 ```
-In `template/src/icons/index.tsx`, import the eight new sets and spread them into `ICONS` after `...MONEY_ICONS`:
+In `template/src/icons/index.tsx`, import the five new sets and spread them into `ICONS` after `...FOOD_ICONS`:
 ```tsx
 import { ACTION_ICONS } from "./sets/actions";
-import { EDUCATION_ICONS } from "./sets/education";
 import { HOME_ICONS } from "./sets/home";
-import { NATURE_ICONS } from "./sets/nature";
 import { PEOPLE_ICONS } from "./sets/people";
 import { TIME_ICONS } from "./sets/time";
-import { TRANSPORT_ICONS } from "./sets/transport";
 import { WARNING_ICONS } from "./sets/warnings";
 ```
 ```tsx
-  ...EDUCATION_ICONS,
-  ...NATURE_ICONS,
   ...HOME_ICONS,
-  ...TRANSPORT_ICONS,
   ...TIME_ICONS,
   ...PEOPLE_ICONS,
   ...WARNING_ICONS,
@@ -1107,13 +751,13 @@ cd template
 npx vitest run && npm run lint
 npx remotion still IconSheet out/icon-sheet.png --public-dir examples/smoke --log=error
 ```
-Expected: all tests PASS (105 icons); lint exit 0. Open `out/icon-sheet.png` with Read: all 105 icons recognisable and unclipped (the sheet is 7 × 15 cells). Fix broken shapes and report which.
+Expected: all tests PASS (68 icons); lint exit 0. Open `out/icon-sheet.png` with Read: all 68 icons recognisable and unclipped (the sheet is 7 × 10 cells). Fix broken shapes and report which.
 
 - [ ] **Step 6: Commit**
 
 ```bash
 git add template/src/icons template/tests/icons.test.ts
-git commit -m "feat(icons): add education, nature, home, transport, time, people, warning and action icons (105 total)"
+git commit -m "feat(icons): add home, time, people, warning and action icons (68 total)"
 ```
 
 ---
@@ -1126,7 +770,7 @@ git commit -m "feat(icons): add education, nature, home, transport, time, people
 - Test: `template/tests/diagrams.test.ts`
 
 **Interfaces:**
-- Produces: `DIAGRAM_NAMES = ["human","dog","cat","tooth","car","house","circuit"] as const`, `type DiagramName`, `DIAGRAMS: Record<DiagramName, React.FC<DiagramProps>>`, `<Diagram name size color accent style? />` on a 400×400 viewBox (`color` = body fill, `accent` = detail lines/areas), `diagramName` zod enum in schema-parts. The `dog` faces left (head on the left half); `human` faces the viewer.
+- Produces: `DIAGRAM_NAMES = ["dog","cat","tooth","human"] as const`, `type DiagramName`, `DIAGRAMS: Record<DiagramName, React.FC<DiagramProps>>`, `<Diagram name size color accent style? />` on a 400×400 viewBox (`color` = body fill, `accent` = detail lines/areas), `diagramName` zod enum in schema-parts. The `dog` faces left (head on the left half); `human` faces the viewer.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1141,7 +785,7 @@ import { DIAGRAM_NAMES } from "../src/icons/names";
 
 it("registers exactly the declared diagrams", () => {
   expect(Object.keys(DIAGRAMS).sort()).toEqual([...DIAGRAM_NAMES].sort());
-  expect(DIAGRAM_NAMES).toEqual(["human", "dog", "cat", "tooth", "car", "house", "circuit"]);
+  expect(DIAGRAM_NAMES).toEqual(["dog", "cat", "tooth", "human"]);
 });
 
 describe.each([...DIAGRAM_NAMES])("diagram %s", (name) => {
@@ -1168,7 +812,7 @@ Expected: FAIL — cannot resolve `../src/icons/diagrams`.
 
 Append to `template/src/icons/names.ts`:
 ```ts
-export const DIAGRAM_NAMES = ["human", "dog", "cat", "tooth", "car", "house", "circuit"] as const;
+export const DIAGRAM_NAMES = ["dog", "cat", "tooth", "human"] as const;
 export type DiagramName = (typeof DIAGRAM_NAMES)[number];
 ```
 
@@ -1185,7 +829,7 @@ import type React from "react";
 import type { DiagramName } from "./names";
 
 // Large silhouettes for the Anatomy block, on a 400×400 grid.
-// `color` fills the body; `accent` draws details (windows, joints, traces…).
+// `color` fills the body; `accent` draws details (eyes, gum line, belt…).
 export type DiagramProps = {
   readonly size: number;
   readonly color: string;
@@ -1201,13 +845,6 @@ const Box: React.FC<{ readonly size: number; readonly style?: React.CSSPropertie
   <svg width={size} height={size} viewBox="0 0 400 400" style={style}>
     {children}
   </svg>
-);
-
-const wheel = (cx: number, c: string, a: string) => (
-  <g key={cx}>
-    <circle cx={cx} cy="290" r="42" fill={c} />
-    <circle cx={cx} cy="290" r="18" fill={a} />
-  </g>
 );
 
 export const DIAGRAMS: Record<DiagramName, React.FC<DiagramProps>> = {
@@ -1253,45 +890,6 @@ export const DIAGRAMS: Record<DiagramName, React.FC<DiagramProps>> = {
       <path d="M118 98 C104 110 100 130 104 150" stroke={accent} strokeWidth="8" fill="none" strokeLinecap="round" />
     </Box>
   ),
-  car: ({ size, color, accent, style }) => (
-    <Box size={size} style={style}>
-      <path
-        d="M28 252 L60 190 C70 170 90 160 110 160 H270 C290 160 310 170 322 186 L352 230 C364 232 374 244 374 258 V290 H28 Z"
-        fill={color}
-      />
-      <path d="M100 176 H190 V226 H74 Z M206 176 H268 L304 226 H206 Z" fill={accent} />
-      {wheel(108, color, accent)}
-      {wheel(292, color, accent)}
-    </Box>
-  ),
-  house: ({ size, color, accent, style }) => (
-    <Box size={size} style={style}>
-      <rect x="262" y="86" width="34" height="70" fill={color} />
-      <path d="M58 192 L200 70 L342 192 V352 H58 Z" fill={color} />
-      <rect x="170" y="262" width="60" height="90" rx="4" fill={accent} />
-      <rect x="92" y="216" width="54" height="50" rx="4" fill={accent} />
-      <rect x="254" y="216" width="54" height="50" rx="4" fill={accent} />
-    </Box>
-  ),
-  circuit: ({ size, color, accent, style }) => (
-    <Box size={size} style={style}>
-      <rect x="40" y="40" width="320" height="320" rx="22" fill={color} />
-      <g stroke={accent} strokeWidth="8" fill="none" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M80 100 H150 V160 M320 100 H250 V160 M80 300 H150 V240 M320 300 H250 V240 M200 80 V150 M200 250 V320" />
-      </g>
-      <rect x="150" y="150" width="100" height="100" rx="10" fill={accent} />
-      {[
-        [80, 100],
-        [320, 100],
-        [80, 300],
-        [320, 300],
-        [200, 80],
-        [200, 320],
-      ].map(([cx, cy]) => (
-        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="12" fill={accent} />
-      ))}
-    </Box>
-  ),
 };
 
 export const Diagram: React.FC<DiagramProps & { readonly name: DiagramName }> = ({ name, ...rest }) => {
@@ -1322,13 +920,13 @@ cd template
 npx vitest run && npm run lint
 npx remotion still IconSheet out/icon-sheet.png --public-dir examples/smoke --log=error
 ```
-Expected: tests PASS; lint exit 0; the bottom row of `out/icon-sheet.png` shows seven recognisable cream silhouettes (person, dog facing left, sitting cat, tooth, car, house, circuit board) with dark details.
+Expected: tests PASS; lint exit 0; the bottom row of `out/icon-sheet.png` shows four recognisable cream silhouettes (dog facing left, sitting cat, tooth, person) with dark details.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add template/src/icons template/src/blocks/schema-parts.ts template/src/compositions/IconSheet.tsx template/tests/diagrams.test.ts
-git commit -m "feat(icons): seven anatomy diagrams and a diagramName schema part"
+git commit -m "feat(icons): dog, cat, tooth and human anatomy diagrams"
 ```
 
 ---
@@ -2018,17 +1616,17 @@ import { expect, it } from "vitest";
 import { definitionSchema } from "../../src/blocks/Definition.schema";
 
 const BASE = {
-  term: "Interruptor diferencial",
-  pronunciation: "in-ter-rup-TOR di-fe-ren-CIAL",
-  category: "Electricidad en casa",
-  meaning: "Aparato que corta la luz en milésimas de segundo si detecta una fuga de corriente hacia tu cuerpo.",
-  icon: "lightning",
+  term: "Leptospirosis canina",
+  pronunciation: "lep-tos-pi-RO-sis ca-NI-na",
+  category: "Infección bacteriana",
+  meaning: "Infección que tu perro puede contraer por agua o charcos con orina de ratas, y que nos afecta.",
+  icon: "drop",
 };
 
 it("accepts a full definition and fills defaults", () => {
-  const p = definitionSchema.parse({ term: "Breaker", meaning: "Corta la luz.", icon: "lightning" });
+  const p = definitionSchema.parse({ term: "Fiebre", meaning: "Temperatura alta.", icon: "thermometer" });
   expect([p.pronunciation, p.category]).toEqual(["", ""]);
-  expect(definitionSchema.parse(BASE).term).toBe("Interruptor diferencial");
+  expect(definitionSchema.parse(BASE).term).toBe("Leptospirosis canina");
 });
 it("rejects meanings over 18 words", () => {
   expect(definitionSchema.safeParse({ ...BASE, meaning: new Array(19).fill("palabra").join(" ") }).success).toBe(false);
@@ -2044,8 +1642,8 @@ it("rejects a term over 24 characters and unknown props", () => {
 import { expect, it } from "vitest";
 import { processSchema } from "../../src/blocks/Process.schema";
 
-const step = (label: string) => ({ icon: "gear", label });
-const BASE = { steps: [step("Entra la corriente"), step("Se calienta"), step("Corta si es mucha")] };
+const step = (label: string) => ({ icon: "paw", label });
+const BASE = { steps: [step("Pipeta en la nuca"), step("Se esparce en piel"), step("Muere en horas")] };
 
 it("defaults to arrow connectors", () => {
   expect(processSchema.parse(BASE).connector).toBe("arrow");
@@ -2396,27 +1994,27 @@ Register `Definition` and `Process` (shared procedure). Append to `template/src/
 ```json
   {
     "block": "Definition",
-    "title": { "text": "¿QUÉ ES el diferencial?", "accent": "QUÉ ES" },
+    "title": { "text": "¿QUÉ ES la lepto?", "accent": "QUÉ ES" },
     "durationInFrames": 210,
     "props": {
-      "term": "Interruptor diferencial",
-      "pronunciation": "in-ter-rup-TOR di-fe-ren-CIAL",
-      "category": "Electricidad en casa",
-      "meaning": "Aparato que corta la luz en milésimas de segundo si detecta una fuga de corriente hacia tu cuerpo.",
-      "icon": "lightning"
+      "term": "Leptospirosis canina",
+      "pronunciation": "lep-tos-pi-RO-sis ca-NI-na",
+      "category": "Infección bacteriana",
+      "meaning": "Infección que tu perro puede contraer por agua o charcos con orina de ratas, y que nos afecta.",
+      "icon": "drop"
     }
   },
   {
     "block": "Process",
-    "title": { "text": "¿CÓMO se dispara?", "accent": "CÓMO" },
+    "title": { "text": "¿CÓMO funciona?", "accent": "CÓMO" },
     "durationInFrames": 210,
     "props": {
       "steps": [
-        { "icon": "plug", "label": "Entra la corriente" },
-        { "icon": "lightning", "label": "Pasa por el cable" },
-        { "icon": "flame", "label": "Se calienta" },
-        { "icon": "gear", "label": "El breaker la mide" },
-        { "icon": "ban", "label": "Corta si es mucha" }
+        { "icon": "drop", "label": "Pipeta en la nuca" },
+        { "icon": "dog", "label": "Se esparce en piel" },
+        { "icon": "flea", "label": "La pulga lo toca" },
+        { "icon": "ban", "label": "Muere en horas" },
+        { "icon": "calendar", "label": "Repite cada mes" }
       ],
       "connector": "arrow",
       "highlightStep": 4
@@ -2424,7 +2022,7 @@ Register `Definition` and `Process` (shared procedure). Append to `template/src/
   }
 ```
 
-- [ ] **Step 6: Verify (shared procedure)** with `--block=Definition,Process`. Expected: both pass in both layouts. Definition: icon disc left, category pill, the full term with its accent underline, pronunciation, and the full meaning below. Process: five numbered circles joined by arrows, labels under each, step 5 ringed in accent and the rest dimmed.
+- [ ] **Step 6: Verify (shared procedure)** with `--block=Definition,Process`. Expected: both pass in both layouts. Definition: drop icon disc left, category pill, the full term "Leptospirosis canina" with its accent underline, pronunciation, and the full meaning below. Process: five numbered circles (pipette, dog, flea, ban, calendar) joined by arrows, labels under each, step 5 ringed in accent and the rest dimmed.
 
 - [ ] **Step 7: Commit**
 
@@ -2911,7 +2509,7 @@ Register `Cycle` and `Timeline`. Append to `samples.json`:
         { "icon": "house", "label": "Huevo en la casa" },
         { "icon": "sofa", "label": "Larva en tapetes" },
         { "icon": "shield", "label": "Pupa protegida" },
-        { "icon": "paw", "label": "Pulga adulta" },
+        { "icon": "flea", "label": "Pulga adulta" },
         { "icon": "dog", "label": "Salta a tu perro" },
         { "icon": "refresh", "label": "Pone más huevos" }
       ],
@@ -2968,9 +2566,9 @@ import { versusSchema } from "../../src/blocks/Versus.schema";
 
 const row = (attribute: string, winner?: string) => ({ attribute, left: "Sí", right: "No", ...(winner ? { winner } : {}) });
 const BASE = {
-  left: { name: "Breaker", icon: "lightning" },
-  right: { name: "Fusible", icon: "flame" },
-  rows: [row("Se reutiliza", "left"), row("Precio", "right")],
+  left: { name: "Pipeta", icon: "drop" },
+  right: { name: "Pastilla", icon: "pill" },
+  rows: [row("Dura un mes", "left"), row("Precio", "right")],
 };
 
 it("defaults the VS label", () => {
@@ -2981,7 +2579,7 @@ it("accepts 2–4 rows", () => {
   expect(versusSchema.safeParse({ ...BASE, rows: new Array(5).fill(row("a")) }).success).toBe(false);
 });
 it("limits names to 14, attributes to 14 and values to 12 characters", () => {
-  expect(versusSchema.safeParse({ ...BASE, left: { name: "x".repeat(15), icon: "flame" } }).success).toBe(false);
+  expect(versusSchema.safeParse({ ...BASE, left: { name: "x".repeat(15), icon: "pill" } }).success).toBe(false);
   expect(versusSchema.safeParse({ ...BASE, rows: [row("x".repeat(15)), row("b")] }).success).toBe(false);
   expect(versusSchema.safeParse({ ...BASE, rows: [{ attribute: "a", left: "x".repeat(13), right: "b" }, row("b")] }).success).toBe(false);
 });
@@ -3332,16 +2930,16 @@ Register `Versus` and `Proportion`. Append to `samples.json`:
 ```json
   {
     "block": "Versus",
-    "title": { "text": "¿CUÁL protege mejor?", "accent": "CUÁL" },
+    "title": { "text": "¿CUÁL elegir?", "accent": "CUÁL" },
     "durationInFrames": 210,
     "props": {
-      "left": { "name": "Taco o breaker", "icon": "lightning" },
-      "right": { "name": "Fusible viejo", "icon": "flame" },
+      "left": { "name": "Pipeta mensual", "icon": "drop" },
+      "right": { "name": "Pastilla oral", "icon": "pill" },
       "rows": [
-        { "attribute": "Se reutiliza", "left": "Se rearma", "right": "Se reemplaza", "winner": "left" },
-        { "attribute": "Precio", "left": "Más caro", "right": "Muy barato", "winner": "right" },
-        { "attribute": "Velocidad", "left": "Muy rápido", "right": "Rápido", "winner": "left" },
-        { "attribute": "Mantenimiento", "left": "Casi ninguno", "right": "Cambiarlo", "winner": "left" }
+        { "attribute": "Duración", "left": "Un mes", "right": "1 a 3 meses", "winner": "right" },
+        { "attribute": "Baño después", "left": "Esperar 48 h", "right": "Sin problema", "winner": "right" },
+        { "attribute": "Precio", "left": "Más barata", "right": "Más cara", "winner": "left" },
+        { "attribute": "Fácil de dar", "left": "Muy fácil", "right": "Si la come", "winner": "left" }
       ]
     }
   },
@@ -3863,8 +3461,8 @@ const BASE = { subject: { diagram: "dog" }, callouts: [callout("Nariz", 10, 40),
 
 it("accepts a diagram or an icon as subject, not both or neither", () => {
   expect(anatomySchema.safeParse(BASE).success).toBe(true);
-  expect(anatomySchema.safeParse({ ...BASE, subject: { icon: "car" } }).success).toBe(true);
-  expect(anatomySchema.safeParse({ ...BASE, subject: { diagram: "dog", icon: "car" } }).success).toBe(false);
+  expect(anatomySchema.safeParse({ ...BASE, subject: { icon: "tooth" } }).success).toBe(true);
+  expect(anatomySchema.safeParse({ ...BASE, subject: { diagram: "dog", icon: "tooth" } }).success).toBe(false);
   expect(anatomySchema.safeParse({ ...BASE, subject: { diagram: "robot" } }).success).toBe(false);
 });
 it("allows at most 3 callouts per side and 2–6 in total", () => {
@@ -4325,9 +3923,9 @@ Register `Anatomy` and `Decision`. Append to `samples.json`:
 
 - [ ] **Step 6: Verify (shared procedure)** with `--block=Anatomy,Decision`. Also render the icon-subject variant once:
 ```bash
-npx remotion still BlockPreview out/anatomy-icon.png --public-dir examples/smoke --frame=209 --props='{"layoutName":"9x16","block":"Anatomy","props":{"subject":{"icon":"car"},"callouts":[{"label":"Frenos","x":28,"y":78},{"label":"Motor","x":70,"y":50}]},"title":null,"durationInFrames":210,"talent":null}'
+npx remotion still BlockPreview out/anatomy-icon.png --public-dir examples/smoke --frame=209 --props='{"layoutName":"9x16","block":"Anatomy","props":{"subject":{"diagram":"tooth"},"callouts":[{"label":"Encía","x":20,"y":50},{"label":"Sarro","x":72,"y":30}]},"title":null,"durationInFrames":210,"talent":null}'
 ```
-Expected: both gallery samples pass in both layouts. Anatomy: the cream dog silhouette in the middle, three labels each side joined by lines to accent dots on the body, "Nariz y olfato" in accent with its dot pulsing and the others dimmed. Decision: the question in an accent-bordered box, branch lines to SÍ (left) and NO (right), the left branch's follow-up question with two small outcome boxes (red, orange), the right branch's green outcome with a check icon. The icon variant shows a large car with two callouts.
+Expected: both gallery samples pass in both layouts. Anatomy: the cream dog silhouette in the middle, three labels each side joined by lines to accent dots on the body, "Nariz y olfato" in accent with its dot pulsing and the others dimmed. Decision: the question in an accent-bordered box, branch lines to SÍ (left) and NO (right), the left branch's follow-up question with two small outcome boxes (red, orange), the right branch's green outcome with a check icon. The tooth variant shows the large tooth diagram with "Encía" and "Sarro" callouts.
 
 - [ ] **Step 7: Commit**
 
@@ -4338,19 +3936,19 @@ git commit -m "feat(blocks): Anatomy and Decision"
 
 ---
 
-### Task 12: Engineering example and full verification
+### Task 12: Veterinary fever episode and full verification
 
 **Files:**
-- Create: `template/examples/engineering-sample/episode.json`, `template/examples/engineering-sample/talent.json`
-- Test: `template/tests/examples.test.ts` (runs automatically for every example folder), `template/tests/engineering-example.test.ts`
+- Create: `template/examples/dani-fiebre/episode.json`, `template/examples/dani-fiebre/talent.json`
+- Test: `template/tests/examples.test.ts` (runs automatically for every example folder), `template/tests/vet-example.test.ts`
 
 **Interfaces:**
 - Consumes: all 20 blocks.
-- Produces: a 45 s reference episode in a different field whose three steps use only the new explainer blocks (`Definition`, `Gauge`, `Process`, `Versus`, `Decision`), with a different palette. `npm run check` (no args) now checks three examples.
+- Produces: a second Dogtora Dani reference episode (45 s, "¿Tu perro tiene fiebre?") whose three steps use only the new explainer blocks (`Definition`, `Gauge`, `Process`, `Versus`, `Decision`). `npm run check` (no args) now checks three examples. Its clinical figures are marked for Dani to confirm.
 
 - [ ] **Step 1: Write the failing test**
 
-`template/tests/engineering-example.test.ts`:
+`template/tests/vet-example.test.ts`:
 ```ts
 import fs from "node:fs";
 import path from "node:path";
@@ -4358,61 +3956,42 @@ import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
 import { validateEpisode } from "../src/episode/validate";
 
-const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../examples/engineering-sample");
+const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), "../examples/dani-fiebre");
 
-it("is a 45 s episode whose steps use only the new explainer blocks", () => {
+it("is a 45 s vet episode whose steps use only the new explainer blocks", () => {
   const episode = validateEpisode(JSON.parse(fs.readFileSync(path.join(dir, "episode.json"), "utf8")));
   expect(episode.durationSeconds).toBe(45);
+  expect(episode.talent).toBe("dani");
   const stepBlocks = [episode.scenes.step1, episode.scenes.step2, episode.scenes.step3].flatMap((s) => s.beats.map((b) => b.block));
   expect(new Set(stepBlocks)).toEqual(new Set(["Definition", "Gauge", "Process", "Versus", "Decision"]));
+  expect(JSON.stringify(episode)).not.toMatch(/dueño/i);
 });
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd template && npx vitest run tests/engineering-example.test.ts`
+Run: `cd template && npx vitest run tests/vet-example.test.ts`
 Expected: FAIL — ENOENT (episode.json missing).
 
 - [ ] **Step 3: Write the example**
 
-`template/examples/engineering-sample/talent.json`:
-```json
-{
-  "id": "ingenieria",
-  "displayName": "Ingeniería en casa",
-  "pillName": "Ingeniería en casa",
-  "profession": "Ingeniera electricista",
-  "city": "Medellín",
-  "country": "CO",
-  "locale": "es-CO",
-  "colors": {
-    "bg": "#0E1726",
-    "bg2": "#18263D",
-    "accent": "#FFC21A",
-    "text": "#F2F6FF",
-    "danger": "#FF5A5A",
-    "safe": "#3DDC97",
-    "extra": {}
-  },
-  "disclaimer": ["Contenido de ejemplo.", "Ante dudas, llama a un electricista."]
-}
-```
+`template/examples/dani-fiebre/talent.json`: copy `template/examples/dani-chocolate/talent.json` unchanged (`cp examples/dani-chocolate/talent.json examples/dani-fiebre/talent.json`).
 
-`template/examples/engineering-sample/episode.json`:
+`template/examples/dani-fiebre/episode.json`:
 ```json
 {
   "schemaVersion": 1,
-  "talent": "ingenieria",
-  "slug": "engineering-sample",
+  "talent": "dani",
+  "slug": "2026-11-fiebre",
   "durationSeconds": 45,
   "stage": "built",
-  "frame": { "steps": ["QUÉ ES", "CÓMO PASA", "QUÉ HACER"] },
+  "frame": { "steps": ["QUÉ ES", "CÓMO MEDIR", "QUÉ HACER"] },
   "script": [
-    "¿Se te dispara el breaker cada rato? Te explico por qué.",
-    "¿Qué es? Un interruptor que corta la luz cuando por el cable pasa más corriente de la que aguanta. Si la carga supera el cien por ciento, salta.",
-    "¿Cómo pasa? Conectas varios aparatos, la corriente sube, el cable se calienta y el breaker la corta. Y a diferencia de un fusible, lo puedes volver a subir.",
-    "¿Qué hacer? Si se vuelve a disparar sin nada conectado, no lo fuerces y llama a un electricista. Si pasó al conectar algo, desconéctalo y súbelo.",
-    "Soy ingeniera electricista. Guárdalo para cuando se vaya la luz."
+    "¿Tu perro está caliente y decaído? Puede ser fiebre. Te explico.",
+    "¿Qué es? En los perros la temperatura normal llega hasta treinta y nueve con dos. Por encima de eso hablamos de fiebre.",
+    "¿Cómo medirla? Con un termómetro digital lubricado, por el recto, hasta que pite. La nariz seca no te dice nada: solo el termómetro da un número.",
+    "¿Qué hacer? Si pasa de cuarenta o está muy decaído, llama hoy a tu veterinaria. Si está un poco alta, hidrátalo y vuelve a medir en dos horas.",
+    "Soy Dogtora Dani. Guárdalo y compártelo con otros tutores."
   ],
   "sceneStarts": null,
   "scenes": {
@@ -4421,69 +4000,71 @@ Expected: FAIL — ENOENT (episode.json missing).
         {
           "block": "Hook",
           "props": {
-            "line1": "¿Se te dispara el",
-            "line2": "BREAKER?",
-            "chip": "Electricidad en casa · 45 segundos",
-            "hero": { "animation": "shake", "icon": "lightning", "color": "accent" }
+            "line1": "¿Tu perro tiene",
+            "line2": "FIEBRE?",
+            "chip": "Guía para tutores · 45 segundos",
+            "hero": { "animation": "pop", "icon": "thermometer", "color": "accent" },
+            "stamp": "paw"
           }
         }
       ]
     },
     "step1": {
-      "title": { "text": "¿QUÉ ES un breaker?", "accent": "QUÉ ES" },
+      "title": { "text": "¿QUÉ ES la fiebre?", "accent": "QUÉ ES" },
       "beats": [
         {
           "block": "Definition",
           "props": {
-            "term": "Breaker",
-            "pronunciation": "BREI-ker",
-            "category": "Protección eléctrica",
-            "meaning": "Interruptor que corta la luz cuando pasa más corriente de la que el cable aguanta.",
-            "icon": "lightning"
+            "term": "Fiebre",
+            "category": "Signo de alerta",
+            "meaning": "Temperatura por encima de 39,2 °C: señal de que el cuerpo de tu perro combate algo.",
+            "icon": "thermometer"
           }
         },
         {
           "block": "Gauge",
           "props": {
-            "value": 115,
-            "unit": "%",
-            "min": 0,
-            "max": 150,
+            "value": 39.8,
+            "unit": "°C",
+            "decimals": 1,
+            "min": 36,
+            "max": 42,
             "zones": [
-              { "to": 80, "label": "Normal", "tone": "ok" },
-              { "to": 100, "label": "Al límite", "tone": "warn" },
-              { "to": 150, "label": "Se dispara", "tone": "danger" }
+              { "to": 39.2, "label": "Normal", "tone": "ok" },
+              { "to": 40, "label": "Fiebre", "tone": "warn" },
+              { "to": 41, "label": "Fiebre alta", "tone": "danger" },
+              { "to": 42, "label": "Urgencia", "tone": "danger" }
             ],
-            "needleLabel": "Carga del circuito"
+            "needleLabel": "Ejemplo de lectura"
           }
         }
       ]
     },
     "step2": {
-      "title": { "text": "¿CÓMO PASA?", "accent": "CÓMO" },
+      "title": { "text": "¿CÓMO MEDIRLA?", "accent": "CÓMO" },
       "beats": [
         {
           "block": "Process",
           "props": {
             "steps": [
-              { "icon": "plug", "label": "Conectas aparatos" },
-              { "icon": "lightning", "label": "Sube la corriente" },
-              { "icon": "flame", "label": "El cable se calienta" },
-              { "icon": "ban", "label": "El breaker corta" }
+              { "icon": "thermometer", "label": "Termómetro digital" },
+              { "icon": "drop", "label": "Lubrica la punta" },
+              { "icon": "dog", "label": "Mide por el recto" },
+              { "icon": "clock", "label": "Espera el pitido" }
             ],
             "connector": "arrow",
-            "highlightStep": 3
+            "highlightStep": 2
           }
         },
         {
           "block": "Versus",
           "props": {
-            "left": { "name": "Breaker", "icon": "lightning" },
-            "right": { "name": "Fusible", "icon": "flame" },
+            "left": { "name": "Termómetro", "icon": "thermometer" },
+            "right": { "name": "Nariz seca", "icon": "hand" },
             "rows": [
-              { "attribute": "Se reutiliza", "left": "Sí", "right": "No", "winner": "left" },
-              { "attribute": "Tras un corte", "left": "Lo subes", "right": "Lo cambias", "winner": "left" },
-              { "attribute": "Precio", "left": "Más caro", "right": "Barato", "winner": "right" }
+              { "attribute": "Es confiable", "left": "Sí", "right": "No", "winner": "left" },
+              { "attribute": "Da un número", "left": "Exacto", "right": "Ninguno", "winner": "left" },
+              { "attribute": "Rapidez", "left": "1 minuto", "right": "Al instante", "winner": "right" }
             ]
           }
         }
@@ -4495,12 +4076,12 @@ Expected: FAIL — ENOENT (episode.json missing).
         {
           "block": "Decision",
           "props": {
-            "question": "¿Se vuelve a disparar sin nada conectado?",
-            "yes": { "label": "No lo fuerces: llama a un electricista", "tone": "danger" },
+            "question": "¿Pasa de 40 °C o está muy decaído?",
+            "yes": { "label": "Llama hoy a tu veterinaria", "tone": "danger" },
             "no": {
-              "question": "¿Pasó al conectar algo?",
-              "yes": { "label": "Desconéctalo y súbelo", "tone": "ok" },
-              "no": { "label": "Revisa la carga total", "tone": "warn" }
+              "question": "¿Está entre 39,3 y 40 °C?",
+              "yes": { "label": "Hidrata y mide en 2 h", "tone": "warn" },
+              "no": { "label": "Temperatura normal", "tone": "ok" }
             }
           }
         }
@@ -4511,9 +4092,9 @@ Expected: FAIL — ENOENT (episode.json missing).
         {
           "block": "Close",
           "props": {
-            "line1": "Guárdalo para cuando",
-            "line2": { "text": "se vaya la luz", "accent": "luz" },
-            "accentIcon": "bulb",
+            "line1": "Guárdalo y compártelo",
+            "line2": { "text": "con otros tutores", "accent": "tutores" },
+            "accentIcon": "paw",
             "actions": ["bookmark", "share"]
           }
         }
@@ -4521,7 +4102,9 @@ Expected: FAIL — ENOENT (episode.json missing).
     }
   },
   "facts": [
-    { "claim": "Un breaker corta el circuito cuando la corriente supera su capacidad", "source": "Contenido de ejemplo" }
+    { "claim": "Temperatura normal del perro hasta ≈ 39,2 °C; fiebre por encima", "source": "Para confirmar con Dani (referencia clínica general)" },
+    { "claim": "Más de 40 °C o decaimiento marcado: consulta el mismo día", "source": "Para confirmar con Dani" },
+    { "claim": "La nariz seca no indica fiebre; solo el termómetro rectal da un dato fiable", "source": "Para confirmar con Dani" }
   ],
   "coverFrame": 60
 }
@@ -4536,34 +4119,35 @@ npx vitest run && npm run lint
 npm run check
 npm run check:gallery
 ```
-Expected: all tests PASS (examples.test covers the new folder; the engineering test passes); lint exit 0; `npm run check` passes all three examples in both layouts (quote any ⚠ lines); `check:gallery` passes all 20 blocks in both layouts.
+Expected: all tests PASS (examples.test covers the new folder; the vet-example test passes); lint exit 0; `npm run check` passes all three examples in both layouts (quote any ⚠ lines); `check:gallery` passes all 20 blocks in both layouts.
 
 - [ ] **Step 5: Short-beat check (Review Focus 2)**
 
 Run:
 ```bash
 cd template
-rm -rf /tmp/reelkit-eng15 && cp -R examples/engineering-sample /tmp/reelkit-eng15
-node -e 'const f="/tmp/reelkit-eng15/episode.json";const e=JSON.parse(require("fs").readFileSync(f));e.durationSeconds=15;e.coverFrame=30;require("fs").writeFileSync(f,JSON.stringify(e,null,2))'
-npm run check -- /tmp/reelkit-eng15
+rm -rf /tmp/reelkit-fiebre15 && cp -R examples/dani-fiebre /tmp/reelkit-fiebre15
+node -e 'const f="/tmp/reelkit-fiebre15/episode.json";const e=JSON.parse(require("fs").readFileSync(f));e.durationSeconds=15;e.coverFrame=30;require("fs").writeFileSync(f,JSON.stringify(e,null,2))'
+npm run check -- /tmp/reelkit-fiebre15
 ```
-Expected: passes both layouts. Then render the frame 3 frames before the end of step1's second beat and step2's second beat (frame numbers from the check's output list) and open them with Read: the Gauge needle, value and legend, and every Versus row and winner check, are fully in place before their scene fades.
+Expected: passes both layouts. Then render the frame 3 frames before the end of step1's second beat and of step2's second beat (frame numbers from the check's output list) and open them with Read: the Gauge needle, value and legend, and every Versus row with its winner check, are fully in place before their scene fades.
 
 - [ ] **Step 6: Look at the episode**
 
-Render frames 60, 300, 600, 900, 1200 and 1349 of `Episode` with `--public-dir examples/engineering-sample` to `template/out/eng-*.png` and open them with Read. Expected: yellow-on-navy palette; tracker QUÉ ES / CÓMO PASA / QUÉ HACER; every block fully inside the stage; nothing in the bottom-right talent slot; the close shows "Ingeniería en casa / Ingeniera electricista · Medellín".
+Render frames 60, 300, 600, 900, 1200 and 1349 of `Episode` with `--public-dir examples/dani-fiebre` to `template/out/fiebre-*.png` and open them with Read. Expected: Dani's palette and pill; tracker QUÉ ES / CÓMO MEDIR / QUÉ HACER; the thermometer hook; every block fully inside the stage; nothing in the bottom-right talent slot; the close shows "Dogtora Dani / Médica veterinaria · Manizales". Spanish copy uses "tutores", never "dueño".
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add template/examples/engineering-sample template/tests/engineering-example.test.ts
-git commit -m "feat(examples): 45 s engineering episode built from the explainer blocks"
+git add template/examples/dani-fiebre template/tests/vet-example.test.ts
+git commit -m "feat(examples): 45 s Dani fever episode built from the explainer blocks"
 ```
 
 ---
 
 ## Self-review notes (resolved)
 
-- **Spec coverage:** 10 explainer blocks with limits (Tasks 7–11), selection guide shapes covered (Definition/Process/Cycle/Timeline/Quantity/BigStat/Proportion/Gauge/Trend/Versus/Compare/Anatomy/Checklist/DoDont/Decision/MythFact/Chips), ~100 icons in 15 domains (105, Tasks 1–2), 7 Anatomy diagrams (Task 3), `BlockGallery` + `check --gallery` with the 0.85 / 40 px rules in both layouts (Tasks 4–5), engineering reference episode built only from new blocks (Task 12), schema-limit tests (every block task).
+- **Scope (user decision):** veterinary first. All 10 explainer blocks are built (they are subject-agnostic); icons are limited to core, health, veterinary (+ flea, bowl, leash, weight, toxic-plant leaf), food, home, time, people, warnings and actions (68 total); diagrams are dog, cat, tooth and human; every gallery sample and the new reference episode are veterinary. Engineering, energy, technology, money, education, nature and transport icons, the car/house/circuit diagrams and a non-vet reference episode are deferred to a later plan.
+- **Spec coverage:** 10 explainer blocks with limits (Tasks 7–11), icons and diagrams (Tasks 1–3, vet-first per the scope decision), `BlockGallery` + `check --gallery` with the 0.85 / 40 px rules in both layouts (Tasks 4–5), a reference episode built only from new blocks (Task 12, veterinary instead of engineering), schema-limit tests (every block task).
 - **Spec refinements:** Process labels are ≤ 20 characters as well as ≤ 4 words; Timeline `when` is ≤ 8 characters; Versus attributes ≤ 14 and values ≤ 12 characters; Gauge and Trend gain `decimals`; Proportion gains `ofWord` (locale wording) and `source`; Decision's depth limit is expressed as "one follow-up branch"; Cycle `centerLabel` ≤ 10. Core limits tightened in Task 6 (Chips auto columns, Checklist 34 chars / 44 px at 4 rows, Quantity ≤ 3 rows, MythFact 50/60, Compare labels 10).
 - **Deferred:** per-talent font overrides and the cover crop check remain Plan 3; CI running `check:gallery` is Plan 4.
