@@ -50,7 +50,15 @@
     },
     "step3": {
       "title": { "text": "¿QUÉ hacer?", "accent": "QUÉ" },
-      "beats": [{ "block": "BigStat", "props": { "value": 80, "unit": "%", "label": "límite de carga recomendado" } }]
+      "beats": [
+        {
+          "block": "Checklist",
+          "props": {
+            "rows": ["Carga entre 20 y 80 %", "Evita el calor", "Usa cargadores certificados"],
+            "pill": "Datos de ejemplo"
+          }
+        }
+      ]
     },
     "close": { "beats": [{ "block": "BigStat", "props": { "value": 31, "label": "Guárdalo y compártelo" } }] }
   },
