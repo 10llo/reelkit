@@ -1,0 +1,39 @@
+import { describe, expect, it } from "vitest";
+import { validateEpisode } from "../src/episode/validate";
+import { minimalEpisode } from "./fixtures";
+
+describe("validateEpisode", () => {
+  it("accepts a minimal episode and fills defaults", () => {
+    const e = validateEpisode(minimalEpisode());
+    expect(e.clip).toEqual({ src: "", trimStartFrames: 0 });
+    expect(e.coverFrame).toBe(60);
+    expect(e.scenes.step2.split).toBe(0.5);
+    expect(e.scenes.hook.beats[0].props).toMatchObject({ value: 42, decimals: 0, unit: "" });
+  });
+  it("names the path and the known blocks for an unknown block", () => {
+    const raw = minimalEpisode();
+    raw.scenes.step1.beats[0].block = "BigStats";
+    expect(() => validateEpisode(raw)).toThrow(/scenes\.step1\.beats\[0\]: unknown block "BigStats"\. Known blocks: .*BigStat/);
+  });
+  it("names the path of invalid block props", () => {
+    const raw = minimalEpisode();
+    raw.scenes.step3.beats[0].props.label = "";
+    expect(() => validateEpisode(raw)).toThrow(/scenes\.step3\.beats\[0\]\.props\.label/);
+  });
+  it("rejects durations outside 15–60 s", () => {
+    expect(() => validateEpisode({ ...minimalEpisode(), durationSeconds: 90 })).toThrow(/durationSeconds/);
+  });
+  it("rejects an accent that is not part of the title", () => {
+    const raw = minimalEpisode();
+    raw.scenes.step1.title = { text: "¿UNO?", accent: "DOS" };
+    expect(() => validateEpisode(raw)).toThrow(/accent must appear in text/);
+  });
+  it("rejects a cover frame past the end", () => {
+    expect(() => validateEpisode({ ...minimalEpisode(), coverFrame: 600 })).toThrow(/coverFrame/);
+  });
+  it("rejects more than two beats per scene", () => {
+    const raw = minimalEpisode();
+    raw.scenes.step2.beats.push(raw.scenes.step2.beats[0]);
+    expect(() => validateEpisode(raw)).toThrow(/scenes\.step2\.beats/);
+  });
+});

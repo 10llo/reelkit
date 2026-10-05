@@ -1,0 +1,60 @@
+import type { z } from "zod";
+import { BLOCK_SCHEMAS, isBlockName } from "../blocks/schemas";
+import { SCENE_IDS, totalFrames } from "../frame/timing";
+import { episodeSchema, type Beat, type Episode } from "./schema";
+import { talentSchema, type Talent } from "./talent";
+
+export class EpisodeError extends Error {}
+
+const formatIssues = (path: string, error: z.ZodError) =>
+  error.issues
+    .map((issue) => `${path}${issue.path.length ? `.${issue.path.join(".")}` : ""}: ${issue.message}`)
+    .join("\n");
+
+export const validateBeat = (beat: Beat, path: string): Beat => {
+  if (!isBlockName(beat.block)) {
+    throw new EpisodeError(
+      `${path}: unknown block "${beat.block}". Known blocks: ${Object.keys(BLOCK_SCHEMAS).join(", ")}`,
+    );
+  }
+  const result = BLOCK_SCHEMAS[beat.block].safeParse(beat.props);
+  if (!result.success) {
+    throw new EpisodeError(formatIssues(`${path}.props`, result.error));
+  }
+  return { block: beat.block, props: result.data as Record<string, unknown> };
+};
+
+export const validateEpisode = (raw: unknown): Episode => {
+  const parsed = episodeSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new EpisodeError(formatIssues("episode", parsed.error));
+  }
+  const episode = parsed.data;
+  const problems: string[] = [];
+  for (const id of SCENE_IDS) {
+    const scene = episode.scenes[id];
+    scene.beats = scene.beats.map((beat, i) => {
+      try {
+        return validateBeat(beat, `scenes.${id}.beats[${i}]`);
+      } catch (err) {
+        problems.push((err as Error).message);
+        return beat;
+      }
+    });
+  }
+  if (episode.coverFrame >= totalFrames(episode.durationSeconds)) {
+    problems.push(`episode.coverFrame: ${episode.coverFrame} is past the last frame`);
+  }
+  if (problems.length) {
+    throw new EpisodeError(problems.join("\n"));
+  }
+  return episode;
+};
+
+export const validateTalent = (raw: unknown): Talent => {
+  const parsed = talentSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new EpisodeError(formatIssues("talent", parsed.error));
+  }
+  return parsed.data;
+};
