@@ -10,6 +10,7 @@ const BAR_H = 46;
 const SQUARE = 38;
 const SQUARE_GAP = 6;
 const NUMBER_SIZE = 80;
+const ROW_H = Math.round(NUMBER_SIZE * 0.9);
 
 export const QuantityBars: React.FC<{
   readonly rows: BarRow[];
@@ -46,7 +47,7 @@ export const QuantityBars: React.FC<{
             }}
           >
             <div style={{ ...bodyStyle(48), color: c.text, lineHeight: 1.05, marginBottom: 2 }}>{row.label}</div>
-            <div style={{ display: "flex", alignItems: "center", height: BAR_H }}>
+            <div style={{ display: "flex", alignItems: "center", height: ROW_H }}>
               <div
                 style={{
                   width: fullWidth * grow,
@@ -80,8 +81,7 @@ export const QuantityBars: React.FC<{
                   fontFamily: FONT_HEAD,
                   fontWeight: WEIGHT_HEAD,
                   fontSize: NUMBER_SIZE,
-                  lineHeight: 1,
-                  paddingTop: 8,
+                  lineHeight: 0.9,
                   whiteSpace: "nowrap",
                   color: isHighlight && frame >= highlightAt ? c.danger : c.accent,
                   scale: isHighlight ? pulse(frame, highlightAt, 14, 1.15) : 1,
