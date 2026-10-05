@@ -15,6 +15,7 @@ A Claude Code plugin that turns one professional explainer video into a repeatab
 - After the talent's clip arrives, `/reelkit:clip` + `/reelkit:export` produce all deliverables with captions that match the spoken words in text and timing.
 - The layout guarantees from the Dani brief (slot plus 16 px clearance always empty, safe zones respected, exact duration) are enforced automatically on every episode.
 - The Dani chocolate video can be rebuilt from the block library with no custom code.
+- The 20 blocks cover informative videos in any field (health, veterinary, engineering, finance, education, technology…) without new code in the typical case; a new block is the exception.
 
 ## 2. Decisions made
 
@@ -140,7 +141,7 @@ One row per scene: `# · scene · time range · exact words · direction` (pause
 
 Keyframes inside block props are written as fractions of the beat (0–1) or frames at the default duration; the block scales them with the scene timing helper.
 
-### Block library (v1)
+### Core blocks (v1, from the Dani video)
 
 | Block | Props (summary) | Origin |
 |---|---|---|
@@ -155,9 +156,49 @@ Keyframes inside block props are written as fractions of the beat (0–1) or fra
 | `Chips` | title, items[{icon, label}] | symptom chips |
 | `Close` | headline lines, accent, icons, brand lockup, contacts from the talent profile, teaser | cierre |
 
-Shared `icons.tsx`: about 40 SVG icons (health, veterinary, engineering, time, warning, actions); new icons may be added.
+### Explainer blocks (v1, any subject)
 
-A `BlockGallery` composition shows every block with sample props, for previewing and for the block-authoring workflow.
+Ten more blocks cover the common ways an informative video explains something, whatever the field. Limits are the maximum content each block accepts; the schema enforces them so every block fits the stage at full size.
+
+| Block | Shows | Props (summary) | Limits | Example uses |
+|---|---|---|---|---|
+| `Definition` | What something is | term, pronunciation?, category chip, meaning, icon | meaning ≤ 18 words | "¿Qué es la teobromina?", "What is torque?", "¿Qué es la inflación?" |
+| `Process` | How it works, as a linear flow | title, steps[{icon, label}], connector (`arrow` / `chevron`), highlightStep? | 3–5 steps, label ≤ 4 words | How a vaccine works, how solar panels make power, a sales funnel |
+| `Cycle` | A loop that repeats | title, stages[{icon, label}], centerLabel?, direction | 3–6 stages | Flea life cycle, water cycle, a feedback loop, sleep cycle |
+| `Timeline` | Events in time order | title, events[{when, label, icon?}], nowMarker? | 3–5 events | Symptom onset by hour, a disease's history, phases of a build |
+| `Versus` | Two options compared on several attributes | title, left{name, icon}, right{name, icon}, rows[{attribute, left, right, winner?}] | 2–4 rows, cell ≤ 3 words | Cat vs dog food, LED vs halogen, generic vs brand drug |
+| `Anatomy` | Parts of one thing, with labels | title, subject{icon or built-in diagram}, callouts[{label, anchor x/y in %}], highlight? | 2–6 callouts | Parts of a tooth, a car brake, a paw pad, a circuit |
+| `Proportion` | "X out of N" or a share of a whole | title, numerator, denominator, style (`dots` / `donut` / `people`), label, source | denominator ≤ 100 | "1 de cada 4 perros", 30 % of energy lost as heat |
+| `Trend` | A quantity changing over time | title, points[{x, y}], xLabel, yUnit, annotate{x, label}?, direction cue | 3–12 points | Cases by month, price over years, temperature after a dose |
+| `Gauge` | One reading against zones | title, value, unit, zones[{to, label, tone: ok/warn/danger}], needleLabel | 2–4 zones | Normal body temperature, blood pressure, tyre pressure, a credit score |
+| `Decision` | When to do what: a yes/no path | title, question, yes{label, tone}, no{label, tone}, followUp?{question, yes, no} | depth ≤ 2 | "¿Vomitó en la última hora?", "Is the breaker hot?", "When to go to the ER" |
+
+Shared animation language for all of them: entrances use the existing `enter` spring with a 6-frame stagger, emphasis uses `pop` / `pulse`, connectors and lines draw on with stroke-dashoffset, and numbers count up. Every keyframe is beat-relative, so blocks keep working when sync re-fits the scenes.
+
+### Choosing a block
+
+The `episode-authoring` skill picks blocks by the shape of what is being said, not by subject:
+
+| The line is about… | Block |
+|---|---|
+| what something is | `Definition` |
+| how it works, step by step | `Process` |
+| something that repeats | `Cycle` |
+| when things happen | `Timeline`, `Timer` (a time window) |
+| how much / how many | `Quantity` (several amounts), `BigStat` (one number), `Proportion` (a share) |
+| whether a value is normal | `Gauge` |
+| how it changes | `Trend` |
+| which option is better | `Versus` (attributes), `Compare` (items on one scale) |
+| what it's made of | `Anatomy` |
+| what to do | `Checklist`, `DoDont`, `Decision` (depends on a condition) |
+| what people get wrong | `MythFact` |
+| signs, causes, examples | `Chips` |
+
+### Icons
+
+Shared `icons.tsx`: about 100 SVG icons in one consistent style (rounded 100×100 grid, solid fills, two colors at most), grouped by domain: health, veterinary, food, engineering and tools, energy, technology, money, education, nature and weather, home, transport, time, people, warnings, actions and arrows. `Anatomy` also includes built-in diagrams: human body, dog, cat, tooth, car, house, circuit board. New icons and diagrams may be added through `block-authoring`.
+
+A `BlockGallery` composition shows every block with sample props at its maximum content, for previewing and for the block-authoring workflow.
 
 ### Block contract (for new blocks)
 
@@ -169,6 +210,8 @@ For each episode (or a given one): validates `episode.json`, renders key frames 
 - **Slot test:** the slot rect plus clearance is pixel-identical across checked frames, ignoring only the background-pattern pixels outside the rounded mask.
 - **Fit report:** warns if any scene's `FitStage` scale is below 0.85.
 - **Duration:** asserts frames = durationSeconds × 30.
+
+`npm run check --gallery` renders every block in `BlockGallery` at its maximum content, at 9:16 and 4:5, and fails if a block needs `FitStage` to scale below 0.85 or if any text is under 40 px (footnotes excepted).
 
 ## 6. Research (`trend-researcher` agent + `trend-research` skill)
 
@@ -213,9 +256,10 @@ Post-render verification reads each file back (mediabunny) and reports size, dur
 ## 10. Testing
 
 - **Vitest unit tests** (template and scripts): alignment cases (match, near-miss, ad-lib, missing sentence, numerals), scene-time scaling, `resolveSceneStarts`, caption pagination and fit, WhatsApp bitrate math, `episode.json` schema with valid and invalid fixtures.
-- **Reference episodes:** `examples/dani-chocolate` (rebuilt from blocks; visual parity with the hand-built version at frames 0, 170, 280, 400, 500, 740, 899, judged by eye) and `examples/engineering-sample` (a different field, different 3-step frame, 45 s).
-- `npm run check` on both reference episodes.
-- **GitHub Actions** on push: install, typecheck, lint, Vitest, `npm run check` (headless Chrome via Remotion), and plugin manifest validation.
+- **Reference episodes:** `examples/dani-chocolate` (rebuilt from blocks; visual parity with the hand-built version at frames 0, 170, 280, 400, 500, 740, 899, judged by eye) and `examples/engineering-sample` (a different field, different 3-step frame, 45 s, built only from the new explainer blocks: `Definition`, `Process`, `Gauge`, `Versus`, `Decision`).
+- `npm run check` on both reference episodes, and `npm run check --gallery` on all 20 blocks.
+- Schema tests reject content over each block's limits (e.g. a 6-step `Process`).
+- **GitHub Actions** on push: install, typecheck, lint, Vitest, `npm run check` and `npm run check --gallery` (headless Chrome via Remotion), and plugin manifest validation.
 
 ## 11. Out of scope (v1)
 
