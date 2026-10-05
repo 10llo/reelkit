@@ -2,7 +2,7 @@ import type { Caption } from "@remotion/captions";
 
 export type Word = { text: string; from: number; to: number };
 export type Page = { words: Word[]; from: number; to: number };
-export type PageLayout = { fontSize: number; lines: Word[][] };
+export type PageLayout = { fontSize: number; lines: Word[][]; gapPx: number };
 export type Measure = (text: string, fontSize: number) => number;
 
 const MAX_WORDS = 3;
@@ -72,7 +72,8 @@ export const layoutPage = (
   // Leave room for the active word's scale.
   const maxWidth = box.width / ACTIVE_SCALE;
   for (let fontSize = baseSize; fontSize >= MIN_SIZE; fontSize -= 2) {
-    const space = WORD_GAP * fontSize;
+    const widest = Math.max(...page.words.map((w) => measure(w.text, fontSize)));
+    const space = Math.max(WORD_GAP * fontSize, (ACTIVE_SCALE - 1) * widest + 4);
     const lines: Word[][] = [];
     let lineWidth = 0;
     let fits = true;
@@ -92,8 +93,8 @@ export const layoutPage = (
       }
     }
     if (fits && lines.length <= MAX_LINES && lines.length * fontSize * LINE_HEIGHT <= box.height) {
-      return { fontSize, lines };
+      return { fontSize, lines, gapPx: space };
     }
   }
-  return { fontSize: MIN_SIZE, lines: page.words.map((w) => [w]) };
+  return { fontSize: MIN_SIZE, lines: page.words.map((w) => [w]), gapPx: WORD_GAP * MIN_SIZE };
 };

@@ -5,7 +5,6 @@ import { continueRender, delayRender, interpolate, useCurrentFrame, useVideoConf
 import {
   ACTIVE_SCALE,
   LINE_HEIGHT,
-  WORD_GAP,
   layoutPage,
   paginate,
   wordsFromCaptions,
@@ -98,7 +97,7 @@ export const Captions: React.FC<{
                 key={wi}
                 style={{
                   display: "inline-block",
-                  marginRight: wi < line.length - 1 ? `${WORD_GAP}em` : 0,
+                  marginRight: wi < line.length - 1 ? layout.gapPx : 0,
                   color: active ? c.accent : c.text,
                   scale: active ? ACTIVE_SCALE : 1,
                   transformOrigin: "left center",

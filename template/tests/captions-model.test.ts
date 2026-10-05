@@ -71,4 +71,9 @@ describe("layoutPage", () => {
     expect(l.fontSize).toBe(42);
     expect(measure("otorrinolaringólogo", l.fontSize) * 1.08).toBeLessThanOrEqual(450);
   });
+  it("widens the word gap so a scaled long word never touches its neighbour", () => {
+    const l = layoutPage(page("otorrinolaringólogo", "sí"), measure, { width: 900, height: 360 }, 64);
+    expect(l.gapPx).toBeGreaterThanOrEqual(0.08 * measure("otorrinolaringólogo", l.fontSize));
+    expect(l.gapPx).toBeGreaterThanOrEqual(0.3 * l.fontSize);
+  });
 });

@@ -58,26 +58,25 @@ export const MythFact: BlockComponent<"MythFact"> = ({ props, timing }) => {
       <div
         style={{
           ...card,
+          paddingRight: 36 + 120 + 20,
           opacity: myth * interpolate(frame, [at(STAMP_AT), at(STAMP_AT) + 6], [1, 0.55], CLAMP),
           translate: `0px ${interpolate(myth, [0, 1], [30, 0])}px`,
         }}
       >
         <Tag label={props.mythTag} color={c.danger} filled={false} ink={c.bg} />
-        <div style={{ position: "relative", ...bodyStyle(48), color: c.text }}>
-          {props.myth}
-          <div
+        <div style={{ ...bodyStyle(48), color: c.text }}>
+          <span
             style={{
-              position: "absolute",
-              left: 0,
-              top: "50%",
-              height: 6,
-              width: "100%",
-              borderRadius: 3,
-              backgroundColor: c.danger,
-              scale: `${strike} 1`,
-              transformOrigin: "left center",
+              backgroundImage: `linear-gradient(${c.danger}, ${c.danger})`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "0 55%",
+              backgroundSize: `${strike * 100}% 6px`,
+              boxDecorationBreak: "clone",
+              WebkitBoxDecorationBreak: "clone",
             }}
-          />
+          >
+            {props.myth}
+          </span>
         </div>
         {frame >= at(STAMP_AT) ? (
           <Icon
