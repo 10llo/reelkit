@@ -191,5 +191,32 @@
       ],
       "nowMarker": 1
     }
+  },
+  {
+    "block": "Versus",
+    "title": { "text": "¿CUÁL elegir?", "accent": "CUÁL" },
+    "durationInFrames": 210,
+    "props": {
+      "left": { "name": "Pipeta mensual", "icon": "drop" },
+      "right": { "name": "Pastilla oral", "icon": "pill" },
+      "rows": [
+        { "attribute": "Duración", "left": "Un mes", "right": "1 a 3 meses", "winner": "right" },
+        { "attribute": "Baño después", "left": "Esperar 48 h", "right": "Sin problema", "winner": "right" },
+        { "attribute": "Precio", "left": "Más barata", "right": "Más cara", "winner": "left" },
+        { "attribute": "Fácil de dar", "left": "Muy fácil", "right": "Si la come", "winner": "left" }
+      ]
+    }
+  },
+  {
+    "block": "Proportion",
+    "title": { "text": "¿QUÉ TAN común es?", "accent": "QUÉ TAN" },
+    "durationInFrames": 210,
+    "props": {
+      "numerator": 23,
+      "denominator": 100,
+      "style": "dots",
+      "label": "de los perros atendidos por intoxicación comieron chocolate",
+      "source": "Dato de ejemplo para la galería de bloques, no es una estadística real"
+    }
   }
 ]

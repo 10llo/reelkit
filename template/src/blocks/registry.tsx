@@ -9,9 +9,11 @@ import { DoDont } from "./DoDont";
 import { Hook } from "./Hook";
 import { MythFact } from "./MythFact";
 import { Process } from "./Process";
+import { Proportion } from "./Proportion";
 import { Quantity } from "./Quantity";
 import { Timeline } from "./Timeline";
 import { Timer } from "./Timer";
+import { Versus } from "./Versus";
 import type { BlockName } from "./schemas";
 import type { BlockComponent } from "./types";
 
@@ -28,7 +30,9 @@ export const BLOCKS: { [K in BlockName]: BlockComponent<K> } = {
   Hook,
   MythFact,
   Process,
+  Proportion,
   Quantity,
   Timeline,
   Timer,
+  Versus,
 };

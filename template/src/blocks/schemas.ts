@@ -9,9 +9,11 @@ import { doDontSchema } from "./DoDont.schema";
 import { hookSchema } from "./Hook.schema";
 import { mythFactSchema } from "./MythFact.schema";
 import { processSchema } from "./Process.schema";
+import { proportionSchema } from "./Proportion.schema";
 import { quantitySchema } from "./Quantity.schema";
 import { timelineSchema } from "./Timeline.schema";
 import { timerSchema } from "./Timer.schema";
+import { versusSchema } from "./Versus.schema";
 
 // Node-safe: schemas only, no components. Each block task adds its entry here.
 export const BLOCK_SCHEMAS = {
@@ -26,9 +28,11 @@ export const BLOCK_SCHEMAS = {
   Hook: hookSchema,
   MythFact: mythFactSchema,
   Process: processSchema,
+  Proportion: proportionSchema,
   Quantity: quantitySchema,
   Timeline: timelineSchema,
   Timer: timerSchema,
+  Versus: versusSchema,
 } as const;
 
 export type BlockName = keyof typeof BLOCK_SCHEMAS;
