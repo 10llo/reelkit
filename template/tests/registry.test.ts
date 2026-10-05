@@ -1,17 +1,7 @@
 import { expect, it } from "vitest";
+import { BLOCKS } from "../src/blocks/registry";
 import { BLOCK_SCHEMAS } from "../src/blocks/schemas";
 
-it("registers the 10 core blocks", () => {
-  expect(Object.keys(BLOCK_SCHEMAS).sort()).toEqual([
-    "BigStat",
-    "Checklist",
-    "Chips",
-    "Close",
-    "Compare",
-    "DoDont",
-    "Hook",
-    "MythFact",
-    "Quantity",
-    "Timer",
-  ]);
+it("has a component for every registered schema", () => {
+  expect(Object.keys(BLOCKS).sort()).toEqual(Object.keys(BLOCK_SCHEMAS).sort());
 });

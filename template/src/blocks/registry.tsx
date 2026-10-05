@@ -3,9 +3,11 @@ import { Checklist } from "./Checklist";
 import { Chips } from "./Chips";
 import { Close } from "./Close";
 import { Compare } from "./Compare";
+import { Definition } from "./Definition";
 import { DoDont } from "./DoDont";
 import { Hook } from "./Hook";
 import { MythFact } from "./MythFact";
+import { Process } from "./Process";
 import { Quantity } from "./Quantity";
 import { Timer } from "./Timer";
 import type { BlockName } from "./schemas";
@@ -18,9 +20,11 @@ export const BLOCKS: { [K in BlockName]: BlockComponent<K> } = {
   Chips,
   Close,
   Compare,
+  Definition,
   DoDont,
   Hook,
   MythFact,
+  Process,
   Quantity,
   Timer,
 };

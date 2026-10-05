@@ -3,9 +3,11 @@ import { checklistSchema } from "./Checklist.schema";
 import { chipsSchema } from "./Chips.schema";
 import { closeSchema } from "./Close.schema";
 import { compareSchema } from "./Compare.schema";
+import { definitionSchema } from "./Definition.schema";
 import { doDontSchema } from "./DoDont.schema";
 import { hookSchema } from "./Hook.schema";
 import { mythFactSchema } from "./MythFact.schema";
+import { processSchema } from "./Process.schema";
 import { quantitySchema } from "./Quantity.schema";
 import { timerSchema } from "./Timer.schema";
 
@@ -16,9 +18,11 @@ export const BLOCK_SCHEMAS = {
   Chips: chipsSchema,
   Close: closeSchema,
   Compare: compareSchema,
+  Definition: definitionSchema,
   DoDont: doDontSchema,
   Hook: hookSchema,
   MythFact: mythFactSchema,
+  Process: processSchema,
   Quantity: quantitySchema,
   Timer: timerSchema,
 } as const;

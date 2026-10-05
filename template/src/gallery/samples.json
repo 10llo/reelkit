@@ -131,5 +131,33 @@
       "actions": ["bookmark", "share", "star"],
       "teaser": "Próximo: uvas y pasas, ¿son peligrosas?"
     }
+  },
+  {
+    "block": "Definition",
+    "title": { "text": "¿QUÉ ES la lepto?", "accent": "QUÉ ES" },
+    "durationInFrames": 210,
+    "props": {
+      "term": "Leptospirosis canina",
+      "pronunciation": "lep-tos-pi-RO-sis ca-NI-na",
+      "category": "Infección bacteriana",
+      "meaning": "Infección que tu perro puede contraer por agua o charcos con orina de ratas, y que nos afecta.",
+      "icon": "drop"
+    }
+  },
+  {
+    "block": "Process",
+    "title": { "text": "¿CÓMO funciona?", "accent": "CÓMO" },
+    "durationInFrames": 210,
+    "props": {
+      "steps": [
+        { "icon": "drop", "label": "Pipeta en la nuca" },
+        { "icon": "dog", "label": "Se esparce en piel" },
+        { "icon": "flea", "label": "La pulga lo toca" },
+        { "icon": "ban", "label": "Muere en horas" },
+        { "icon": "calendar", "label": "Repite cada mes" }
+      ],
+      "connector": "arrow",
+      "highlightStep": 4
+    }
   }
 ]
