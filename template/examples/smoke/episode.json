@@ -35,7 +35,17 @@
       "title": { "text": "¿CUÁNTO dura?", "accent": "CUÁNTO" },
       "beats": [
         { "block": "BigStat", "props": { "value": 500, "unit": "ciclos", "label": "de carga completos", "source": "Dato de ejemplo" } },
-        { "block": "BigStat", "props": { "value": 2.5, "decimals": 1, "unit": "años", "label": "de uso típico" } }
+        {
+          "block": "Chips",
+          "props": {
+            "items": [
+              { "icon": "warning", "label": "Calor" },
+              { "icon": "clock", "label": "Carga al 100 %" },
+              { "icon": "info", "label": "Cargadores genéricos" },
+              { "icon": "x", "label": "Descarga total" }
+            ]
+          }
+        }
       ]
     },
     "step3": {
