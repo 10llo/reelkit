@@ -154,6 +154,7 @@ export const icon =
       {render(color, accent ?? color)}
     </Svg>
   );
+```
 
 Create `template/src/icons/sets/core.tsx` by **moving** every entry of the current `ICONS` object in `template/src/icons/index.tsx` (paw, check, x, milk, spoonDrop, vomit, panting, tremor, dog, pumpkin, bookmark, share, clock, warning, info) into:
 ```tsx
