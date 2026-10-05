@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "talent": "dani",
+  "slug": "2026-11-fiebre",
+  "durationSeconds": 45,
+  "stage": "built",
+  "frame": { "steps": ["QUÉ ES", "CÓMO MEDIR", "QUÉ HACER"] },
+  "script": [
+    "¿Tu perro está caliente y decaído? Puede ser fiebre. Te explico.",
+    "¿Qué es? En los perros la temperatura normal llega hasta treinta y nueve con dos. Por encima de eso hablamos de fiebre.",
+    "¿Cómo medirla? Con un termómetro digital lubricado, por el recto, hasta que pite. La nariz seca no te dice nada: solo el termómetro da un número.",
+    "¿Qué hacer? Si pasa de cuarenta o está muy decaído, llama hoy a tu veterinaria. Si está un poco alta, hidrátalo y vuelve a medir en dos horas.",
+    "Soy Dogtora Dani. Guárdalo y compártelo con otros tutores."
+  ],
+  "sceneStarts": null,
+  "scenes": {
+    "hook": {
+      "beats": [
+        {
+          "block": "Hook",
+          "props": {
+            "line1": "¿Tu perro tiene",
+            "line2": "FIEBRE?",
+            "chip": "Guía para tutores · 45 segundos",
+            "hero": { "animation": "pop", "icon": "thermometer", "color": "accent" },
+            "stamp": "paw"
+          }
+        }
+      ]
+    },
+    "step1": {
+      "title": { "text": "¿QUÉ ES la fiebre?", "accent": "QUÉ ES" },
+      "beats": [
+        {
+          "block": "Definition",
+          "props": {
+            "term": "Fiebre",
+            "category": "Signo de alerta",
+            "meaning": "Temperatura por encima de 39,2 °C: señal de que el cuerpo de tu perro combate algo.",
+            "icon": "thermometer"
+          }
+        },
+        {
+          "block": "Gauge",
+          "props": {
+            "value": 39.8,
+            "unit": "°C",
+            "decimals": 1,
+            "min": 36,
+            "max": 42,
+            "zones": [
+              { "to": 39.2, "label": "Normal", "tone": "ok" },
+              { "to": 40, "label": "Fiebre", "tone": "warn" },
+              { "to": 41, "label": "Fiebre alta", "tone": "danger" },
+              { "to": 42, "label": "Urgencia", "tone": "danger" }
+            ],
+            "needleLabel": "Ejemplo de lectura"
+          }
+        }
+      ]
+    },
+    "step2": {
+      "title": { "text": "¿CÓMO MEDIRLA?", "accent": "CÓMO" },
+      "beats": [
+        {
+          "block": "Process",
+          "props": {
+            "steps": [
+              { "icon": "thermometer", "label": "Termómetro digital" },
+              { "icon": "drop", "label": "Lubrica la punta" },
+              { "icon": "dog", "label": "Mide por el recto" },
+              { "icon": "clock", "label": "Espera el pitido" }
+            ],
+            "connector": "arrow",
+            "highlightStep": 2
+          }
+        },
+        {
+          "block": "Versus",
+          "props": {
+            "left": { "name": "Termómetro", "icon": "thermometer" },
+            "right": { "name": "Nariz seca", "icon": "hand" },
+            "rows": [
+              { "attribute": "Es confiable", "left": "Sí", "right": "No", "winner": "left" },
+              { "attribute": "Da un número", "left": "Exacto", "right": "Ninguno", "winner": "left" },
+              { "attribute": "Rapidez", "left": "1 minuto", "right": "Al instante", "winner": "right" }
+            ]
+          }
+        }
+      ]
+    },
+    "step3": {
+      "title": { "text": "¿QUÉ HACER?", "accent": "QUÉ" },
+      "beats": [
+        {
+          "block": "Decision",
+          "props": {
+            "question": "¿Pasa de 40 °C o está muy decaído?",
+            "yes": { "label": "Llama hoy a tu veterinaria", "tone": "danger" },
+            "no": {
+              "question": "¿Está entre 39,3 y 40 °C?",
+              "yes": { "label": "Hidrata y mide en 2 h", "tone": "warn" },
+              "no": { "label": "Temperatura normal", "tone": "ok" }
+            }
+          }
+        }
+      ]
+    },
+    "close": {
+      "beats": [
+        {
+          "block": "Close",
+          "props": {
+            "line1": "Guárdalo y compártelo",
+            "line2": { "text": "con otros tutores", "accent": "tutores" },
+            "accentIcon": "paw",
+            "actions": ["bookmark", "share"]
+          }
+        }
+      ]
+    }
+  },
+  "facts": [
+    { "claim": "Temperatura normal del perro hasta ≈ 39,2 °C; fiebre por encima", "source": "Para confirmar con Dani (referencia clínica general)" },
+    { "claim": "Más de 40 °C o decaimiento marcado: consulta el mismo día", "source": "Para confirmar con Dani" },
+    { "claim": "La nariz seca no indica fiebre; solo el termómetro rectal da un dato fiable", "source": "Para confirmar con Dani" }
+  ],
+  "coverFrame": 60
+}
