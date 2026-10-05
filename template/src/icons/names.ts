@@ -9,5 +9,15 @@ export const ICON_NAMES = [
   "cat", "bone", "fish", "bird", "collar", "flea", "bowl", "leash", "weight", "leaf",
   // food
   "apple", "drop", "coffee", "salt", "sugar", "bread",
+  // home
+  "house", "door", "bed", "sofa", "trash",
+  // time
+  "calendar", "hourglass", "alarm", "stopwatch",
+  // people
+  "person", "people", "child", "elder", "hand", "eye",
+  // warnings
+  "shield", "stop", "ban", "siren", "poison",
+  // actions and arrows
+  "arrowRight", "arrowUp", "arrowDown", "refresh", "plus", "minus", "search", "star", "question",
 ] as const;
 export type IconName = (typeof ICON_NAMES)[number];

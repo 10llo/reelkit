@@ -26,3 +26,10 @@ it("includes the health, veterinary and food icons", () => {
     expect(ICON_NAMES).toContain(name);
   }
 });
+
+it("includes the home, time, people, warning and action icons", () => {
+  for (const name of ["house", "calendar", "person", "hand", "shield", "ban", "arrowRight", "question"]) {
+    expect(ICON_NAMES).toContain(name);
+  }
+  expect(ICON_NAMES.length).toBe(68);
+});
