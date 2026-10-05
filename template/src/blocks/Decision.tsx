@@ -1,7 +1,8 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import type { Tone } from "./schema-parts";
 import { usePalette } from "../frame/contexts";
-import { bodyStyle, headStyle } from "../frame/theme";
+import { fitWordsFontSize } from "../frame/fit";
+import { FONT_BODY, FONT_HEAD, WEIGHT_BODY, WEIGHT_HEAD, bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop, pulse } from "../frame/timing";
 import { Icon } from "../icons";
 import { isFollowUp, type DecisionBranch } from "./Decision.schema";
@@ -9,8 +10,8 @@ import { toneColor } from "./parts/tone";
 import type { BlockComponent } from "./types";
 
 const W = 960;
-const COL = 470;
-const SUB = 230;
+const COL = 474;
+const SUB = 236;
 const OUTCOME = COL - 24;
 const LEFT_CENTER = (W - 2 * COL) / 4 + COL / 2;
 const QUESTION_AT = 0.04;
@@ -30,7 +31,7 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
   const question = enter(frame, fps, at(QUESTION_AT));
   const lines = interpolate(frame, [at(LINES_FROM), at(LINES_TO)], [0, 1], CLAMP);
   const tags = pop(frame, fps, at(TAGS_AT));
-  const emphasis = (t: Tone) => (t === "danger" ? pulse(frame, at(EMPHASIS_AT), 16, 1.06) : 1);
+  const emphasis = (t: Tone, compact: boolean) => (t === "danger" ? pulse(frame, at(EMPHASIS_AT), 16, compact ? 1.03 : 1.06) : 1);
 
   const tag = (label: string, x: number) => (
     <div
@@ -73,7 +74,7 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
       style={{
         width,
         boxSizing: "border-box",
-        padding: compact ? "14px 4px 10px" : "18px 22px 14px",
+        padding: compact ? "14px 10px 10px" : "18px 22px 14px",
         borderRadius: 24,
         border: `5px solid ${toneColor(t, c)}`,
         backgroundColor: `${toneColor(t, c)}22`,
@@ -84,11 +85,18 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
         textAlign: "center",
         opacity: p,
         translate: `0px ${interpolate(p, [0, 1], [24, 0])}px`,
-        scale: emphasis(t),
+        scale: emphasis(t, compact),
       }}
     >
       {compact ? null : <Icon name={TONE_ICON[t]} size={56} color={toneColor(t, c)} />}
-      <div style={{ ...(compact ? headStyle(40) : bodyStyle(44)), color: c.text }}>{label}</div>
+      <div
+        style={{
+          ...(compact
+            ? headStyle(fitWordsFontSize(label, width - 10 - 20, 40, FONT_HEAD, WEIGHT_HEAD))
+            : bodyStyle(fitWordsFontSize(label, width - 10 - 44, 44, FONT_BODY, WEIGHT_BODY))),
+          color: c.text,
+        }}
+      >{label}</div>
     </div>
   );
 
@@ -104,13 +112,13 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
       <div style={{ width: COL, display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div
           style={{
-            width: COL - 20,
+            width: COL,
             boxSizing: "border-box",
             padding: "14px 18px 8px",
             borderRadius: 22,
             backgroundColor: c.bg2,
             border: `3px solid ${c.text}55`,
-            ...headStyle(44),
+            ...headStyle(fitWordsFontSize(b.question, COL - 36 - 6, 44, FONT_HEAD, WEIGHT_HEAD)),
             color: c.text,
             textAlign: "center",
             opacity: p,
@@ -139,7 +147,7 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
           borderRadius: 28,
           backgroundColor: c.bg2,
           border: `4px solid ${c.accent}`,
-          ...headStyle(52),
+          ...headStyle(fitWordsFontSize(props.question, 860 - 64 - 8, 52, FONT_HEAD, WEIGHT_HEAD)),
           color: c.text,
           textAlign: "center",
           opacity: question,

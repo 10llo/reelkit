@@ -1,6 +1,7 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { usePalette } from "../frame/contexts";
-import { headStyle } from "../frame/theme";
+import { fitWordsFontSize } from "../frame/fit";
+import { FONT_HEAD, WEIGHT_HEAD, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop, pulse } from "../frame/timing";
 import { Icon } from "../icons";
 import type { BlockComponent } from "./types";
@@ -104,7 +105,7 @@ export const Process: BlockComponent<"Process"> = ({ props, timing }) => {
               </div>
               <div
                 style={{
-                  ...headStyle(40),
+                  ...headStyle(fitWordsFontSize(step.label, col - 12, 40, FONT_HEAD, WEIGHT_HEAD)),
                   color: c.text,
                   textAlign: "center",
                   width: col - 12,

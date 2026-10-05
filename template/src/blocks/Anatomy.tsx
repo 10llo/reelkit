@@ -1,6 +1,7 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { usePalette } from "../frame/contexts";
-import { headStyle } from "../frame/theme";
+import { fitWordsFontSize } from "../frame/fit";
+import { FONT_HEAD, WEIGHT_HEAD, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop, pulse } from "../frame/timing";
 import { Icon } from "../icons";
 import { Diagram } from "../icons/diagrams";
@@ -110,7 +111,7 @@ export const Anatomy: BlockComponent<"Anatomy"> = ({ props, timing }) => {
               alignItems: "center",
               justifyContent: g.side === "left" ? "flex-end" : "flex-start",
               textAlign: g.side === "left" ? "right" : "left",
-              ...headStyle(40),
+              ...headStyle(fitWordsFontSize(callout.label, COLUMN, 40, FONT_HEAD, WEIGHT_HEAD)),
               color: isHighlight && frame >= highlightFrame ? c.accent : c.text,
               opacity: p * (isHighlight ? 1 : dim),
             }}

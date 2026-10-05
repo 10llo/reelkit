@@ -1,7 +1,7 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { usePalette } from "../frame/contexts";
-import { fitFontSize } from "../frame/fit";
-import { FONT_HEAD, WEIGHT_HEAD, bodyStyle, headStyle } from "../frame/theme";
+import { fitFontSize, fitWordsFontSize } from "../frame/fit";
+import { FONT_BODY, FONT_HEAD, WEIGHT_BODY, WEIGHT_HEAD, bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop } from "../frame/timing";
 import { Icon } from "../icons";
 import type { BlockComponent } from "./types";
@@ -124,7 +124,7 @@ export const Timeline: BlockComponent<"Timeline"> = ({ props, timing }) => {
             i,
             <div
               style={{
-                ...bodyStyle(40),
+                ...bodyStyle(fitWordsFontSize(e.label, col - 12, 40, FONT_BODY, WEIGHT_BODY)),
                 color: c.text,
                 textAlign: "center",
                 width: col - 12,

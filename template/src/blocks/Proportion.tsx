@@ -1,8 +1,8 @@
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { usePalette, useTalent } from "../frame/contexts";
 import { SMALL_TEXT_ATTR } from "../frame/minFont";
-import { fitFontSize } from "../frame/fit";
-import { FONT_HEAD, WEIGHT_HEAD, bodyStyle, headStyle } from "../frame/theme";
+import { fitFontSize, fitWordsFontSize } from "../frame/fit";
+import { FONT_BODY, FONT_HEAD, WEIGHT_BODY, WEIGHT_HEAD, bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, enter } from "../frame/timing";
 import { Icon } from "../icons";
 import { gridShape } from "./Proportion.schema";
@@ -185,7 +185,7 @@ export const Proportion: BlockComponent<"Proportion"> = ({ props, timing }) => {
         </div>
         <div
           style={{
-            ...bodyStyle(48),
+            ...bodyStyle(fitWordsFontSize(props.label, TEXT_W, 48, FONT_BODY, WEIGHT_BODY)),
             color: c.text,
             opacity: label,
             translate: `0px ${interpolate(label, [0, 1], [16, 0])}px`,

@@ -1,6 +1,7 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { usePalette } from "../frame/contexts";
-import { headStyle } from "../frame/theme";
+import { fitWordsFontSize } from "../frame/fit";
+import { FONT_HEAD, WEIGHT_HEAD, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop } from "../frame/timing";
 import { Icon } from "../icons";
 import { CYCLE_LABEL_H, CYCLE_LABEL_W, CYCLE_NODE, CYCLE_RADIUS, cycleLayout } from "./Cycle.schema";
@@ -121,7 +122,7 @@ export const Cycle: BlockComponent<"Cycle"> = ({ props, timing }) => {
                 width: CYCLE_LABEL_W,
                 height: CYCLE_LABEL_H,
                 ...labelBox,
-                ...headStyle(40),
+                ...headStyle(fitWordsFontSize(props.stages[i].label, CYCLE_LABEL_W, 40, FONT_HEAD, WEIGHT_HEAD)),
                 color: c.text,
                 opacity: label,
               }}

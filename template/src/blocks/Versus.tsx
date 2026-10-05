@@ -1,6 +1,6 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { usePalette } from "../frame/contexts";
-import { fitFontSize } from "../frame/fit";
+import { fitFontSize, fitWordsFontSize } from "../frame/fit";
 import { FONT_HEAD, WEIGHT_HEAD, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop } from "../frame/timing";
 import { Icon } from "../icons";
@@ -168,7 +168,7 @@ export const Versus: BlockComponent<"Versus"> = ({ props, timing }) => {
               style={{
                 width: MIDDLE,
                 textAlign: "center",
-                ...headStyle(40),
+                ...headStyle(fitWordsFontSize(row.attribute, MIDDLE, 40, FONT_HEAD, WEIGHT_HEAD)),
                 lineHeight: 1.1,
                 color: c.text,
                 opacity: 0.65,
