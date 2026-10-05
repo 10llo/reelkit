@@ -1,0 +1,38 @@
+{
+  "name": "reelkit-template",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "remotion studio --public-dir examples/smoke",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src && tsc --noEmit",
+    "test": "vitest run",
+    "check": "node scripts/check.mjs"
+  },
+  "dependencies": {
+    "@remotion/captions": "4.0.532",
+    "@remotion/cli": "4.0.532",
+    "@remotion/google-fonts": "4.0.532",
+    "@remotion/layout-utils": "4.0.532",
+    "@remotion/media": "4.0.532",
+    "@remotion/zod-types": "4.0.532",
+    "mediabunny": "1.56.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.532",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@remotion/bundler": "4.0.532",
+    "@remotion/eslint-config-flat": "4.0.532",
+    "@remotion/renderer": "4.0.532",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.39.5",
+    "pngjs": "7.0.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3",
+    "vitest": "3.2.4"
+  }
+}
