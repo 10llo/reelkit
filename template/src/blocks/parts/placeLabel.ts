@@ -5,7 +5,7 @@ export const rectsOverlap = (a: Rect, b: Rect) =>
   a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
 const ccw = (ax: number, ay: number, bx: number, by: number, cx: number, cy: number) => (cy - ay) * (bx - ax) > (by - ay) * (cx - ax);
-const segmentsCross = (a: Segment, b: Segment) =>
+export const segmentsCross = (a: Segment, b: Segment) =>
   ccw(a.x1, a.y1, b.x1, b.y1, b.x2, b.y2) !== ccw(a.x2, a.y2, b.x1, b.y1, b.x2, b.y2) &&
   ccw(a.x1, a.y1, a.x2, a.y2, b.x1, b.y1) !== ccw(a.x1, a.y1, a.x2, a.y2, b.x2, b.y2);
 
@@ -44,4 +44,19 @@ export const pickCandidate = (candidates: Rect[], o: Obstacles) => {
     }
   }
   return best;
+};
+
+/** The first candidate scoring 0 under `score`, else the lowest-scoring one (earlier wins ties). */
+export const pickBy = <T>(candidates: T[], score: (c: T) => number) => {
+  let best = candidates[0];
+  let bestScore = Infinity;
+  for (const c of candidates) {
+    const s = score(c);
+    if (s === 0) return { pick: c, score: 0 };
+    if (s < bestScore) {
+      best = c;
+      bestScore = s;
+    }
+  }
+  return { pick: best, score: bestScore };
 };
