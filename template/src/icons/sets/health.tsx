@@ -11,9 +11,9 @@ export const HEALTH_ICONS = {
   )),
   syringe: icon((c, a) => (
     <g transform="rotate(-45 50 50)" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="26" y="38" width="44" height="24" rx="4" fill={a} opacity={0.5} />
-      <rect x="26" y="38" width="44" height="24" rx="4" fill="none" stroke={c} strokeWidth="7" />
-      <path d="M70 50 H92 M10 50 H26 M10 38 V62 M40 38 V50 M52 38 V50" stroke={c} strokeWidth="7" fill="none" />
+      <rect x="26" y="36" width="46" height="28" rx="4" fill={a} />
+      <rect x="26" y="36" width="46" height="28" rx="4" fill="none" stroke={c} strokeWidth="8" />
+      <path d="M72 50 H96 M26 50 H6 M6 34 V66 M44 36 V50 M56 36 V50" stroke={c} strokeWidth="8" fill="none" />
     </g>
   )),
   thermometer: icon((c, a) => (

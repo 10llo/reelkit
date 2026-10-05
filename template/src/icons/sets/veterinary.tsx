@@ -28,8 +28,11 @@ export const VETERINARY_ICONS = {
   )),
   bird: icon((c, a) => (
     <g>
-      <path d="M12 58 C22 36 46 28 60 36 L74 28 L70 42 C80 46 88 54 88 54 C72 52 64 60 56 70 C44 82 24 76 12 58 Z" fill={c} />
-      <circle cx="58" cy="44" r="3.5" fill={a === c ? "#00000066" : a} />
+      <path d="M26 56 C26 34 44 24 60 30 C72 34 74 50 66 62 C58 74 38 78 26 56 Z" fill={c} />
+      <path d="M30 60 L6 86 L40 76 Z" fill={c} />
+      <path d="M66 36 L94 44 L68 52 Z" fill={a} />
+      <circle cx="58" cy="40" r="4" fill={a === c ? "#00000066" : a} />
+      <path d="M46 84 V94 M58 80 V94" stroke={c} strokeWidth="7" strokeLinecap="round" />
     </g>
   )),
   collar: icon((c, a) => (
@@ -41,9 +44,11 @@ export const VETERINARY_ICONS = {
   )),
   flea: icon((c, a) => (
     <g>
-      <ellipse cx="54" cy="52" rx="26" ry="20" fill={c} transform="rotate(-20 54 52)" />
-      <circle cx="26" cy="40" r="11" fill={c} />
-      <path d="M44 66 L30 88 M56 68 L52 90 M66 64 L84 86 M30 34 L14 20" stroke={a} strokeWidth="5" strokeLinecap="round" fill="none" />
+      <ellipse cx="56" cy="46" rx="28" ry="22" fill={c} transform="rotate(-25 56 46)" />
+      <circle cx="26" cy="32" r="12" fill={c} />
+      <circle cx="23" cy="30" r="3.5" fill={a} />
+      <path d="M44 62 L40 90 M60 66 L66 90 M72 58 L94 40 L96 88" stroke={c} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d="M52 30 L64 56" stroke={a} strokeWidth="5" strokeLinecap="round" />
     </g>
   )),
   bowl: icon((c, a) => (
@@ -54,10 +59,10 @@ export const VETERINARY_ICONS = {
     </g>
   )),
   leash: icon((c, a) => (
-    <g fill="none" strokeLinecap="round">
-      <path d="M18 18 C40 18 40 50 56 62 C70 72 74 80 78 88" stroke={c} strokeWidth="7" />
-      <rect x="10" y="8" width="20" height="26" rx="10" stroke={c} strokeWidth="7" />
-      <circle cx="80" cy="88" r="7" fill={a} stroke="none" />
+    <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="8" y="8" width="30" height="34" rx="15" stroke={c} strokeWidth="10" />
+      <path d="M30 40 C46 50 40 66 58 74 C70 80 74 82 78 84" stroke={c} strokeWidth="10" />
+      <circle cx="84" cy="86" r="10" stroke={a} strokeWidth="8" />
     </g>
   )),
   weight: icon((c, a) => (
