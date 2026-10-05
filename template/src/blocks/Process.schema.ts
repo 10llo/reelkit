@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { iconName } from "./schema-parts";
 
+/** Longest single word (characters) a step label may hold: it must fit its column at 40 px. */
+export const maxProcessWord = (n: number) => Math.floor((960 / n - 12) / 22);
+
 export const processSchema = z
   .strictObject({
     steps: z
@@ -22,4 +25,17 @@ export const processSchema = z
   .refine((p) => p.highlightStep === undefined || p.highlightStep < p.steps.length, {
     message: "highlightStep must point at a step",
     path: ["highlightStep"],
+  })
+  .superRefine((p, ctx) => {
+    const k = maxProcessWord(p.steps.length);
+    p.steps.forEach((s, i) => {
+      const word = s.label.split(/\s+/).find((w) => w.length > k);
+      if (word) {
+        ctx.addIssue({
+          code: "custom",
+          message: `label word "${word}" is too long for ${p.steps.length} steps (max ${k} characters)`,
+          path: ["steps", i, "label"],
+        });
+      }
+    });
   });

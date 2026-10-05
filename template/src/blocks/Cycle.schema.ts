@@ -1,19 +1,35 @@
 import { z } from "zod";
 import { iconName } from "./schema-parts";
 
-export const cycleSchema = z.strictObject({
-  stages: z.array(z.strictObject({ icon: iconName, label: z.string().min(1).max(16) })).min(3).max(6),
-  centerLabel: z
-    .string()
-    .max(10)
-    .refine((s) => s.split(/\s+/).every((w) => w.length <= 7), { message: "centre label words must be at most 7 characters" })
-    .default(""),
-  direction: z.enum(["cw", "ccw"]).default("cw"),
-});
+export const CYCLE_LABEL_W = 210;
+/** Longest single word (characters) a stage label may hold at 40 px in its label box. */
+export const maxCycleWord = Math.floor(CYCLE_LABEL_W / 22);
+
+export const cycleSchema = z
+  .strictObject({
+    stages: z.array(z.strictObject({ icon: iconName, label: z.string().min(1).max(16) })).min(3).max(6),
+    centerLabel: z
+      .string()
+      .max(10)
+      .refine((s) => s.split(/\s+/).every((w) => w.length <= 7), { message: "centre label words must be at most 7 characters" })
+      .default(""),
+    direction: z.enum(["cw", "ccw"]).default("cw"),
+  })
+  .superRefine((c, ctx) => {
+    c.stages.forEach((st, i) => {
+      const word = st.label.split(/\s+/).find((w) => w.length > maxCycleWord);
+      if (word) {
+        ctx.addIssue({
+          code: "custom",
+          message: `label word "${word}" is too long (max ${maxCycleWord} characters)`,
+          path: ["stages", i, "label"],
+        });
+      }
+    });
+  });
 
 export const CYCLE_RADIUS = 150;
 export const CYCLE_NODE = 120;
-export const CYCLE_LABEL_W = 210;
 export const CYCLE_LABEL_H = 92;
 const GAP = 16;
 const MARGIN = 14;

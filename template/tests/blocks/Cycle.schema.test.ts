@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { cycleSchema } from "../../src/blocks/Cycle.schema";
+import { cycleSchema, maxCycleWord } from "../../src/blocks/Cycle.schema";
 
 const stage = (label: string) => ({ icon: "refresh", label });
 
@@ -19,4 +19,11 @@ it("limits each centre label word to 7 characters", () => {
   const stages = [stage("a"), stage("b"), stage("c")];
   expect(cycleSchema.safeParse({ stages, centerLabel: "ABCDEFGH" }).success).toBe(false);
   expect(cycleSchema.safeParse({ stages, centerLabel: "3 SEMANAS" }).success).toBe(true);
+});
+it("limits each stage label word to what fits the label box", () => {
+  expect(maxCycleWord).toBe(9);
+  const bad = cycleSchema.safeParse({ stages: [stage("Desparasitación"), stage("b"), stage("c")] });
+  expect(bad.success).toBe(false);
+  expect(bad.error?.issues[0].message).toBe('label word "Desparasitación" is too long (max 9 characters)');
+  expect(cycleSchema.safeParse({ stages: [stage("abcdefghi"), stage("b"), stage("c")] }).success).toBe(true);
 });
