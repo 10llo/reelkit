@@ -15,7 +15,7 @@ export const quantitySchema = z.strictObject({
   rows: z.array(row).min(2).max(3),
   highlight: z.enum(["none", "last", "max", "min"]).default("last"),
   conclusion: z.string().min(1).max(36).optional(),
-  footnote: z.string().min(1).max(60).optional(),
+  footnote: z.string().min(1).max(64).optional(),
 });
 
 export const highlightIndex = (
