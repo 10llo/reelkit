@@ -1,6 +1,7 @@
 import { Composition, Folder, Still } from "remotion";
 import { BlockPreview, calculateBlockPreviewMetadata } from "./compositions/BlockPreview";
 import { CoverFrame } from "./compositions/Cover";
+import { IconSheet } from "./compositions/IconSheet";
 import { EpisodeVideo } from "./compositions/EpisodeVideo";
 import { calculateCoverMetadata, calculateEpisodeMetadata } from "./episode/load";
 
@@ -62,6 +63,7 @@ export const RemotionRoot: React.FC = () => {
         }}
         calculateMetadata={calculateBlockPreviewMetadata}
       />
+      <Still id="IconSheet" component={IconSheet} width={1080} height={1920} />
     </Folder>
   );
 };
