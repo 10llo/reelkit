@@ -29,6 +29,7 @@
     "zod": "4.5.4"
   },
   "devDependencies": {
+    "@mediabunny/server": "1.61.3",
     "@remotion/bundler": "4.0.532",
     "@remotion/eslint-config-flat": "4.0.532",
     "@remotion/renderer": "4.0.532",
