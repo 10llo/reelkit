@@ -59,11 +59,13 @@ describe("sync prepare", () => {
     const before = fs.readFileSync(file("episode.json"), "utf8");
     expect(await prepare(dir, clip, { model: "small" }, deps())).toBe(0);
     expect(fs.readFileSync(file("episode.json"), "utf8")).toBe(before);
-    expect(fs.existsSync(file("talent.mov"))).toBe(true);
+    expect(fs.existsSync(file("talent.proposed.mov"))).toBe(true);
+    expect(fs.existsSync(file("talent.mov"))).toBe(false);
 
     const proposal = readJson(file("sync-proposal.json"));
     expect(proposal).toEqual({
       clip: { src: "talent.mov", trimStartFrames: 24 },
+      stagedClip: "talent.proposed.mov",
       sceneStarts: [0, 87, 234, 408, 609],
       captionsSrc: "captions.json",
       transcribed: true,
@@ -105,6 +107,15 @@ describe("sync prepare", () => {
     expect(report).toContain("provisionales");
   });
 
+  it("still attaches the clip when the audio can't be decoded", async () => {
+    const decode = async () => {
+      throw new Error("bad audio");
+    };
+    expect(await prepare(dir, clip, { model: "small" }, deps({ decode }))).toBe(0);
+    expect(readJson(file("sync-proposal.json"))).toMatchObject({ transcribed: false, clip: { trimStartFrames: 0 } });
+    expect(fs.readFileSync(file("sync-report.md"), "utf8")).toContain("Could not decode");
+  });
+
   it("propagates unexpected errors", async () => {
     const transcribe = async () => {
       throw new TypeError("bug");
@@ -140,6 +151,10 @@ describe("sync apply", () => {
       captionsSrc: "captions.json",
     });
     expect(readJson(file("captions.json"))[0].text).toBe("¿Su");
+    expect(fs.existsSync(file("talent.mov"))).toBe(true);
+    expect(fs.existsSync(file("talent.proposed.mov"))).toBe(false);
+    expect(fs.existsSync(file("sync-proposal.json"))).toBe(false);
+    expect(await apply(dir, { acceptOverrun: false })).toBe(1);
   });
 
   it("refuses a voice that runs past the end unless accepted", async () => {
@@ -171,6 +186,41 @@ describe("sync apply", () => {
     fs.writeFileSync(file("captions.proposed.json"), JSON.stringify(proposed));
     expect(await apply(dir, { acceptOverrun: false })).toBe(1);
     expect(readJson(file("episode.json")).stage).toBe("built");
+  });
+
+  it("keeps the applied clip until the next apply", async () => {
+    await prepare(dir, clip, { model: "small" }, deps());
+    await apply(dir, { acceptOverrun: false });
+    fs.writeFileSync(clip, "second take");
+    expect(await prepare(dir, clip, { model: "small" }, deps())).toBe(0);
+    expect(fs.readFileSync(file("talent.mov"), "utf8")).toBe("not really a video");
+    expect(await apply(dir, { acceptOverrun: false })).toBe(0);
+    expect(fs.readFileSync(file("talent.mov"), "utf8")).toBe("second take");
+  });
+
+  it("leaves no stale proposal when a later prepare fails", async () => {
+    await prepare(dir, clip, { model: "small" }, deps());
+    const transcribe = async () => {
+      throw new TypeError("bug");
+    };
+    await expect(prepare(dir, clip, { model: "small" }, deps({ transcribe }))).rejects.toThrow("bug");
+    expect(fs.existsSync(file("sync-proposal.json"))).toBe(false);
+  });
+
+  it("rejects malformed caption files", async () => {
+    await prepare(dir, clip, { model: "small" }, deps());
+    fs.writeFileSync(file("captions.proposed.json"), "{oops");
+    expect(await apply(dir, { acceptOverrun: false })).toBe(1);
+    expect(readJson(file("episode.json")).stage).toBe("built");
+  });
+
+  it("removes an old clip with another extension and keeps talent.json", async () => {
+    fs.writeFileSync(file("talent.mp4"), "old");
+    await prepare(dir, clip, { model: "small" }, deps());
+    expect(await apply(dir, { acceptOverrun: false })).toBe(0);
+    expect(fs.existsSync(file("talent.mp4"))).toBe(false);
+    expect(fs.existsSync(file("talent.json"))).toBe(true);
+    expect(fs.existsSync(file("talent.mov"))).toBe(true);
   });
 
   it("explains what to do without a proposal", async () => {

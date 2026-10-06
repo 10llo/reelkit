@@ -6,6 +6,7 @@ import { cell, sceneNames } from "./script-sheet";
 
 export type SyncProposal = {
   clip: { src: string; trimStartFrames: number };
+  stagedClip: string;
   sceneStarts: number[] | null;
   captionsSrc: string;
   transcribed: boolean;

@@ -73,33 +73,46 @@ export const prepare = async (
     );
     return 1;
   }
-  for (const stale of [FILES.raw, FILES.proposed]) {
+  for (const stale of [FILES.proposal, FILES.report, FILES.raw, FILES.proposed]) {
     fs.rmSync(path.join(dir, stale), { force: true });
   }
-  const clipName = `talent${path.extname(clipPath).toLowerCase() || ".mp4"}`;
-  const clipDest = path.join(dir, clipName);
-  if (path.resolve(clipPath) !== path.resolve(clipDest)) {
-    fs.copyFileSync(clipPath, clipDest);
+  for (const name of fs.readdirSync(dir)) {
+    if (name.startsWith("talent.proposed.")) {
+      fs.rmSync(path.join(dir, name), { force: true });
+    }
   }
+  const ext = path.extname(clipPath).toLowerCase() || ".mp4";
+  const clipName = `talent${ext}`;
+  const stagedName = `talent.proposed${ext}`;
+  const stagedPath = path.join(dir, stagedName);
+  fs.copyFileSync(clipPath, stagedPath);
 
-  const wave = await deps.decode(clipDest);
-  const speech = speechBounds(wave);
   const total = totalFrames(episode.durationSeconds);
   let alignment: Alignment | null = null;
   let unavailable: string | null = null;
+  let speech: ReturnType<typeof speechBounds> = null;
+  let wave: Float32Array | null = null;
   try {
-    const transcript = await deps.transcribe(wave, { model: options.model, language: whisperLanguage(talent.locale) });
-    writeJson(path.join(dir, FILES.raw), transcript);
-    alignment = alignTranscript(episode.script, transcript);
-    if (!alignment.captions.length) {
-      unavailable = "Whisper no escuchó ninguna palabra en el clip.";
-      alignment = null;
-    }
+    wave = await deps.decode(stagedPath);
+    speech = speechBounds(wave);
   } catch (err) {
-    if (!(err instanceof TranscriptionUnavailable)) {
-      throw err;
+    unavailable = `Could not decode the clip's audio: ${err instanceof Error ? err.message : String(err)}`;
+  }
+  if (wave) {
+    try {
+      const transcript = await deps.transcribe(wave, { model: options.model, language: whisperLanguage(talent.locale) });
+      writeJson(path.join(dir, FILES.raw), transcript);
+      alignment = alignTranscript(episode.script, transcript);
+      if (!alignment.captions.length) {
+        unavailable = "Whisper no escuchó ninguna palabra en el clip.";
+        alignment = null;
+      }
+    } catch (err) {
+      if (!(err instanceof TranscriptionUnavailable)) {
+        throw err;
+      }
+      unavailable = err.message;
     }
-    unavailable = err.message;
   }
 
   const captions: Caption[] = alignment?.captions ?? [];
@@ -117,6 +130,7 @@ export const prepare = async (
 
   const proposal: SyncProposal = {
     clip: { src: clipName, trimStartFrames },
+    stagedClip: stagedName,
     sceneStarts,
     captionsSrc: alignment ? FILES.final : "",
     transcribed: alignment !== null,
@@ -138,7 +152,7 @@ export const prepare = async (
   });
   fs.writeFileSync(path.join(dir, FILES.report), report);
 
-  console.log(`✓ Clip copied to ${clipDest}`);
+  console.log(`✓ Clip copied to ${stagedPath}`);
   console.log(alignment ? `✓ Transcribed with ${options.model}` : `⚠ No transcript: ${unavailable}`);
   if (proposal.speechOverrunSeconds > 0) {
     console.log(`⚠ The voice runs ${proposal.speechOverrunSeconds} s past the end of the video.`);
@@ -176,12 +190,19 @@ export const apply = async (dir: string, options: { acceptOverrun: boolean }): P
     );
     return 1;
   }
-  if (!fs.existsSync(path.join(dir, proposal.clip.src))) {
-    console.error(`✗ The clip ${proposal.clip.src} is missing from ${dir}. Run sync prepare again.`);
+  const stagedPath = path.join(dir, proposal.stagedClip);
+  if (!fs.existsSync(stagedPath)) {
+    console.error(`✗ The new clip is missing from ${dir}. Run sync prepare again.`);
     return 1;
   }
+  let captions: unknown = null;
   if (proposal.captionsSrc) {
-    const captions = readJson(path.join(dir, FILES.proposed));
+    try {
+      captions = readJson(path.join(dir, FILES.proposed));
+    } catch (err) {
+      console.error(`✗ ${FILES.proposed}: ${err instanceof Error ? err.message : String(err)}`);
+      return 1;
+    }
     const problem = captionProblem(captions);
     if (problem) {
       console.error(`✗ ${FILES.proposed}: ${problem}`);
@@ -189,12 +210,19 @@ export const apply = async (dir: string, options: { acceptOverrun: boolean }): P
     }
     writeJson(path.join(dir, proposal.captionsSrc), captions);
   }
+  for (const name of fs.readdirSync(dir)) {
+    if (name.startsWith("talent.") && name !== proposal.stagedClip && name !== "talent.json") {
+      fs.rmSync(path.join(dir, name), { force: true });
+    }
+  }
+  fs.renameSync(stagedPath, path.join(dir, proposal.clip.src));
   saveEpisodeRaw(loaded, {
     clip: proposal.clip,
     sceneStarts: proposal.sceneStarts ?? loaded.raw.sceneStarts ?? null,
     captionsSrc: proposal.captionsSrc,
     stage: "synced",
   });
+  fs.rmSync(proposalFile, { force: true });
   console.log(`✓ ${loaded.episode.slug} is synced. Check it with: npm run studio -- ${dir}`);
   return 0;
 };
