@@ -25,8 +25,10 @@ export const parseTargets = (only: string | undefined): ExportTarget[] => {
   if (unknown.length) {
     throw new Error(`Unknown export target(s): ${unknown.join(", ")}. Use: ${EXPORT_TARGETS.join(", ")}`);
   }
-  return list as ExportTarget[];
+  return [...new Set(list)] as ExportTarget[];
 };
+
+export const isFullExport = (targets: ExportTarget[]): boolean => EXPORT_TARGETS.every((t) => targets.includes(t));
 
 export const outputName = (slug: string, target: ExportTarget): string =>
   ({
@@ -99,60 +101,67 @@ export const run = async (args: Args): Promise<number> => {
     const name = outputName(episode.slug, target);
     const file = path.join(outDir, name);
     console.log(`→ ${name}`);
-    if (target === "srt") {
-      const captions = episode.captionsSrc ? (readJson(path.join(dir, episode.captionsSrc)) as Caption[]) : null;
-      fs.writeFileSync(file, buildSrt(episode, captions));
-      continue;
+    try {
+      if (target === "srt") {
+        const captions = episode.captionsSrc ? (readJson(path.join(dir, episode.captionsSrc)) as Caption[]) : null;
+        fs.writeFileSync(file, buildSrt(episode, captions));
+        continue;
+      }
+      const { id, inputProps } = compositionFor(target);
+      const url = await getServeUrl();
+      const composition = await selectComposition({ serveUrl: url, id, inputProps, onBrowserLog });
+      if (target.startsWith("cover")) {
+        await renderStill({ serveUrl: url, composition, output: file, inputProps, imageFormat: "png", onBrowserLog });
+        problems.push(...verifyPngFile(file, composition).map((p) => `${name}: ${p}`));
+        continue;
+      }
+      const whatsapp = target === "whatsapp" ? whatsappSettings(episode.durationSeconds) : null;
+      let shown = -1;
+      await renderMedia({
+        serveUrl: url,
+        composition,
+        inputProps,
+        codec: "h264",
+        pixelFormat: "yuv420p",
+        outputLocation: file,
+        onBrowserLog,
+        ...(whatsapp
+          ? { videoBitrate: whatsapp.videoBitrate, audioBitrate: whatsapp.audioBitrate, scale: whatsapp.scale }
+          : { crf: 18, audioBitrate: "192k" }),
+        onProgress: ({ progress }) => {
+          const pct = Math.floor(progress * 10) * 10;
+          if (pct !== shown) {
+            shown = pct;
+            process.stdout.write(`\r  ${pct} %`);
+          }
+        },
+      });
+      process.stdout.write("\n");
+      const scale = whatsapp?.scale ?? 1;
+      const found = await verifyVideoFile(file, {
+        durationSeconds: episode.durationSeconds,
+        width: Math.round(composition.width * scale),
+        height: Math.round(composition.height * scale),
+        maxBytes: whatsapp ? WHATSAPP_LIMIT_BYTES : undefined,
+      });
+      problems.push(...found.map((p) => `${name}: ${p}`));
+    } catch (err) {
+      problems.push(`${name}: ${(err as Error).message}`);
     }
-    const { id, inputProps } = compositionFor(target);
-    const url = await getServeUrl();
-    const composition = await selectComposition({ serveUrl: url, id, inputProps, onBrowserLog });
-    if (target.startsWith("cover")) {
-      await renderStill({ serveUrl: url, composition, output: file, inputProps, imageFormat: "png", onBrowserLog });
-      problems.push(...verifyPngFile(file, composition).map((p) => `${name}: ${p}`));
-      continue;
-    }
-    const whatsapp = target === "whatsapp" ? whatsappSettings(episode.durationSeconds) : null;
-    let shown = -1;
-    await renderMedia({
-      serveUrl: url,
-      composition,
-      inputProps,
-      codec: "h264",
-      pixelFormat: "yuv420p",
-      outputLocation: file,
-      onBrowserLog,
-      ...(whatsapp
-        ? { videoBitrate: whatsapp.videoBitrate, audioBitrate: whatsapp.audioBitrate, scale: whatsapp.scale }
-        : { crf: 18, audioBitrate: "192k" }),
-      onProgress: ({ progress }) => {
-        const pct = Math.floor(progress * 10) * 10;
-        if (pct !== shown) {
-          shown = pct;
-          process.stdout.write(`\r  ${pct} %`);
-        }
-      },
-    });
-    process.stdout.write("\n");
-    const scale = whatsapp?.scale ?? 1;
-    const found = await verifyVideoFile(file, {
-      durationSeconds: episode.durationSeconds,
-      width: Math.round(composition.width * scale),
-      height: Math.round(composition.height * scale),
-      maxBytes: whatsapp ? WHATSAPP_LIMIT_BYTES : undefined,
-    });
-    problems.push(...found.map((p) => `${name}: ${p}`));
   }
 
   for (const target of targets) {
     const file = path.join(outDir, outputName(episode.slug, target));
+    if (!fs.existsSync(file)) {
+      continue;
+    }
     console.log(`  ${path.relative(process.cwd(), file)}  ${(fs.statSync(file).size / 1_000_000).toFixed(1)} MB`);
   }
   if (problems.length) {
     console.error(problems.map((p) => `✗ ${p}`).join("\n"));
     return 1;
   }
-  if (targets.length === EXPORT_TARGETS.length) {
+  if (isFullExport(targets)) {
     saveEpisodeRaw(loaded, { stage: "exported" });
   }
   console.log(`✓ Exported ${targets.length} file(s) to ${outDir}`);

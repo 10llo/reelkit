@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { PNG } from "pngjs";
 import { afterAll, describe, expect, it } from "vitest";
-import { outputName, parseTargets } from "../../scripts/commands/export";
+import { isFullExport, outputName, parseTargets } from "../../scripts/commands/export";
 import { whatsappSettings } from "../../scripts/lib/bitrate";
 import type { ClipInfo } from "../../scripts/lib/probe";
 import { buildSrt, srtTime } from "../../scripts/lib/srt";
@@ -89,6 +89,11 @@ describe("targets", () => {
     expect(parseTargets(undefined)).toEqual(["9x16", "whatsapp", "4x5", "cover-9x16", "cover-4x5", "srt"]);
     expect(parseTargets("srt, cover-4x5")).toEqual(["srt", "cover-4x5"]);
     expect(() => parseTargets("9x16,tiktok")).toThrow(/Unknown export target.*tiktok/);
+  });
+  it("de-duplicates targets and knows a full export", () => {
+    expect(parseTargets("srt,srt,cover-4x5")).toEqual(["srt", "cover-4x5"]);
+    expect(isFullExport(parseTargets(undefined))).toBe(true);
+    expect(isFullExport(parseTargets("srt,srt,srt,srt,srt,srt"))).toBe(false);
   });
   it("names the files", () => {
     expect(outputName("2026-10-chocolate", "whatsapp")).toBe("2026-10-chocolate-whatsapp.mp4");
