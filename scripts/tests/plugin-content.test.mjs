@@ -159,3 +159,19 @@ test("commands keep their approval and safety steps", () => {
   }
   assert.ok(read("commands/status.md").includes("npm run reelkit -- status"));
 });
+
+test("CI runs every check the plugin relies on", () => {
+  const ci = read(".github/workflows/ci.yml");
+  for (const step of [
+    "node --test scripts/tests/*.test.mjs",
+    "claude plugin validate .",
+    "npm ci",
+    "npm run lint",
+    "npm test",
+    "npx remotion browser ensure",
+    "npm run check",
+    "npm run check:gallery",
+  ]) {
+    assert.ok(ci.includes(step), `ci.yml is missing "${step}"`);
+  }
+});
