@@ -149,3 +149,18 @@ test("--set with no path exits 2", () => {
   assert.equal(result.status, 2);
   assert.match(result.stderr, /--set needs a path/);
 });
+
+test("the CLIs still run when the plugin path is reached through a symlink", () => {
+  const link = path.join(home, "linked-scripts");
+  fs.symlinkSync(path.dirname(SCRIPT_PATH), link, "dir");
+  const env = { ...process.env, REELKIT_STUDIO: path.join(home, "missing") };
+  const ws = spawnSync(process.execPath, [path.join(link, "workspace.mjs"), "--json"], { env, encoding: "utf8" });
+  assert.equal(ws.status, 1);
+  assert.equal(JSON.parse(ws.stdout).ok, false);
+  const doctor = spawnSync(process.execPath, [path.join(link, "doctor.mjs"), home], { env, encoding: "utf8" });
+  assert.ok([0, 1].includes(doctor.status), `doctor exited ${doctor.status}`);
+  assert.ok(doctor.stdout.trim().length > 0, "doctor printed nothing");
+  const init = spawnSync(process.execPath, [path.join(link, "init-workspace.mjs")], { env, encoding: "utf8" });
+  assert.equal(init.status, 2);
+  assert.match(init.stderr, /Usage:/);
+});

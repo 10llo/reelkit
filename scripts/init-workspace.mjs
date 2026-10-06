@@ -99,7 +99,15 @@ export const initWorkspace = ({
   return update ? { target, templateVersion, updated: true, backupDir } : { target, templateVersion, updated: false };
 };
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+const isMain = () => {
+  try {
+    return fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+};
+
+if (isMain()) {
   const args = process.argv.slice(2);
   const unknown = args.find((a) => a.startsWith("--") && !["--update", "--no-install"].includes(a));
   if (unknown) {

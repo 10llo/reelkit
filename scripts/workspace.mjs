@@ -77,7 +77,15 @@ export const versionNotice = (workspaceVersion, pluginVersion) =>
     : `This workspace uses template ${workspaceVersion ?? "unknown"}; the plugin has ${pluginVersion}. ` +
       "Run /reelkit:setup --update to get the new blocks and fixes (talents and episodes are kept).";
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+const isMain = () => {
+  try {
+    return fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+};
+
+if (isMain()) {
   const args = process.argv.slice(2);
   const set = args.find((a) => a.startsWith("--set="));
   if (set) {

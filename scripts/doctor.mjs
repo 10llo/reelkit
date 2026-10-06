@@ -65,7 +65,15 @@ export const runDoctor = (dir) =>
 export const formatResults = (results) =>
   results.map((r) => (r.ok ? `✓ ${r.label}` : `✗ ${r.label} → ${r.fix}`)).join("\n");
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+const isMain = () => {
+  try {
+    return fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+};
+
+if (isMain()) {
   const results = runDoctor(path.resolve(process.argv[2] ?? "."));
   console.log(formatResults(results));
   process.exitCode = results.every((r) => r.ok) ? 0 : 1;
