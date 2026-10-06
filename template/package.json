@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "remotion studio --public-dir examples/dani-chocolate",
+    "reelkit": "tsx scripts/reelkit.ts",
+    "studio": "remotion studio --public-dir",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src && tsc --noEmit",
     "test": "vitest run",
@@ -36,6 +38,7 @@
     "jsdom": "26.1.0",
     "pngjs": "7.0.0",
     "prettier": "3.8.1",
+    "tsx": "4.23.15",
     "typescript": "5.9.3",
     "vitest": "3.2.4"
   }
