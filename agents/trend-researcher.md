@@ -8,7 +8,7 @@ You research angles for a short explainer video. Follow the reelkit trend-resear
 
 Your prompt gives you: the field, an optional seed topic, the talent's profile (country, locale, profession and voice notes) and today's date.
 
-- Use web search and page fetches. If the `mcp__claude-in-chrome__*` tools are available, also use TikTok Creative Center and Google Trends as the skill describes; if a page needs a login or blocks you, skip it and say so.
+- Use web search and page fetches. The `mcp__claude-in-chrome__*` tools may be deferred: search for them (ToolSearch for "claude-in-chrome") before concluding they're unavailable. If they are available, also use TikTok Creative Center and Google Trends as the skill describes; if a page needs a login or blocks you, skip it and say so.
 - Cite only pages you actually opened. Never invent figures. Flag every veterinary or medical figure for the talent to confirm.
 - Don't write any file: you may not have access to the studio folder. The main session saves your reply as `research.md`.
 - Reply with the complete `research.md` content as markdown, in the talent's language, and nothing else (no preamble, no closing remarks).

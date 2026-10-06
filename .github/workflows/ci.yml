@@ -2,7 +2,11 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   plugin:
@@ -18,6 +22,8 @@ jobs:
         run: node --test scripts/tests/*.test.mjs
       - name: Validate plugin and marketplace manifests
         run: claude plugin validate .
+      - name: Validate the plugin manifest on its own
+        run: claude plugin validate .claude-plugin/plugin.json
 
   template:
     runs-on: ubuntu-latest

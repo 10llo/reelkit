@@ -9,7 +9,7 @@ Set up reelkit. Arguments: `$ARGUMENTS`. This command is safe to run again: it o
 
 Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.mjs" "<user's home folder>"` (so disk space is checked on that drive) and show its lines. A ✗ on Node, npm or disk space blocks setup: show the fix and stop. A ✗ on git is a warning only.
 
-Check whether the `mcp__claude-in-chrome__*` tools are available in this session. If not, tell the user trend research will use web search only, and that connecting the Claude in Chrome extension adds TikTok Creative Center and Google Trends.
+Check whether the `mcp__claude-in-chrome__*` tools are available in this session. They may be deferred: search for them (ToolSearch for "claude-in-chrome") before concluding they're unavailable. If they're not available, tell the user trend research will use web search only, and that connecting the Claude in Chrome extension adds TikTok Creative Center and Google Trends.
 
 ## 2. Workspace
 

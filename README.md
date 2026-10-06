@@ -50,7 +50,7 @@ Every command stops for your approval at its decisions: the angle, the script, c
   episodes/<yyyy-mm>-<slug>/ one folder per video: episode.json, research.md, script.md, the clip, captions, exports/
 ```
 
-Update the template (new blocks and fixes) without touching talents or episodes: `/reelkit:setup --update`. Replaced files are backed up in `.reelkit-backup/`.
+Updating: `/plugin marketplace update reelkit`, restart Claude Code, then `/reelkit:setup --update`. That last step updates the workspace template (new blocks and fixes) without touching talents or episodes; replaced files are backed up in `.reelkit-backup/`.
 
 ## Developing the plugin
 

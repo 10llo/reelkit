@@ -11,11 +11,11 @@ const json = (rel) => JSON.parse(read(rel));
 const listMarkdown = (dir) =>
   fs.existsSync(path.join(ROOT, dir)) ? fs.readdirSync(path.join(ROOT, dir)).filter((f) => f.endsWith(".md")).map((f) => `${dir}/${f}`) : [];
 const frontmatter = (text) => {
-  const match = text.match(/^---\n([\s\S]*?)\n---\n/);
+  const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
   if (!match) return null;
   return Object.fromEntries(
     match[1]
-      .split("\n")
+      .split(/\r?\n/)
       .filter((line) => /^[\w-]+:/.test(line))
       .map((line) => [line.slice(0, line.indexOf(":")), line.slice(line.indexOf(":") + 1).trim()]),
   );
@@ -106,6 +106,23 @@ test("plugin files only name CLI commands, npm scripts and plugin paths that exi
   }
 });
 
+test("frontmatter parsing tolerates CRLF line endings", () => {
+  assert.deepEqual(frontmatter("---\r\nname: x\r\ndescription: y\r\n---\r\nbody"), { name: "x", description: "y" });
+});
+
+test("every `reelkit:<name>` mention names a skill, a command or the agent", () => {
+  const names = new Set([
+    ...fs.readdirSync(path.join(ROOT, "skills")).filter((d) => fs.existsSync(path.join(ROOT, "skills", d, "SKILL.md"))),
+    ...listMarkdown("commands").map((f) => path.basename(f, ".md")),
+    ...listMarkdown("agents").map((f) => frontmatter(read(f))?.name),
+  ]);
+  for (const file of pluginFiles()) {
+    for (const [, name] of read(file).matchAll(/`reelkit:([\w-]+)`/g)) {
+      assert.ok(names.has(name), `${file}: \`reelkit:${name}\` is not a skill, command or agent`);
+    }
+  }
+});
+
 test("episode-authoring covers every block and the validate → check loop", () => {
   const text = read("skills/episode-authoring/SKILL.md");
   for (const block of blockNames()) {
@@ -168,6 +185,7 @@ test("CI runs every check the plugin relies on", () => {
   for (const step of [
     "node --test scripts/tests/*.test.mjs",
     "claude plugin validate .",
+    "claude plugin validate .claude-plugin/plugin.json",
     "npm ci",
     "npm run lint",
     "npm test",
@@ -197,4 +215,16 @@ test("the research agent returns research.md and the main session writes it", ()
   const create = read("commands/new.md");
   assert.match(create, /foreground/);
   assert.ok(create.includes("<ws>/episodes/.research/<yyyy-mm-dd>-<field>.md"), "new does not say where to save the research");
+});
+
+test("clip and export run shell steps in the studio, clip sends unfinished episodes back to new, and Chrome tools are searched for", () => {
+  for (const name of ["new", "clip", "export"]) {
+    assert.ok(read(`commands/${name}.md`).includes('All later shell steps run as `cd "<ws>" && …`'), `${name} does not run shell steps in the studio`);
+  }
+  assert.match(read("commands/clip.md"), /`researched` or `scripted`.*`\/reelkit:new`/);
+  for (const file of ["commands/setup.md", "agents/trend-researcher.md"]) {
+    assert.ok(read(file).includes('ToolSearch for "claude-in-chrome"'), `${file} does not search for deferred Chrome tools`);
+  }
+  assert.ok(read("README.md").includes("/plugin marketplace update reelkit"), "README does not explain updating");
+  assert.match(read("skills/block-authoring/SKILL.md"), /clone github\.com\/10llo\/reelkit[\s\S]*pull request/);
 });

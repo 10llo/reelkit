@@ -15,6 +15,10 @@ describe("talentSchema", () => {
   it("rejects a pill name longer than 18 characters", () => {
     expect(talentSchema.safeParse({ ...DANI_TALENT, pillName: "Doctora Daniela Gómez" }).success).toBe(false);
   });
+  it("rejects empty disclaimer lines", () => {
+    expect(talentSchema.safeParse({ ...DANI_TALENT, disclaimer: ["", ""] }).success).toBe(false);
+    expect(talentSchema.safeParse({ ...DANI_TALENT, disclaimer: ["Contenido educativo.", ""] }).success).toBe(false);
+  });
 });
 
 describe("resolveColor", () => {

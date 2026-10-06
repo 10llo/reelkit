@@ -5,7 +5,7 @@ description: Use when no existing reelkit block fits a line and a new block (or 
 
 # Block authoring
 
-Adding a block is the exception: first try every block in `npm run reelkit -- catalog`, two beats, or a different split. If a new block is really needed, it goes into the **plugin's** `template/` (so every workspace gets it with `/reelkit:setup --update`). A block added only inside a workspace works there but is replaced on the next update (a copy stays in `.reelkit-backup/`).
+Adding a block is the exception: first try every block in `npm run reelkit -- catalog`, two beats, or a different split. If a new block is really needed, it goes into the **plugin's** `template/` (so every workspace gets it with `/reelkit:setup --update`). The installed plugin folder is a read-only cache — don't edit it. Instead clone github.com/10llo/reelkit, work in its `template/` folder (run `npm install` there first), and open a pull request. A block added only inside a workspace works there but is replaced on the next update (a copy stays in `.reelkit-backup/`).
 
 ## Files
 
@@ -31,7 +31,7 @@ Adding a block is the exception: first try every block in `npm run reelkit -- ca
 
 ## Checks
 
-Run these inside the plugin repository's `template/` folder (not in a workspace) when adding a block to the plugin.
+Run these inside the `template/` folder of your clone of the plugin repository (not in a workspace, not in the installed plugin folder) when adding a block to the plugin.
 
 ```bash
 npm test
@@ -40,4 +40,4 @@ npm run check:gallery -- --block=<Name>
 npm run check
 ```
 
-All must pass. Then release: bump the version in `template/package.json`, `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` together, and teammates run `/reelkit:setup --update`.
+All must pass. Open a pull request with the block. Then release: bump the version in `template/package.json`, `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` together, and teammates run `/reelkit:setup --update`.

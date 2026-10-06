@@ -33,7 +33,7 @@ export const talentSchema = z.object({
     })
     .default(EMPTY_HANDLES),
   colors: paletteSchema,
-  disclaimer: z.tuple([z.string(), z.string()]),
+  disclaimer: z.tuple([z.string().min(1), z.string().min(1)]),
   recordingNotes: z.string().default(""),
 });
 export type Talent = z.infer<typeof talentSchema>;

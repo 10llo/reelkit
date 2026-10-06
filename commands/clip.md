@@ -7,10 +7,11 @@ Add the talent's clip. Arguments: `$ARGUMENTS` (the video path, then optionally 
 
 ## 1. Workspace and episode
 
-Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs"`. If it fails, show its message and stop. Line 1 is `<ws>`. If this session's working directory is not `<ws>` or a folder inside it, tell the user once, before any other work, that Claude Code works best started in the studio (`cd "<ws>" && claude`), or that they can run `/add-dir <ws>` now; then continue. If it prints a `⚠` line (the workspace template is older than the plugin), ask (AskUserQuestion) whether to run `/reelkit:setup --update` now (recommended) or continue anyway.
+Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs"`. If it fails, show its message and stop. Line 1 is `<ws>`. If this session's working directory is not `<ws>` or a folder inside it, tell the user once, before any other work, that Claude Code works best started in the studio (`cd "<ws>" && claude`), or that they can run `/add-dir <ws>` now; then continue. If it prints a `⚠` line (the workspace template is older than the plugin), ask (AskUserQuestion) whether to run `/reelkit:setup --update` now (recommended) or continue anyway. All later shell steps run as `cd "<ws>" && …`.
 
 - The video path must exist (it can be anywhere, e.g. `~/Downloads`). If it's missing from the arguments, ask for it. Convert it to an absolute path before any `cd` (expand `~`, resolve relative paths against the user's current folder).
-- The episode: from the arguments, or run `cd "<ws>" && npm run reelkit -- status episodes` and pick the episode at stage `built`, `synced` or `exported` (the last two replace a clip, i.e. a re-record); if several fit, ask.
+- The episode, given in the arguments: check its stage with `npm run reelkit -- status episodes`. If it is `researched` or `scripted`, stop and send the user to `/reelkit:new` to finish it first.
+- The episode, not given: run `npm run reelkit -- status episodes` and pick the episode at stage `built`, `synced` or `exported` (the last two replace a clip, i.e. a re-record); if several fit, ask.
 
 ## 2. Sync
 
