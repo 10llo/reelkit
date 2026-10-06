@@ -6,6 +6,7 @@ import { FONT_BODY, FONT_HEAD, WEIGHT_BODY, WEIGHT_HEAD, bodyStyle, headStyle } 
 import { CLAMP, enter } from "../frame/timing";
 import { Icon } from "../icons";
 import { gridShape } from "./Proportion.schema";
+import { CountUpText } from "./parts/CountUpText";
 import type { BlockComponent } from "./types";
 
 const VISUAL = 380;
@@ -171,7 +172,11 @@ export const Proportion: BlockComponent<"Proportion"> = ({ props, timing }) => {
           }}
         >
           <span style={{ ...headStyle(140), color: c.accent, lineHeight: 1 }}>
-            {format.format(Math.round(props.numerator * fill))}
+            <CountUpText
+              current={format.format(Math.round(props.numerator * fill))}
+              final={format.format(props.numerator)}
+              align="right"
+            />
           </span>
           <span
             style={{

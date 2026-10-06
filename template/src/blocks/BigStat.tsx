@@ -2,6 +2,7 @@ import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { usePalette, useTalent } from "../frame/contexts";
 import { bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop } from "../frame/timing";
+import { CountUpText } from "./parts/CountUpText";
 import type { BlockComponent } from "./types";
 
 const NUMBER_AT = 0.1;
@@ -40,7 +41,7 @@ export const BigStat: BlockComponent<"BigStat"> = ({ props, timing }) => {
         }}
       >
         {props.prefix ? <span style={{ fontSize: 100 }}>{props.prefix}</span> : null}
-        {format.format(props.value * count)}
+        <CountUpText current={format.format(props.value * count)} final={format.format(props.value)} />
         {props.unit ? <span style={{ fontSize: 100, marginLeft: 12 }}>{props.unit}</span> : null}
       </div>
       <div

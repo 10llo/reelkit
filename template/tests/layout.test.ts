@@ -43,3 +43,10 @@ it("matches the Dani brief at 9:16", () => {
   expect(l.stage).toEqual({ x: 60, y: 320, width: 960, height: 620 });
   expect(l.rightGutter).toBe(150);
 });
+
+it("keeps the 9:16 stage inside the centre 3:4 crop used by the profile grid", () => {
+  const l = LAYOUTS["9x16"];
+  const cropTop = (l.canvas.height - (l.canvas.width * 4) / 3) / 2; // 1080×1440 centred → 240
+  expect(l.stage.y).toBeGreaterThanOrEqual(cropTop);
+  expect(l.stage.y + l.stage.height).toBeLessThanOrEqual(cropTop + (l.canvas.width * 4) / 3);
+});

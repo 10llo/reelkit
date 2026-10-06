@@ -2,6 +2,7 @@ import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { usePalette, useTalent } from "../../frame/contexts";
 import { FONT_HEAD, WEIGHT_HEAD, bodyStyle } from "../../frame/theme";
 import { CLAMP, enter, pulse } from "../../frame/timing";
+import { CountUpText } from "./CountUpText";
 
 export type BarRow = { label: string; value: number; color: string; outline?: string; from: number; to: number };
 
@@ -89,7 +90,7 @@ export const QuantityBars: React.FC<{
                 }}
               >
                 {approx ? "≈ " : ""}
-                {format.format(shown)}
+                <CountUpText current={format.format(shown)} final={format.format(row.value)} align="left" />
                 {unit ? ` ${unit}` : ""}
               </div>
             </div>
