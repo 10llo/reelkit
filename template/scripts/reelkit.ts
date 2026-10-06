@@ -4,6 +4,7 @@ type Command = { run: (args: Args) => Promise<number> };
 
 const COMMANDS: Record<string, () => Promise<Command>> = {
   validate: () => import("./commands/validate"),
+  script: () => import("./commands/script"),
 };
 
 const USAGE = `Usage: npm run reelkit -- <command> [...]
