@@ -70,6 +70,9 @@ const decimalWords = (digits: string): string[] =>
 
 export const expandToken = (token: string): string[] => {
   const t = token.trim().replace(EDGE_PUNCTUATION, "");
+  if (t === "%") {
+    return ["por", "ciento"];
+  }
   const range = t.match(RANGE);
   if (range) {
     return [...expandToken(range[1]), "a", ...expandToken(range[2])];

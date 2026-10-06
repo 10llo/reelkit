@@ -64,6 +64,9 @@ describe("expandToken", () => {
   ])("%s", (token, expected) => {
     expect(expandToken(token)).toEqual(expected);
   });
+  it("spells a standalone % as por ciento", () => {
+    expect(expandToken("%")).toEqual(["por", "ciento"]);
+  });
   it("gives a spoken number and its digits the same keys", () => {
     const spoken = "treinta y uno".split(" ").flatMap(expandToken);
     expect(spoken).toEqual(expandToken("31"));

@@ -76,6 +76,31 @@ describe("alignTranscript edge cases", () => {
     const r = alignTranscript(["Uno dos tres cuatro cinco"], words([["perro", 0, 300], ["gato", 300, 600]]));
     expect(r.warnings.join("\n")).toMatch(/¿Es el clip correcto\?/);
   });
+  it("keeps a spaced % in the captions", () => {
+    const r = alignTranscript(["Carga al 100 %"], words([["Carga", 0, 300], ["al", 300, 500], ["100%", 500, 1100]]));
+    expect(r.words.every((w) => w.status === "match")).toBe(true);
+    expect(r.captions.map((c) => c.text.trim())).toEqual(["Carga", "al", "100", "%"]);
+    expect(r.captions[2]).toMatchObject({ startMs: 500, endMs: 700 });
+    expect(r.captions[3]).toMatchObject({ startMs: 700, endMs: 1100 });
+  });
+  it("matches a spaced % to a spoken por ciento", () => {
+    const r = alignTranscript(
+      ["Carga al 100 %"],
+      words([["Carga", 0, 300], ["al", 300, 500], ["cien", 500, 700], ["por", 700, 900], ["ciento", 900, 1100]]),
+    );
+    expect(r.words.every((w) => w.status === "match")).toBe(true);
+    expect(r.adLibs).toEqual([]);
+    expect(r.captions.map((c) => c.text.trim())).toEqual(["Carga", "al", "100", "%"]);
+  });
+  it("starts the scene at the restarted sentence", () => {
+    const r = alignTranscript(
+      ["¿Cuándo preocuparte?"],
+      words([["¿Cuándo…", 0, 400], ["perdón,", 500, 900], ["¿Cuándo", 2000, 2400], ["preocuparte?", 2400, 3000]]),
+    );
+    expect(r.sceneFirstWordMs).toEqual([2000]);
+    expect(r.words.every((w) => w.status === "match")).toBe(true);
+    expect(r.adLibs.map((a) => a.text)).toEqual(["¿Cuándo…", "perdón,"]);
+  });
   it("handles an empty transcript", () => {
     const r = alignTranscript(["Hola."], []);
     expect(r.captions).toEqual([]);
