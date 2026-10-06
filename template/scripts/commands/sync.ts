@@ -66,7 +66,13 @@ export const prepare = async (
     console.error(`✗ No file at ${clipPath}`);
     return 1;
   }
-  const info = await deps.probe(clipPath);
+  let info: ClipInfo;
+  try {
+    info = await deps.probe(clipPath);
+  } catch (err) {
+    console.error(`✗ ${clipPath} is not a readable video file: ${err instanceof Error ? err.message : String(err)}`);
+    return 1;
+  }
   if (!info.hasVideo || !info.hasAudio) {
     console.error(
       `✗ ${clipPath} needs both video and audio (video: ${info.hasVideo ? "yes" : "no"}, audio: ${info.hasAudio ? "yes" : "no"}).`,
@@ -100,7 +106,13 @@ export const prepare = async (
   }
   if (wave) {
     try {
-      const transcript = await deps.transcribe(wave, { model: options.model, language: whisperLanguage(talent.locale) });
+      let language: string;
+      try {
+        language = whisperLanguage(talent.locale);
+      } catch (err) {
+        throw new TranscriptionUnavailable(err instanceof Error ? err.message : String(err));
+      }
+      const transcript = await deps.transcribe(wave, { model: options.model, language });
       writeJson(path.join(dir, FILES.raw), transcript);
       alignment = alignTranscript(episode.script, transcript);
       if (!alignment.captions.length) {

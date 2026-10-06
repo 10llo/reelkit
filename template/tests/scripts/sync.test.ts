@@ -123,6 +123,28 @@ describe("sync prepare", () => {
     await expect(prepare(dir, clip, { model: "small" }, deps({ transcribe }))).rejects.toThrow("bug");
   });
 
+  it("treats a locale Whisper doesn't know as no transcript", async () => {
+    const talent = readJson(file("talent.json"));
+    fs.writeFileSync(file("talent.json"), JSON.stringify({ ...talent, locale: "ca-ES" }));
+    const transcribe = vi.fn(deps().transcribe);
+    expect(await prepare(dir, clip, { model: "small" }, deps({ transcribe }))).toBe(0);
+    expect(transcribe).not.toHaveBeenCalled();
+    expect(readJson(file("sync-proposal.json"))).toMatchObject({ transcribed: false });
+    expect(fs.readFileSync(file("sync-report.md"), "utf8")).toContain("ca-ES");
+  });
+
+  it("refuses a file that can't be probed, before changing anything", async () => {
+    const probe = async () => {
+      throw new Error("unsupported container");
+    };
+    const listing = fs.readdirSync(dir).sort();
+    expect(await prepare(dir, clip, { model: "small" }, deps({ probe }))).toBe(1);
+    expect(vi.mocked(console.error).mock.calls.join("\n")).toContain(
+      `✗ ${clip} is not a readable video file: unsupported container`,
+    );
+    expect(fs.readdirSync(dir).sort()).toEqual(listing);
+  });
+
   it("refuses a clip without audio", async () => {
     expect(await prepare(dir, clip, { model: "small" }, deps({ probe: async () => ({ ...INFO, hasAudio: false }) }))).toBe(1);
     expect(fs.existsSync(file("sync-proposal.json"))).toBe(false);

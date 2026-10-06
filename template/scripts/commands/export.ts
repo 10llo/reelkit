@@ -97,53 +97,59 @@ export const run = async (args: Args): Promise<number> => {
   };
 
   const problems: string[] = [];
-  for (const target of targets) {
-    const name = outputName(episode.slug, target);
-    const file = path.join(outDir, name);
-    console.log(`→ ${name}`);
-    try {
-      if (target === "srt") {
-        const captions = episode.captionsSrc ? (readJson(path.join(dir, episode.captionsSrc)) as Caption[]) : null;
-        fs.writeFileSync(file, buildSrt(episode, captions));
-        continue;
+  try {
+    for (const target of targets) {
+      const name = outputName(episode.slug, target);
+      const file = path.join(outDir, name);
+      console.log(`→ ${name}`);
+      try {
+        if (target === "srt") {
+          const captions = episode.captionsSrc ? (readJson(path.join(dir, episode.captionsSrc)) as Caption[]) : null;
+          fs.writeFileSync(file, buildSrt(episode, captions));
+          continue;
+        }
+        const { id, inputProps } = compositionFor(target);
+        const url = await getServeUrl();
+        const composition = await selectComposition({ serveUrl: url, id, inputProps, onBrowserLog });
+        if (target.startsWith("cover")) {
+          await renderStill({ serveUrl: url, composition, output: file, inputProps, imageFormat: "png", onBrowserLog });
+          problems.push(...verifyPngFile(file, composition).map((p) => `${name}: ${p}`));
+          continue;
+        }
+        const whatsapp = target === "whatsapp" ? whatsappSettings(episode.durationSeconds) : null;
+        let shown = -1;
+        await renderMedia({
+          serveUrl: url,
+          composition,
+          inputProps,
+          codec: "h264",
+          pixelFormat: "yuv420p",
+          outputLocation: file,
+          onBrowserLog,
+          ...(whatsapp ?? { crf: 18, audioBitrate: "192k" }),
+          onProgress: ({ progress }) => {
+            const pct = Math.floor(progress * 10) * 10;
+            if (pct !== shown) {
+              shown = pct;
+              process.stdout.write(`\r  ${pct} %`);
+            }
+          },
+        });
+        process.stdout.write("\n");
+        const found = await verifyVideoFile(file, {
+          durationSeconds: episode.durationSeconds,
+          width: composition.width,
+          height: composition.height,
+          maxBytes: whatsapp ? WHATSAPP_LIMIT_BYTES : undefined,
+        });
+        problems.push(...found.map((p) => `${name}: ${p}`));
+      } catch (err) {
+        problems.push(`${name}: ${(err as Error).message}`);
       }
-      const { id, inputProps } = compositionFor(target);
-      const url = await getServeUrl();
-      const composition = await selectComposition({ serveUrl: url, id, inputProps, onBrowserLog });
-      if (target.startsWith("cover")) {
-        await renderStill({ serveUrl: url, composition, output: file, inputProps, imageFormat: "png", onBrowserLog });
-        problems.push(...verifyPngFile(file, composition).map((p) => `${name}: ${p}`));
-        continue;
-      }
-      const whatsapp = target === "whatsapp" ? whatsappSettings(episode.durationSeconds) : null;
-      let shown = -1;
-      await renderMedia({
-        serveUrl: url,
-        composition,
-        inputProps,
-        codec: "h264",
-        pixelFormat: "yuv420p",
-        outputLocation: file,
-        onBrowserLog,
-        ...(whatsapp ?? { crf: 18, audioBitrate: "192k" }),
-        onProgress: ({ progress }) => {
-          const pct = Math.floor(progress * 10) * 10;
-          if (pct !== shown) {
-            shown = pct;
-            process.stdout.write(`\r  ${pct} %`);
-          }
-        },
-      });
-      process.stdout.write("\n");
-      const found = await verifyVideoFile(file, {
-        durationSeconds: episode.durationSeconds,
-        width: composition.width,
-        height: composition.height,
-        maxBytes: whatsapp ? WHATSAPP_LIMIT_BYTES : undefined,
-      });
-      problems.push(...found.map((p) => `${name}: ${p}`));
-    } catch (err) {
-      problems.push(`${name}: ${(err as Error).message}`);
+    }
+  } finally {
+    if (serveUrl) {
+      fs.rmSync(serveUrl, { recursive: true, force: true });
     }
   }
 

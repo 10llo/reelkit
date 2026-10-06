@@ -49,6 +49,11 @@ describe("transcribeWithWhisper", () => {
     vi.resetAllMocks();
     whisper.canUseWhisperWebGpu.mockResolvedValue({ supported: true });
     whisper.downloadWhisperModel.mockResolvedValue({ alreadyDownloaded: true });
+    whisper.isWhisperModelCached.mockResolvedValue(true);
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("returns trimmed words in ms and points Transformers.js at the shared cache", async () => {
@@ -66,6 +71,14 @@ describe("transcribeWithWhisper", () => {
     expect(whisper.transcribe).toHaveBeenCalledWith(
       expect.objectContaining({ channelWaveform: wave, model: "small", language: "spanish" }),
     );
+  });
+  it("says when the model is downloaded for the first time", async () => {
+    whisper.transcribe.mockResolvedValue({ text: "", model: "small", words: [] });
+    await transcribeWithWhisper(wave, { model: "small", language: "spanish" });
+    expect(console.log).not.toHaveBeenCalled();
+    whisper.isWhisperModelCached.mockResolvedValue(false);
+    await transcribeWithWhisper(wave, { model: "small", language: "spanish" });
+    expect(console.log).toHaveBeenCalledWith("Downloading Whisper model small (586 MB, first time only)…");
   });
   it("reports missing WebGPU as unavailable", async () => {
     whisper.canUseWhisperWebGpu.mockResolvedValue({ supported: false, reason: "webgpu-unavailable", detailedReason: "no adapter" });

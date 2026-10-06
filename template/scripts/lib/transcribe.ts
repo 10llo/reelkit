@@ -51,6 +51,9 @@ export const transcribeWithWhisper: Transcriber = async (wave, { model, language
     throw new TranscriptionUnavailable(`WebGPU is not available: ${support.detailedReason}`);
   }
   try {
+    if (!(await whisper.isWhisperModelCached({ model }))) {
+      console.log(`Downloading Whisper model ${model} (${MODEL_SIZES_MB[model]} MB, first time only)…`);
+    }
     await whisper.downloadWhisperModel({ model });
     const output = await whisper.transcribe({ channelWaveform: wave, model, language });
     return output.words

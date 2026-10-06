@@ -30,7 +30,11 @@ main().then(
     process.exitCode = code;
   },
   (err) => {
-    console.error(err instanceof Error ? err.stack : String(err));
+    if (process.env.REELKIT_DEBUG) {
+      console.error(err instanceof Error ? err.stack : String(err));
+    } else {
+      console.error(`✗ ${err instanceof Error ? err.message : String(err)}`);
+    }
     process.exitCode = 1;
   },
 );
