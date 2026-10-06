@@ -7,10 +7,10 @@ Add the talent's clip. Arguments: `$ARGUMENTS` (the video path, then optionally 
 
 ## 1. Workspace and episode
 
-Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs"`. If it fails, show its message and stop. Line 1 is `<ws>`.
+Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs"`. If it fails, show its message and stop. Line 1 is `<ws>`. If it prints a `⚠` line (the workspace template is older than the plugin), ask (AskUserQuestion) whether to run `/reelkit:setup --update` now (recommended) or continue anyway.
 
-- The video path must exist (it can be anywhere, e.g. `~/Downloads`). If it's missing from the arguments, ask for it.
-- The episode: from the arguments, or run `cd "<ws>" && npm run reelkit -- status episodes` and pick the episode at stage `built` (or `synced`, to replace a clip); if several fit, ask.
+- The video path must exist (it can be anywhere, e.g. `~/Downloads`). If it's missing from the arguments, ask for it. Convert it to an absolute path before any `cd` (expand `~`, resolve relative paths against the user's current folder).
+- The episode: from the arguments, or run `cd "<ws>" && npm run reelkit -- status episodes` and pick the episode at stage `built`, `synced` or `exported` (the last two replace a clip, i.e. a re-record); if several fit, ask.
 
 ## 2. Sync
 

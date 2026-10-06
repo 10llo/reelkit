@@ -7,7 +7,7 @@ Set up reelkit. Arguments: `$ARGUMENTS`. This command is safe to run again: it o
 
 ## 1. Check the machine
 
-Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.mjs"` and show its lines. A ✗ on Node, npm or disk space blocks setup: show the fix and stop. A ✗ on git is a warning only.
+Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.mjs" "<user's home folder>"` (so disk space is checked on that drive) and show its lines. A ✗ on Node, npm or disk space blocks setup: show the fix and stop. A ✗ on git is a warning only.
 
 Check whether the `mcp__claude-in-chrome__*` tools are available in this session. If not, tell the user trend research will use web search only, and that connecting the Claude in Chrome extension adds TikTok Creative Center and Google Trends.
 
@@ -16,8 +16,10 @@ Check whether the `mcp__claude-in-chrome__*` tools are available in this session
 Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs" --json`.
 
 - **`--update` in the arguments:** if the JSON's `dir` contains a `reelkit.json`, run `node "${CLAUDE_PLUGIN_ROOT}/scripts/init-workspace.mjs" "<dir>" --update` (it runs `npm install`; a few minutes) and tell the user where the previous files were backed up. If there is no workspace, say so and continue as a new setup.
+- If the environment variable `REELKIT_STUDIO` is set, say that it overrides the remembered path.
+- If `message` says `reelkit.json` is not valid JSON, tell the user to fix or move that file (`--update` can't read it) and stop.
 - **`ok: true`:** the workspace exists. Say where it is; if `notice` is set, show it and offer to run `/reelkit:setup --update`.
-- **`ok: false`:** ask the user where to create the studio (AskUserQuestion; default `~/reelkit-studio`, expanded to an absolute path). If that folder already holds a reelkit workspace, use `--update` on it instead. Otherwise run `node "${CLAUDE_PLUGIN_ROOT}/scripts/init-workspace.mjs" "<dir>"` (copies the template and runs `npm install`; a few minutes). Then remember it: `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs" --set="<dir>"`.
+- **`ok: false`:** ask the user where to create the studio (AskUserQuestion; default: the JSON's `dir`, which is `~/reelkit-studio` expanded to an absolute path). If that folder already holds a reelkit workspace, use `--update` on it instead. Otherwise run `node "${CLAUDE_PLUGIN_ROOT}/scripts/init-workspace.mjs" "<dir>"` (copies the template and runs `npm install`; a few minutes). If it says the folder is not empty, ask for another folder. Then remember it: `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs" --set="<dir>"`.
 
 ## 3. Whisper model
 
@@ -37,7 +39,7 @@ List `<dir>/talents/*.json`. If there are none, or the user wants another talent
 - `disclaimer`: two short lines; propose one that fits the profession ("Contenido educativo." / "No reemplaza la consulta veterinaria.") and let them edit it.
 - `recordingNotes`: anything about where and how they record (optional).
 
-Pick an `id` (lowercase, a-z 0-9 and "-", e.g. `dani`), write `<dir>/talents/<id>.json`, then run `cd "<dir>" && npm run reelkit -- talent validate talents/<id>.json`. Fix and re-run until it prints ✓.
+Pick an `id` (lowercase, a-z 0-9 and "-", e.g. `dani`), write `<dir>/talents/<id>.json` (with `"id": "<id>"` inside the JSON too, matching the file name), then run `cd "<dir>" && npm run reelkit -- talent validate talents/<id>.json`. Fix and re-run until it prints ✓.
 
 ## 5. Done
 

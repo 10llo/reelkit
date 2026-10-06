@@ -146,7 +146,7 @@ test("commands keep their approval and safety steps", () => {
     assert.ok(setup.includes(phrase), `setup is missing "${phrase}"`);
   }
   const create = read("commands/new.md");
-  for (const phrase of ["reelkit:trend-researcher", "reelkit:script-writing", "reelkit:episode-authoring", "npm run reelkit -- episode create", "npm run reelkit -- script", "approve"]) {
+  for (const phrase of ["reelkit:trend-researcher", "reelkit:script-writing", "reelkit:episode-authoring", "npm run reelkit -- episode create", "npm run reelkit -- script", "approve", "npm run reelkit -- status episodes", ".research", "/reelkit:setup --update"]) {
     assert.ok(create.includes(phrase), `new is missing "${phrase}"`);
   }
   const clip = read("commands/clip.md");
@@ -156,6 +156,9 @@ test("commands keep their approval and safety steps", () => {
   const exp = read("commands/export.md");
   for (const phrase of ["reelkit:social-export", "npm run check --", "npm run reelkit -- export", "provisional"]) {
     assert.ok(exp.includes(phrase), `export is missing "${phrase}"`);
+  }
+  for (const name of ["clip", "export"]) {
+    assert.ok(read(`commands/${name}.md`).includes("/reelkit:setup --update"), `${name} does not offer the workspace update`);
   }
   assert.ok(read("commands/status.md").includes("npm run reelkit -- status"));
 });

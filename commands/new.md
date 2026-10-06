@@ -7,7 +7,15 @@ Create a new episode. Arguments (optional field or seed topic): `$ARGUMENTS`.
 
 ## 1. Workspace
 
-Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs"`. If it fails, show its message and stop (the user needs `/reelkit:setup`). Line 1 is the workspace path `<ws>`; show a `⚠` line if present. All later shell steps run as `cd "<ws>" && …`.
+Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs"`. If it fails, show its message and stop (the user needs `/reelkit:setup`). Line 1 is the workspace path `<ws>`. If it prints a `⚠` line (the workspace template is older than the plugin), stop and ask (AskUserQuestion) whether to run `/reelkit:setup --update` now (recommended). This command needs the update (`episode create` and `catalog` are missing from older templates): don't continue until the workspace is updated. All later shell steps run as `cd "<ws>" && …`.
+
+## 1b. Resume or start new
+
+Run `cd "<ws>" && npm run reelkit -- status episodes` and list `<ws>/episodes/.research/*.md`. Offer to continue (AskUserQuestion), or start new, when you find:
+
+- an episode at stage `researched`: continue at step 7 (script), reading its `research.md` and asking the duration if unknown;
+- an episode at stage `scripted`: continue at step 8 (build) from its `script-draft.md`;
+- a saved research file with no episode folder: continue at step 4 (pick the angle).
 
 ## 2. Field and talent
 
@@ -28,7 +36,7 @@ Ask: 15, 30, 45 or 60 seconds (AskUserQuestion; 30 s recommended).
 
 ## 6. Episode folder
 
-Choose a short slug from the angle (a-z, 0-9, "-", e.g. `chocolate`) and run `npm run reelkit -- episode create <slug> --talent=<id>`. Move the research file into the new folder as `research.md`.
+Choose a short slug from the angle (a-z, 0-9, "-", e.g. `chocolate`) and run `npm run reelkit -- episode create <slug> --talent=<id>`. Take `<folder>` from the `✓ Created episodes/<folder>` line; if it says the folder already exists, pick a different slug. Move the research file into the new folder as `research.md`.
 
 ## 7. Script
 
