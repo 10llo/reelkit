@@ -30,3 +30,20 @@ it("reports a broken episode instead of failing", () => {
 it("returns an empty list for a missing folder", () => {
   expect(listEpisodes(path.join(os.tmpdir(), "does-not-exist-reelkit"))).toEqual([]);
 });
+
+it("lists episodes that don't have a video yet", () => {
+  tmp = fs.mkdtempSync(path.join(os.tmpdir(), "reelkit-status-"));
+  fs.mkdirSync(path.join(tmp, "2026-10-pulgas"));
+  fs.writeFileSync(path.join(tmp, "2026-10-pulgas", "research.md"), "# Investigación\n");
+  fs.mkdirSync(path.join(tmp, "2026-10-vacunas"));
+  fs.writeFileSync(path.join(tmp, "2026-10-vacunas", "research.md"), "# Investigación\n");
+  fs.writeFileSync(path.join(tmp, "2026-10-vacunas", "script-draft.md"), "# Guion\n");
+  fs.mkdirSync(path.join(tmp, "empty-folder"));
+  const list = listEpisodes(tmp);
+  expect(list.map((e) => [e.folder, e.stage])).toEqual([
+    ["2026-10-pulgas", "researched"],
+    ["2026-10-vacunas", "scripted"],
+  ]);
+  expect(list[0].next).toContain("/reelkit:new");
+  expect(formatStatus(list)).toContain("• 2026-10-pulgas — researched (no video yet)");
+});

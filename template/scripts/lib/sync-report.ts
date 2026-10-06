@@ -42,7 +42,7 @@ export const buildSyncReport = (input: SyncReportInput): string => {
   const lines: string[] = [`# Sincronización — ${episode.slug}`, ""];
 
   lines.push(
-    `**Clip:** ${proposal.clip.src} · ${s1(info.durationSeconds)} s · ${info.width}×${info.height}${info.fps ? ` · ${Math.round(info.fps)} fps` : ""}`,
+    `**Clip:** ${proposal.stagedClip} (se guarda como ${proposal.clip.src}) · ${s1(info.durationSeconds)} s · ${info.width}×${info.height}${info.fps ? ` · ${Math.round(info.fps)} fps` : ""}`,
     "",
     proposal.clip.trimStartFrames
       ? `**Inicio recortado:** ${s1(proposal.clip.trimStartFrames / FPS)} s de silencio (${proposal.clip.trimStartFrames} cuadros).`

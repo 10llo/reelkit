@@ -1,3 +1,6 @@
+/** The longest of `texts` (the first on ties): what a counter must reserve room for. */
+export const widestText = (texts: string[]): string => texts.reduce((wide, t) => (t.length > wide.length ? t : wide));
+
 /**
  * Shows `current` while reserving the width of `final`, so a counting number never
  * changes the layout after FitStage has measured the scene.

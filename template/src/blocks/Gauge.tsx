@@ -3,7 +3,7 @@ import { usePalette, useTalent } from "../frame/contexts";
 import { bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, pulse } from "../frame/timing";
 import { zoneIndex } from "./Gauge.schema";
-import { CountUpText } from "./parts/CountUpText";
+import { CountUpText, widestText } from "./parts/CountUpText";
 import { toneColor } from "./parts/tone";
 import type { BlockComponent } from "./types";
 
@@ -69,7 +69,7 @@ export const Gauge: BlockComponent<"Gauge"> = ({ props, timing }) => {
         </div>
       </div>
       <div style={{ ...headStyle(96), color: activeColor, whiteSpace: "nowrap", marginTop: 40 }}>
-        <CountUpText current={format.format(shown)} final={format.format(props.value)} />
+        <CountUpText current={format.format(shown)} final={widestText([format.format(props.min), format.format(props.value)])} />
         {props.unit ? <span style={{ fontSize: 56, marginLeft: 10 }}>{props.unit}</span> : null}
       </div>
       {props.needleLabel ? <div style={{ ...bodyStyle(44), color: c.text }}>{props.needleLabel}</div> : null}

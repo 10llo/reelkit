@@ -16,7 +16,7 @@ Commands: ${Object.keys(COMMANDS).join(", ")}`;
 
 const main = async () => {
   const [name, ...rest] = process.argv.slice(2);
-  const load = name ? COMMANDS[name] : undefined;
+  const load = name && Object.prototype.hasOwnProperty.call(COMMANDS, name) ? COMMANDS[name] : undefined;
   if (!load) {
     console.error(USAGE);
     return 2;

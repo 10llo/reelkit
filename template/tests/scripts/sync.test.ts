@@ -83,6 +83,7 @@ describe("sync prepare", () => {
 
     const report = fs.readFileSync(file("sync-report.md"), "utf8");
     expect(report).toContain("# Sincronización — 2026-10-chocolate");
+    expect(report).toContain("**Clip:** talent.proposed.mov (se guarda como talent.mov)");
     expect(report).toContain("| Cuándo | 3,0 s | 2,9 s |");
     expect(report).toContain("| Cuándo | Entre | Entren | Corregida");
     expect(report).toContain("**70 de 71 palabras del guion coinciden**");
