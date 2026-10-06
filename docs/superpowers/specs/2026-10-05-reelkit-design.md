@@ -237,7 +237,7 @@ Output (`research.md`): 3–5 angles, each with a hook line, why it's timely, a 
 | Output | Composition | Settings |
 |---|---|---|
 | `<slug>-9x16.mp4` | `Episode` | 1080×1920, H.264, CRF 18, AAC 192 kbps, yuv420p |
-| `<slug>-whatsapp.mp4` | `Episode` | 9:16. Video bitrate = (15.5 MB × 8 / duration) − 96 kbps audio, capped at 6 Mbps; if under 2.5 Mbps, render at 720×1280 (scale 2/3) |
+| `<slug>-whatsapp.mp4` | `Episode` | 9:16, 1080×1920, H.264 CRF 18 with a bitrate cap (maxrate = (15.5 MB × 8 / duration × 0.97) − 96 kbps, at most 6 Mbps; buffer 2× the cap), AAC 96 kbps; must be ≤ 16 MB. *(Amended 2026-10-05, Plan 3: the cap replaces the original fixed-bitrate target and 720p fallback, which made the WhatsApp file heavier than the master.)* |
 | `<slug>-4x5.mp4` | `Episode45` | 1080×1350, same encoding as the master |
 | `cover-9x16.png` | `Cover` | `coverFrame`; headline must sit inside the centre 1080×1440 crop (checked) |
 | `cover-4x5.png` | `Cover45` | same frame |
