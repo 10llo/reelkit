@@ -5,7 +5,7 @@ import { resolveSceneStarts, totalFrames } from "../../src/frame/timing";
 import { alignTranscript, type Alignment } from "../lib/align";
 import { flagString, type Args } from "../lib/args";
 import { decodeMono16k } from "../lib/audio";
-import { loadEpisodeDir, readJson, saveEpisodeRaw, writeJson } from "../lib/episode-files";
+import { loadEpisodeDir, readJson, saveEpisodeRaw, validateEpisodeRaw, writeJson } from "../lib/episode-files";
 import { probeMedia, speechBounds, type ClipInfo } from "../lib/probe";
 import {
   clipOverrunSeconds,
@@ -175,6 +175,36 @@ const captionProblem = (captions: unknown): string | null => {
   return bad < 0 ? null : `entry ${bad} needs "text", "startMs" and "endMs" (endMs ≥ startMs)`;
 };
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const proposalProblem = (proposal: unknown): string | null => {
+  if (!isRecord(proposal)) {
+    return "must be a JSON object";
+  }
+  const clip = proposal.clip;
+  if (!isRecord(clip) || typeof clip.src !== "string") {
+    return '"clip.src" must be a string';
+  }
+  if (!Number.isInteger(clip.trimStartFrames) || (clip.trimStartFrames as number) < 0) {
+    return '"clip.trimStartFrames" must be an integer ≥ 0';
+  }
+  if (typeof proposal.stagedClip !== "string") {
+    return '"stagedClip" must be a string';
+  }
+  const starts = proposal.sceneStarts;
+  if (starts !== null && !(Array.isArray(starts) && starts.every((s) => typeof s === "number"))) {
+    return '"sceneStarts" must be null or a list of numbers';
+  }
+  if (typeof proposal.captionsSrc !== "string") {
+    return '"captionsSrc" must be a string';
+  }
+  if (typeof proposal.speechOverrunSeconds !== "number") {
+    return '"speechOverrunSeconds" must be a number';
+  }
+  return null;
+};
+
 export const apply = async (dir: string, options: { acceptOverrun: boolean }): Promise<number> => {
   const loaded = loadEpisodeDir(dir);
   const proposalFile = path.join(dir, FILES.proposal);
@@ -182,7 +212,19 @@ export const apply = async (dir: string, options: { acceptOverrun: boolean }): P
     console.error(`✗ No sync proposal in ${dir}. Run: npm run reelkit -- sync prepare ${dir} <clip>`);
     return 1;
   }
-  const proposal = readJson(proposalFile) as SyncProposal;
+  let parsed: unknown;
+  try {
+    parsed = readJson(proposalFile);
+  } catch (err) {
+    console.error(`✗ ${FILES.proposal}: ${err instanceof Error ? err.message : String(err)}`);
+    return 1;
+  }
+  const shape = proposalProblem(parsed);
+  if (shape) {
+    console.error(`✗ ${FILES.proposal}: ${shape}`);
+    return 1;
+  }
+  const proposal = parsed as SyncProposal;
   if (proposal.speechOverrunSeconds > 0 && !options.acceptOverrun) {
     console.error(
       `✗ The voice runs ${proposal.speechOverrunSeconds} s past the ${loaded.episode.durationSeconds} s video, so its last words would be cut. ` +
@@ -208,21 +250,36 @@ export const apply = async (dir: string, options: { acceptOverrun: boolean }): P
       console.error(`✗ ${FILES.proposed}: ${problem}`);
       return 1;
     }
-    writeJson(path.join(dir, proposal.captionsSrc), captions);
   }
-  for (const name of fs.readdirSync(dir)) {
-    if (name.startsWith("talent.") && name !== proposal.stagedClip && name !== "talent.json") {
-      fs.rmSync(path.join(dir, name), { force: true });
-    }
-  }
-  fs.renameSync(stagedPath, path.join(dir, proposal.clip.src));
-  saveEpisodeRaw(loaded, {
+  const patch = {
     clip: proposal.clip,
     sceneStarts: proposal.sceneStarts ?? loaded.raw.sceneStarts ?? null,
     captionsSrc: proposal.captionsSrc,
     stage: "synced",
-  });
+  };
+  try {
+    validateEpisodeRaw(loaded, patch);
+  } catch (err) {
+    console.error(`✗ ${err instanceof Error ? err.message : String(err)}`);
+    return 1;
+  }
+
+  const previous = loaded.episode.clip.src;
+  fs.renameSync(stagedPath, path.join(dir, proposal.clip.src));
+  if (proposal.captionsSrc) {
+    writeJson(path.join(dir, proposal.captionsSrc), captions);
+  }
+  saveEpisodeRaw(loaded, patch);
   fs.rmSync(proposalFile, { force: true });
+
+  if (previous && previous !== proposal.clip.src) {
+    fs.rmSync(path.join(dir, previous), { force: true });
+  }
+  for (const name of fs.readdirSync(dir)) {
+    if (name.startsWith("talent.proposed.")) {
+      fs.rmSync(path.join(dir, name), { force: true });
+    }
+  }
   console.log(`✓ ${loaded.episode.slug} is synced. Check it with: npm run studio -- ${dir}`);
   return 0;
 };

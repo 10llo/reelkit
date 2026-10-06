@@ -33,11 +33,17 @@ export const loadEpisodeDir = (dir: string): LoadedEpisode => {
   return { dir, episodeFile, raw, episode, talent };
 };
 
+/** Merges `patch` into the author's raw JSON and validates it, without saving. */
+export const validateEpisodeRaw = (loaded: LoadedEpisode, patch: Record<string, unknown>): Episode => {
+  const episode = validateEpisode({ ...loaded.raw, ...patch });
+  validateColors(episode, loaded.talent);
+  return episode;
+};
+
 /** Merges `patch` into the author's raw JSON, validates, and saves. */
 export const saveEpisodeRaw = (loaded: LoadedEpisode, patch: Record<string, unknown>): Episode => {
+  const episode = validateEpisodeRaw(loaded, patch);
   const next = { ...loaded.raw, ...patch };
-  const episode = validateEpisode(next);
-  validateColors(episode, loaded.talent);
   writeJson(loaded.episodeFile, next);
   loaded.raw = next;
   loaded.episode = episode;

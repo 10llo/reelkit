@@ -214,13 +214,54 @@ describe("sync apply", () => {
     expect(readJson(file("episode.json")).stage).toBe("built");
   });
 
-  it("removes an old clip with another extension and keeps talent.json", async () => {
+  it("removes the previously applied clip with another extension and keeps talent.json", async () => {
     fs.writeFileSync(file("talent.mp4"), "old");
+    const raw = readJson(file("episode.json"));
+    fs.writeFileSync(file("episode.json"), JSON.stringify({ ...raw, clip: { src: "talent.mp4", trimStartFrames: 0 } }));
     await prepare(dir, clip, { model: "small" }, deps());
     expect(await apply(dir, { acceptOverrun: false })).toBe(0);
     expect(fs.existsSync(file("talent.mp4"))).toBe(false);
     expect(fs.existsSync(file("talent.json"))).toBe(true);
     expect(fs.existsSync(file("talent.mov"))).toBe(true);
+  });
+
+  it("never deletes other talent.* files", async () => {
+    fs.writeFileSync(file("talent.notes.txt"), "notes");
+    fs.writeFileSync(file("talent.take1.mov"), "take 1");
+    await prepare(dir, clip, { model: "small" }, deps());
+    expect(await apply(dir, { acceptOverrun: false })).toBe(0);
+    expect(fs.readFileSync(file("talent.notes.txt"), "utf8")).toBe("notes");
+    expect(fs.readFileSync(file("talent.take1.mov"), "utf8")).toBe("take 1");
+    expect(fs.existsSync(file("talent.mov"))).toBe(true);
+  });
+
+  it("rejects a proposal without a staged clip and changes nothing", async () => {
+    await prepare(dir, clip, { model: "small" }, deps());
+    const { stagedClip: _, ...proposal } = readJson(file("sync-proposal.json"));
+    fs.writeFileSync(file("sync-proposal.json"), JSON.stringify(proposal));
+    const listing = fs.readdirSync(dir).sort();
+    const before = fs.readFileSync(file("episode.json"), "utf8");
+    expect(await apply(dir, { acceptOverrun: false })).toBe(1);
+    expect(vi.mocked(console.error).mock.calls.join("\n")).toContain("✗ sync-proposal.json: \"stagedClip\"");
+    expect(fs.readdirSync(dir).sort()).toEqual(listing);
+    expect(fs.readFileSync(file("episode.json"), "utf8")).toBe(before);
+  });
+
+  it("validates the new episode before touching any file", async () => {
+    fs.writeFileSync(file("talent.mp4"), "old");
+    const raw = readJson(file("episode.json"));
+    fs.writeFileSync(file("episode.json"), JSON.stringify({ ...raw, clip: { src: "talent.mp4", trimStartFrames: 0 } }));
+    await prepare(dir, clip, { model: "small" }, deps());
+    const proposal = readJson(file("sync-proposal.json"));
+    fs.writeFileSync(file("sync-proposal.json"), JSON.stringify({ ...proposal, sceneStarts: [0, 1, 2] }));
+    const before = fs.readFileSync(file("episode.json"), "utf8");
+    expect(await apply(dir, { acceptOverrun: false })).toBe(1);
+    expect(fs.readFileSync(file("episode.json"), "utf8")).toBe(before);
+    expect(fs.existsSync(file("talent.proposed.mov"))).toBe(true);
+    expect(fs.existsSync(file("talent.mov"))).toBe(false);
+    expect(fs.readFileSync(file("talent.mp4"), "utf8")).toBe("old");
+    expect(fs.existsSync(file("captions.json"))).toBe(false);
+    expect(fs.existsSync(file("sync-proposal.json"))).toBe(true);
   });
 
   it("explains what to do without a proposal", async () => {
