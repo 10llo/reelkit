@@ -13,6 +13,8 @@ describe("normalizeWord", () => {
     ["kg", "kilos"],
     ["niño", "nino"],
     ["—", ""],
+    ["constructor", "constructor"],
+    ["toString", "tostring"],
   ])("%s → %s", (input, expected) => {
     expect(normalizeWord(input)).toBe(expected);
   });
@@ -58,11 +60,17 @@ describe("expandToken", () => {
     ["veintidós", ["veintidos"]],
     ["¿Cuándo", ["cuando"]],
     ["—", []],
+    ["“12”", ["doce"]],
   ])("%s", (token, expected) => {
     expect(expandToken(token)).toEqual(expected);
   });
   it("gives a spoken number and its digits the same keys", () => {
     const spoken = "treinta y uno".split(" ").flatMap(expandToken);
     expect(spoken).toEqual(expandToken("31"));
+  });
+  it("handles long decimals by spelling digit by digit", () => {
+    const result = expandToken("3,1415926");
+    expect(result.slice(0, 4)).toEqual(["tres", "con", "uno", "cuatro"]);
+    expect(result).not.toThrow;
   });
 });

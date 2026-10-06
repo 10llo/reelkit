@@ -10,17 +10,17 @@ const HUNDREDS = [
   "seiscientos", "setecientos", "ochocientos", "novecientos",
 ];
 
-const ALIASES: Record<string, string> = {
-  un: "uno",
-  una: "uno",
-  veintiun: "veintiuno",
-  veintiuna: "veintiuno",
-  punto: "con",
-  kg: "kilos",
-  kilogramos: "kilos",
-  g: "gramos",
-  mg: "miligramos",
-};
+const ALIASES = new Map<string, string>([
+  ["un", "uno"],
+  ["una", "uno"],
+  ["veintiun", "veintiuno"],
+  ["veintiuna", "veintiuno"],
+  ["punto", "con"],
+  ["kg", "kilos"],
+  ["kilogramos", "kilos"],
+  ["g", "gramos"],
+  ["mg", "miligramos"],
+]);
 
 export const normalizeWord = (word: string): string => {
   const plain = word
@@ -28,7 +28,7 @@ export const normalizeWord = (word: string): string => {
     .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "");
-  return ALIASES[plain] ?? plain.replace(/ientas$/, "ientos");
+  return ALIASES.get(plain) ?? plain.replace(/ientas$/, "ientos");
 };
 
 const below100 = (n: number): string[] => {
@@ -63,10 +63,10 @@ export const spanishNumberWords = (n: number): string[] => {
 // 12 · 1.000 · 39,2 · 39.2 · 5% — thousands use dots in groups of three.
 const NUMBER = /^(\d{1,3}(?:\.\d{3})+|\d+)(?:[.,](\d+))?(%?)$/;
 const RANGE = /^(\d+)[-–](\d+)$/;
-const EDGE_PUNCTUATION = /^[¿¡"'«"(\[]+|[?!"'»")\].,;:…]+$/g;
+const EDGE_PUNCTUATION = /^[¿¡"'«“(\[]+|[?!"'»”)\].,;:…]+$/g;
 
 const decimalWords = (digits: string): string[] =>
-  digits.startsWith("0") ? [...digits].flatMap((d) => spanishNumberWords(Number(d))) : spanishNumberWords(Number(digits));
+  digits.startsWith("0") || digits.length > 3 ? [...digits].flatMap((d) => spanishNumberWords(Number(d))) : spanishNumberWords(Number(digits));
 
 export const expandToken = (token: string): string[] => {
   const t = token.trim().replace(EDGE_PUNCTUATION, "");
