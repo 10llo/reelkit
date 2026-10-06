@@ -42,3 +42,8 @@ test("formatting", () => {
     "✓ Node 22\n✗ git not found → xcode-select --install",
   );
 });
+
+test("disk check falls back to an existing parent", () => {
+  const result = checkDisk(path.join(os.tmpdir(), "reelkit-missing-dir", "child"));
+  assert.equal(typeof result.ok, "boolean");
+});

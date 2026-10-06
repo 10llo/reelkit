@@ -88,3 +88,53 @@ test("--update refuses a folder that isn't a workspace", () => {
   fs.mkdirSync(target);
   assert.throws(() => initWorkspace(options(target, { update: true })), /not a reelkit workspace/);
 });
+
+const makeWorkspace = () => {
+  const target = path.join(root, "ws");
+  initWorkspace(options(target, { install: false }));
+  return target;
+};
+
+test("update backs up replaced files, including user additions", () => {
+  const target = makeWorkspace();
+  write(path.join(target, "src", "custom.ts"), "mine");
+  const result = initWorkspace(options(target, { update: true, install: false }));
+  assert.equal(fs.existsSync(path.join(target, "src", "custom.ts")), false);
+  assert.equal(fs.readFileSync(path.join(result.backupDir, "src", "custom.ts"), "utf8"), "mine");
+  assert.match(result.backupDir, /\.reelkit-backup[\\/]2026-10-05T12-00-00-000Z$/);
+});
+
+test("update with invalid reelkit.json throws before touching anything", () => {
+  const target = makeWorkspace();
+  write(path.join(target, "src", "old.ts"), "old");
+  write(path.join(target, "reelkit.json"), "{oops");
+  assert.throws(() => initWorkspace(options(target, { update: true })), /reelkit\.json is not valid JSON/);
+  assert.ok(fs.existsSync(path.join(target, "src", "old.ts")));
+  assert.equal(fs.existsSync(path.join(target, ".reelkit-backup")), false);
+});
+
+test("update leaves entries the template lacks alone", () => {
+  const target = makeWorkspace();
+  write(path.join(target, "examples", "mine.txt"), "keep");
+  fs.rmSync(path.join(templateDir, "examples"), { recursive: true });
+  initWorkspace(options(target, { update: true, install: false }));
+  assert.equal(fs.readFileSync(path.join(target, "examples", "mine.txt"), "utf8"), "keep");
+});
+
+test("a failure during update restores the previous files", () => {
+  const target = makeWorkspace();
+  write(path.join(templateDir, "scripts", "s.ts"), "s");
+  initWorkspace(options(target, { update: true, install: false }));
+  write(path.join(target, "src", "old.ts"), "old");
+  write(path.join(target, "scripts", "mine.ts"), "mine");
+  const copyEntry = (from, to) => {
+    if (path.basename(to) === "scripts") {
+      throw new Error("boom");
+    }
+    fs.cpSync(from, to, { recursive: true });
+  };
+  assert.throws(() => initWorkspace(options(target, { update: true, install: false, copyEntry, now: () => new Date("2026-12-01T00:00:00Z") })), /boom/);
+  assert.equal(fs.readFileSync(path.join(target, "src", "old.ts"), "utf8"), "old");
+  assert.equal(fs.readFileSync(path.join(target, "scripts", "mine.ts"), "utf8"), "mine");
+  assert.ok(fs.existsSync(path.join(target, "src", "a.ts")));
+});

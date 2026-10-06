@@ -27,7 +27,11 @@ export const checkCommand = (name, fix) => {
 };
 
 export const checkDisk = (dir, statfs = fs.statfsSync) => {
-  const { bavail, bsize } = statfs(dir);
+  let existing = dir;
+  while (!fs.existsSync(existing) && path.dirname(existing) !== existing) {
+    existing = path.dirname(existing);
+  }
+  const { bavail, bsize } = statfs(existing);
   const free = bavail * bsize;
   const gb = (free / 1024 ** 3).toFixed(1);
   return free >= MIN_FREE_BYTES
