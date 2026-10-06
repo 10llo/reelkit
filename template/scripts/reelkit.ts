@@ -6,6 +6,7 @@ const COMMANDS: Record<string, () => Promise<Command>> = {
   validate: () => import("./commands/validate"),
   script: () => import("./commands/script"),
   status: () => import("./commands/status"),
+  whisper: () => import("./commands/whisper"),
 };
 
 const USAGE = `Usage: npm run reelkit -- <command> [...]

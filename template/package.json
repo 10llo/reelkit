@@ -29,10 +29,12 @@
     "zod": "4.5.4"
   },
   "devDependencies": {
+    "@huggingface/transformers": "4.2.0",
     "@mediabunny/server": "1.61.3",
     "@remotion/bundler": "4.0.532",
     "@remotion/eslint-config-flat": "4.0.532",
     "@remotion/renderer": "4.0.532",
+    "@remotion/whisper-webgpu": "4.0.532",
     "@types/react": "19.2.7",
     "@types/web": "0.0.166",
     "eslint": "9.39.5",
