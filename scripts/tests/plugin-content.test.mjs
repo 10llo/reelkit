@@ -127,3 +127,35 @@ test("research and sync skills keep their safety rules", () => {
   assert.match(sync, /sync apply/);
   assert.match(sync, /--accept-overrun/);
 });
+
+const COMMANDS = ["setup", "new", "clip", "export", "status"];
+
+test("every command exists with a description and resolves the workspace first", () => {
+  for (const name of COMMANDS) {
+    const text = read(`commands/${name}.md`);
+    const meta = frontmatter(text);
+    assert.ok(meta?.description, `${name}: missing description`);
+    assert.ok("argument-hint" in meta, `${name}: missing argument-hint`);
+    assert.ok(text.includes("${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs"), `${name}: does not resolve the workspace`);
+  }
+});
+
+test("commands keep their approval and safety steps", () => {
+  const setup = read("commands/setup.md");
+  for (const phrase of ["scripts/doctor.mjs", "scripts/init-workspace.mjs", "--set=", "npm run reelkit -- whisper", "npm run reelkit -- talent validate", "never invent"]) {
+    assert.ok(setup.includes(phrase), `setup is missing "${phrase}"`);
+  }
+  const create = read("commands/new.md");
+  for (const phrase of ["reelkit:trend-researcher", "reelkit:script-writing", "reelkit:episode-authoring", "npm run reelkit -- episode create", "npm run reelkit -- script", "approve"]) {
+    assert.ok(create.includes(phrase), `new is missing "${phrase}"`);
+  }
+  const clip = read("commands/clip.md");
+  for (const phrase of ["reelkit:caption-sync", "npm run reelkit -- sync prepare", "npm run reelkit -- sync apply", "approve"]) {
+    assert.ok(clip.includes(phrase), `clip is missing "${phrase}"`);
+  }
+  const exp = read("commands/export.md");
+  for (const phrase of ["reelkit:social-export", "npm run check --", "npm run reelkit -- export", "provisional"]) {
+    assert.ok(exp.includes(phrase), `export is missing "${phrase}"`);
+  }
+  assert.ok(read("commands/status.md").includes("npm run reelkit -- status"));
+});
