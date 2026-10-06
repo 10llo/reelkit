@@ -125,9 +125,7 @@ export const run = async (args: Args): Promise<number> => {
         pixelFormat: "yuv420p",
         outputLocation: file,
         onBrowserLog,
-        ...(whatsapp
-          ? { videoBitrate: whatsapp.videoBitrate, audioBitrate: whatsapp.audioBitrate, scale: whatsapp.scale }
-          : { crf: 18, audioBitrate: "192k" }),
+        ...(whatsapp ?? { crf: 18, audioBitrate: "192k" }),
         onProgress: ({ progress }) => {
           const pct = Math.floor(progress * 10) * 10;
           if (pct !== shown) {
@@ -137,11 +135,10 @@ export const run = async (args: Args): Promise<number> => {
         },
       });
       process.stdout.write("\n");
-      const scale = whatsapp?.scale ?? 1;
       const found = await verifyVideoFile(file, {
         durationSeconds: episode.durationSeconds,
-        width: Math.round(composition.width * scale),
-        height: Math.round(composition.height * scale),
+        width: composition.width,
+        height: composition.height,
         maxBytes: whatsapp ? WHATSAPP_LIMIT_BYTES : undefined,
       });
       problems.push(...found.map((p) => `${name}: ${p}`));

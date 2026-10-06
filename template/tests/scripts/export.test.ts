@@ -34,12 +34,16 @@ describe("srt", () => {
 
 describe("whatsappSettings", () => {
   it.each([
-    [30, "3913k", 1],
-    [45, "2576k", 1],
-    [60, "1908k", 2 / 3],
-    [15, "6000k", 1],
-  ])("%d s → %s at scale %d", (seconds, bitrate, scale) => {
-    expect(whatsappSettings(seconds)).toEqual({ videoBitrate: bitrate, audioBitrate: "96k", scale });
+    [30, "3913k", "7826k"],
+    [60, "1908k", "3816k"],
+    [15, "6000k", "12000k"],
+  ])("%d s → CRF 18 capped at %s (buffer %s)", (seconds, cap, buffer) => {
+    expect(whatsappSettings(seconds)).toEqual({
+      crf: 18,
+      encodingMaxRate: cap,
+      encodingBufferSize: buffer,
+      audioBitrate: "96k",
+    });
   });
 });
 
