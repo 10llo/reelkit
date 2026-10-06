@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { checkCommand, checkDisk, checkNode, checkWorkspace, formatResults } from "../doctor.mjs";
+import { checkCommand, checkDisk, checkNode, checkWorkspace, formatResults, npmCommand } from "../doctor.mjs";
 
 test("node version", () => {
   assert.equal(checkNode("22.1.0").ok, true);
@@ -46,4 +46,9 @@ test("formatting", () => {
 test("disk check falls back to an existing parent", () => {
   const result = checkDisk(path.join(os.tmpdir(), "reelkit-missing-dir", "child"));
   assert.equal(typeof result.ok, "boolean");
+});
+
+test("npm runs through a shell as npm.cmd on Windows", () => {
+  assert.deepEqual(npmCommand("win32"), { cmd: "npm.cmd", shell: true });
+  assert.deepEqual(npmCommand("darwin"), { cmd: "npm", shell: false });
 });

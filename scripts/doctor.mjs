@@ -17,9 +17,14 @@ export const checkNode = (version = process.versions.node) =>
     ? ok(`Node ${version}`)
     : fail(`Node ${version} is too old`, `Install Node ${MIN_NODE_MAJOR} or newer from https://nodejs.org (or: brew install node)`);
 
+/** On Windows npm is a .cmd script, which only runs through a shell. */
+export const npmCommand = (platform = process.platform) =>
+  platform === "win32" ? { cmd: "npm.cmd", shell: true } : { cmd: "npm", shell: false };
+
 export const checkCommand = (name, fix) => {
+  const { cmd, shell } = name === "npm" ? npmCommand() : { cmd: name, shell: false };
   try {
-    const out = execFileSync(name, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+    const out = execFileSync(cmd, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], shell });
     return ok(`${name} ${out.trim().split("\n")[0]}`);
   } catch {
     return fail(`${name} not found`, fix);

@@ -25,7 +25,13 @@ const GITIGNORE = ["node_modules/", "out/", "episodes/*/exports/", "*.mp4", "*.m
 
 const copy = (from, to) => fs.cpSync(from, to, { recursive: true, filter: (src) => !SKIP.has(path.basename(src)) });
 const writeJson = (file, value) => fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
-const npmInstall = (dir) => execFileSync("npm", ["install"], { cwd: dir, stdio: "inherit" });
+/** On Windows npm is a .cmd script, which only runs through a shell. */
+export const npmCommand = (platform = process.platform) =>
+  platform === "win32" ? { cmd: "npm.cmd", shell: true } : { cmd: "npm", shell: false };
+const npmInstall = (dir) => {
+  const { cmd, shell } = npmCommand();
+  execFileSync(cmd, ["install"], { cwd: dir, stdio: "inherit", shell });
+};
 
 export const initWorkspace = ({
   target,

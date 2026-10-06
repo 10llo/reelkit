@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
-import { initWorkspace } from "../init-workspace.mjs";
+import { initWorkspace, npmCommand } from "../init-workspace.mjs";
 
 let root;
 let templateDir;
@@ -137,4 +137,9 @@ test("a failure during update restores the previous files", () => {
   assert.equal(fs.readFileSync(path.join(target, "src", "old.ts"), "utf8"), "old");
   assert.equal(fs.readFileSync(path.join(target, "scripts", "mine.ts"), "utf8"), "mine");
   assert.ok(fs.existsSync(path.join(target, "src", "a.ts")));
+});
+
+test("npm runs through a shell as npm.cmd on Windows", () => {
+  assert.deepEqual(npmCommand("win32"), { cmd: "npm.cmd", shell: true });
+  assert.deepEqual(npmCommand("darwin"), { cmd: "npm", shell: false });
 });
