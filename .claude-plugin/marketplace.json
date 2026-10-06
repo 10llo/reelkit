@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "reelkit",
+  "description": "reelkit — explainer videos for professionals, from trend to export",
+  "owner": { "name": "pablocastanogarcia" },
+  "plugins": [
+    {
+      "name": "reelkit",
+      "description": "Short vertical explainer videos for professionals: research, script, video, clip sync, exports.",
+      "version": "0.4.0",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
