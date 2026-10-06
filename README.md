@@ -21,7 +21,17 @@ Restart Claude Code, then run:
 
 Setup checks your machine, creates your studio workspace (default `~/reelkit-studio`), installs its dependencies, downloads the Whisper speech model (~1.6 GB, once per machine) and creates your first talent profile by asking you a few questions.
 
+After setup, open Claude Code from your studio folder so the commands can run and edit files there without permission prompts:
+
+```
+cd ~/reelkit-studio && claude
+```
+
+(Use the folder you chose at setup if it's not the default.) In a session you already started elsewhere, run `/add-dir ~/reelkit-studio` instead.
+
 ## The flow
+
+Run these from a Claude Code session started in your studio folder (`cd ~/reelkit-studio && claude`, or the folder chosen at setup), or after `/add-dir <studio>` in an existing session.
 
 | Command | What it does |
 |---|---|

@@ -7,7 +7,7 @@ Create a new episode. Arguments (optional field or seed topic): `$ARGUMENTS`.
 
 ## 1. Workspace
 
-Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs"`. If it fails, show its message and stop (the user needs `/reelkit:setup`). Line 1 is the workspace path `<ws>`. If it prints a `⚠` line (the workspace template is older than the plugin), stop and ask (AskUserQuestion) whether to run `/reelkit:setup --update` now (recommended). This command needs the update (`episode create` and `catalog` are missing from older templates): don't continue until the workspace is updated. All later shell steps run as `cd "<ws>" && …`.
+Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs"`. If it fails, show its message and stop (the user needs `/reelkit:setup`). Line 1 is the workspace path `<ws>`. If this session's working directory is not `<ws>` or a folder inside it, tell the user once, before any other work, that Claude Code works best started in the studio (`cd "<ws>" && claude`), or that they can run `/add-dir <ws>` now; then continue. If it prints a `⚠` line (the workspace template is older than the plugin), stop and ask (AskUserQuestion) whether to run `/reelkit:setup --update` now (recommended). This command needs the update (`episode create` and `catalog` are missing from older templates): don't continue until the workspace is updated. All later shell steps run as `cd "<ws>" && …`.
 
 ## 1b. Resume or start new
 
@@ -24,7 +24,7 @@ Run `cd "<ws>" && npm run reelkit -- status episodes` and list `<ws>/episodes/.r
 
 ## 3. Research
 
-Launch the `reelkit:trend-researcher` agent (Agent tool) with: the field, the seed topic (if any), the talent profile path `<ws>/talents/<id>.json`, today's date, and the output path `<ws>/episodes/.research/<yyyy-mm-dd>-<field>.md`. If that agent type isn't available, do the research yourself following the `reelkit:trend-research` skill. While it runs, you may ask step 5's question.
+Launch the `reelkit:trend-researcher` agent (Agent tool) in the foreground — wait for its reply; don't run it as a background task. Give it: the field, the seed topic (if any), the talent's `country`, `locale`, `profession` and `voiceNotes` (read from `<ws>/talents/<id>.json`; the agent may not have access to the studio folder), and today's date. The agent replies with the full `research.md` content as markdown; write that reply yourself to `<ws>/episodes/.research/<yyyy-mm-dd>-<field>.md`. If that agent type isn't available, do the research yourself following the `reelkit:trend-research` skill and write the same file.
 
 ## 4. Pick the angle
 

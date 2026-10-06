@@ -178,3 +178,23 @@ test("CI runs every check the plugin relies on", () => {
     assert.ok(ci.includes(step), `ci.yml is missing "${step}"`);
   }
 });
+
+test("README, setup and every studio command point the user at a session started in the studio", () => {
+  const readme = read("README.md");
+  assert.ok(readme.includes("cd ~/reelkit-studio && claude"), "README does not say to start Claude Code in the studio");
+  assert.ok(readme.includes("/add-dir"), "README does not mention /add-dir");
+  assert.ok(read("commands/setup.md").includes('cd "<dir>" && claude'), "setup does not print the command to start Claude Code in the studio");
+  for (const name of ["new", "clip", "export", "status"]) {
+    const text = read(`commands/${name}.md`);
+    assert.ok(text.includes('cd "<ws>" && claude') && text.includes("/add-dir <ws>"), `${name} does not offer the studio session or /add-dir`);
+  }
+});
+
+test("the research agent returns research.md and the main session writes it", () => {
+  const agent = read("agents/trend-researcher.md");
+  assert.ok(agent.includes("`reelkit:trend-research`"), "agent does not load the trend-research skill");
+  assert.match(agent, /complete `research\.md` content/);
+  const create = read("commands/new.md");
+  assert.match(create, /foreground/);
+  assert.ok(create.includes("<ws>/episodes/.research/<yyyy-mm-dd>-<field>.md"), "new does not say where to save the research");
+});

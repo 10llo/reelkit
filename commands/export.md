@@ -7,7 +7,7 @@ Export an episode. Arguments: `$ARGUMENTS` (optional episode folder).
 
 ## 1. Workspace and episode
 
-Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs"`. If it fails, show its message and stop. Line 1 is `<ws>`. If it prints a `⚠` line (the workspace template is older than the plugin), ask (AskUserQuestion) whether to run `/reelkit:setup --update` now (recommended) or continue anyway.
+Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.mjs"`. If it fails, show its message and stop. Line 1 is `<ws>`. If this session's working directory is not `<ws>` or a folder inside it, tell the user once, before any other work, that Claude Code works best started in the studio (`cd "<ws>" && claude`), or that they can run `/add-dir <ws>` now; then continue. If it prints a `⚠` line (the workspace template is older than the plugin), ask (AskUserQuestion) whether to run `/reelkit:setup --update` now (recommended) or continue anyway.
 
 Pick the episode from the arguments, or from `cd "<ws>" && npm run reelkit -- status episodes` (stage `synced` or `exported`; ask if several). A `built` episode without a clip takes the covers-and-subtitles-only branch below.
 

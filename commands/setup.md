@@ -43,4 +43,12 @@ Pick an `id` (lowercase, a-z 0-9 and "-", e.g. `dani`), write `<dir>/talents/<id
 
 ## 5. Done
 
-Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.mjs" "<dir>"` and show the summary: workspace path, Whisper status, talents. Next step: `/reelkit:new`.
+Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.mjs" "<dir>"` and show the summary: workspace path, Whisper status, talents.
+
+Then print the exact command to start Claude Code in the studio, with the real absolute path in place of `<dir>`:
+
+```
+cd "<dir>" && claude
+```
+
+Explain why: the reelkit commands run `npm` and write episode files inside the studio, and a session started there can do that without asking permission for every step. In a session started elsewhere, `/add-dir <dir>` gives the same access. Next step (in that session): `/reelkit:new`.

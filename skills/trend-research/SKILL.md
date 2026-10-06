@@ -59,4 +59,4 @@ Fuentes: búsqueda web<, TikTok Creative Center, Google Trends> · País: <CO>
 - <tema> — <por qué no>
 ```
 
-Return a short summary to the caller: one line per angle (title + hook) and the path of `research.md`.
+When you run as the `reelkit:trend-researcher` agent, don't write any file: reply with the complete `research.md` content (the caller saves it). When you run in the main session, write the file at the path the command gives and show one line per angle (title + hook).
