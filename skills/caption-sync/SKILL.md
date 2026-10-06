@@ -12,7 +12,7 @@ All commands run from the workspace root.
 ## 1. Whisper ready?
 
 ```bash
-npm run reelkit -- whisper check
+npm run reelkit -- whisper check --model=<model>   # the model you will use; default large-v3-turbo
 ```
 
 If the model isn't downloaded, `sync prepare` downloads it (1.6 GB for `large-v3-turbo`) — tell the user first, or offer `--model=small` (586 MB, less accurate). If WebGPU is unavailable, sync still attaches the clip but captions stay timed from the script ("provisional").
@@ -51,7 +51,7 @@ It renames the staged clip to `talent.<ext>`, writes `captions.json`, saves `cli
 
 ```bash
 npm run check -- episodes/<folder>
-npx remotion still Episode /tmp/<folder>-sync.png --public-dir episodes/<folder> --frame=<N>
+npx remotion still Episode out/<folder>-sync.png --public-dir episodes/<folder> --frame=<N>
 ```
 
 View a still in the middle of a sentence: the clip fills the slot and the caption shows the word being spoken. Offer Studio: `npm run studio -- episodes/<folder>`. Next: `/reelkit:export`.

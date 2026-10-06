@@ -9,12 +9,12 @@ A reelkit episode is always 5 spoken lines: **hook**, **step 1**, **step 2**, **
 
 ## Word budget
 
-The talent speaks about 2.4 words per second, minus pauses before each question. Stay inside the range; `reelkit script` warns when the text is too long.
+The talent speaks about 2.4 words per second, minus pauses before each question. Stay inside the range; `reelkit script` adds a ⚠ line to script.md when the text is too long.
 
 | Duration | Words (total) | Hook | Each step | Close |
 |---|---|---|---|---|
 | 15 s | 30–34 | 5–7 | 6–8 | 5–7 |
-| 30 s | 62–72 | 7–10 | 13–20 | 8–10 |
+| 30 s | 62–72 | 7–10 | 13–22 | 8–10 |
 | 45 s | 95–105 | 10–12 | 20–28 | 9–12 |
 | 60 s | 125–140 | 12–15 | 28–36 | 10–14 |
 

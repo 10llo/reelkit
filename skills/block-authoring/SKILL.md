@@ -16,7 +16,7 @@ Adding a block is the exception: first try every block in `npm run reelkit -- ca
 | `src/blocks/schemas.ts` | register the schema in `BLOCK_SCHEMAS` |
 | `src/blocks/registry.tsx` | register the component |
 | `src/gallery/samples.json` | a sample at **maximum** content |
-| `tests/blocks/<name>.test.ts` | schema tests: valid sample passes, every over-limit case fails |
+| `tests/blocks/<Name>.schema.test.ts` | schema tests: valid sample passes, every over-limit case fails |
 | `src/icons/` | new icons: same style (100×100 grid, solid fills, at most two colours); add the name to `names.ts` |
 
 ## Contract
@@ -30,6 +30,8 @@ Adding a block is the exception: first try every block in `npm run reelkit -- ca
 - No scene titles inside the block (titles live on the scene), no emoji, no external images, no CSS animation.
 
 ## Checks
+
+Run these inside the plugin repository's `template/` folder (not in a workspace) when adding a block to the plugin.
 
 ```bash
 npm test

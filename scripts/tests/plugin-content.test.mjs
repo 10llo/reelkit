@@ -111,6 +111,8 @@ test("episode-authoring covers every block and the validate → check loop", () 
   for (const block of blockNames()) {
     assert.ok(text.includes(`\`${block}\``), `episode-authoring does not mention \`${block}\``);
   }
+  assert.ok(!text.includes("[reelkit:fit]"), "episode-authoring quotes a browser-log tag");
+  assert.ok(text.includes("scaled to"), "episode-authoring does not quote check's warnings");
   for (const phrase of ["npm run reelkit -- catalog", "npm run reelkit -- validate", "npm run check --", "npm run reelkit -- episode create"]) {
     assert.ok(text.includes(phrase), `episode-authoring is missing "${phrase}"`);
   }

@@ -88,17 +88,19 @@ npm run check -- episodes/<folder>
 ```
 
 - `validate` prints every schema problem with its path (e.g. `scenes.step2.beats[0].props.rows[1].label`). Fix and re-run.
-- `npm run check --` renders key frames at 9:16 and 4:5 and fails on a talent-slot collision or wrong duration; it warns on `[reelkit:fit]` scale below 0.85, `[reelkit:minfont]` text under 40 px and `[reelkit:overflow]`. Treat warnings as failures: shorten text, move content to a second beat, or pick a roomier block.
+- `npm run check --` renders key frames at 9:16 and 4:5. A `✗` line (talent-slot collision, wrong duration) means exit 1: a failure.
+- It also prints `⚠` lines and still exits 0, for example `⚠ 9x16: scene "step2" is scaled to 0.80 to fit the stage`, `⚠ 9x16: scene "step2" has text at 34 px` and `⚠ 9x16: scene "step2" has 2 overflowing text element(s)`. Exit 0 with `⚠` lines is NOT a pass for authoring: shorten text, move content to a second beat, or pick a roomier block, then re-run until there are no `⚠` lines.
+- At the end it prints `Frames: <dir>` with the key-frame PNGs it rendered; view them to find the frame of each beat.
 
 ## 8. Look at it
 
 Render stills of each scene and view them:
 
 ```bash
-npx remotion still Episode /tmp/<folder>-f<N>.png --public-dir episodes/<folder> --frame=<N>
+npx remotion still Episode out/<folder>-f<N>.png --public-dir episodes/<folder> --frame=<N>
 ```
 
-Use frames around the middle of each beat (30 frames per second). Offer the user Studio: `npm run studio -- episodes/<folder>`.
+Use frames around the middle of each beat (30 frames per second); the PNGs in `Frames: <dir>` from `npm run check --` show where each beat sits. Offer the user Studio: `npm run studio -- episodes/<folder>`.
 
 ## 9. The talent's script
 
