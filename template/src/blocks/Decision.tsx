@@ -1,13 +1,13 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import type { Tone } from "./schema-parts";
-import { slap } from "../brand/motion";
+import { popIn, slap, wiggleDeg } from "../brand/motion";
 import { stickerStyle } from "../brand/sticker";
 import { usePalette } from "../frame/contexts";
 import { fitWordsFontSize } from "../frame/fit";
 import { FONT_BODY, FONT_HEAD, WEIGHT_BODY, WEIGHT_HEAD, bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop, pulse } from "../frame/timing";
 import { Icon } from "../icons";
-import { EMPHASIS_AT, FOLLOW_NO, FOLLOW_YES, LINES_FROM, LINES_TO, NO_AT, QUESTION_AT, TAGS_AT, YES_AT } from "./Decision.cues";
+import { EMPHASIS_AT, FOLLOW_NO, FOLLOW_YES, LINES_FROM, LINES_TO, NO_AT, QUESTION_AT, TAGS_AT, YES_AT, toneSfx } from "./Decision.cues";
 import { isFollowUp, type DecisionBranch } from "./Decision.schema";
 import { toneColor } from "./parts/tone";
 import type { BlockComponent } from "./types";
@@ -64,7 +64,7 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
     </svg>
   );
 
-  const outcomeBox = (label: string, t: Tone, width: number, compact: boolean, p: number) => (
+  const outcomeBox = (label: string, t: Tone, width: number, compact: boolean, p: number, cueFrame: number) => (
     <div
       style={{
         width,
@@ -76,9 +76,12 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
         alignItems: "center",
         gap: 6,
         textAlign: "center",
-        opacity: p,
-        translate: `0px ${interpolate(p, [0, 1], [24, 0])}px`,
-        scale: emphasis(t, compact),
+        ...(toneSfx(t) === "chime"
+          ? popIn(frame, fps, cueFrame)
+          : { opacity: p, translate: `0px ${interpolate(p, [0, 1], [24, 0])}px` }),
+        ...(t === "danger" ? { rotate: `${wiggleDeg(frame, cueFrame)}deg` } : null),
+        // popIn's scale is the entrance; the danger pulse only applies once it has landed.
+        ...(t === "danger" ? { scale: emphasis(t, compact) } : null),
       }}
     >
       {compact ? null : <Icon name={TONE_ICON[t]} size={56} color={toneColor(t, c)} />}
@@ -97,7 +100,7 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
     const p = enter(frame, fps, at(branchAt));
     if (!isFollowUp(b)) {
       return (
-        <div style={{ width: COL, display: "flex", justifyContent: "center" }}>{outcomeBox(b.label, b.tone, OUTCOME, false, p)}</div>
+        <div style={{ width: COL, display: "flex", justifyContent: "center" }}>{outcomeBox(b.label, b.tone, OUTCOME, false, p, at(branchAt))}</div>
       );
     }
     const innerLines = interpolate(frame, [at(branchAt + FOLLOW_YES - 0.05), at(branchAt + FOLLOW_YES)], [0, 1], CLAMP);
@@ -121,8 +124,8 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
           {connector(60, COL, SUB / 2, COL - SUB / 2, innerLines)}
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", width: COL }}>
-          {outcomeBox(b.yes.label, b.yes.tone, SUB, true, enter(frame, fps, at(branchAt + FOLLOW_YES)))}
-          {outcomeBox(b.no.label, b.no.tone, SUB, true, enter(frame, fps, at(branchAt + FOLLOW_NO)))}
+          {outcomeBox(b.yes.label, b.yes.tone, SUB, true, enter(frame, fps, at(branchAt + FOLLOW_YES)), at(branchAt + FOLLOW_YES))}
+          {outcomeBox(b.no.label, b.no.tone, SUB, true, enter(frame, fps, at(branchAt + FOLLOW_NO)), at(branchAt + FOLLOW_NO))}
         </div>
       </div>
     );

@@ -31,6 +31,9 @@ describe("floodAt", () => {
   it("has no flood without scene starts (block previews)", () => {
     expect(floodAt(500, null, V916)).toEqual({ base: SCENE_BG[0], flood: null });
   });
+  it("uses the given base without scene starts (Close preview)", () => {
+    expect(floodAt(500, null, V916, SCENE_BG[4])).toEqual({ base: SCENE_BG[4], flood: null });
+  });
   it("never overlaps two cuts for 30-frame scenes in a 15 s episode", () => {
     const tight = [0, 30, 60, 90, 120];
     for (let f = 0; f < 450; f++) {

@@ -9,9 +9,10 @@ const TILE = 260;
 const DRIFT = 24;
 
 /** Flat scene color, the giant paw between scenes, and a faint drifting paw pattern. */
-export const Background: React.FC<{ readonly total: number; readonly sceneStarts?: readonly number[] | null }> = ({
+export const Background: React.FC<{ readonly total: number; readonly sceneStarts?: readonly number[] | null; readonly base?: string }> = ({
   total,
   sceneStarts = null,
+  base: flatBase,
 }) => {
   const frame = useCurrentFrame();
   const c = usePalette();
@@ -19,7 +20,7 @@ export const Background: React.FC<{ readonly total: number; readonly sceneStarts
   const { width, height } = layout.canvas;
   const keepOut = slotKeepOut(layout);
   const drift = interpolate(frame, [0, Math.max(1, total - 1)], [0, -DRIFT], CLAMP);
-  const { base, flood } = floodAt(frame, sceneStarts, layout.canvas);
+  const { base, flood } = floodAt(frame, sceneStarts, layout.canvas, flatBase);
 
   return (
     <AbsoluteFill style={{ backgroundColor: base }}>

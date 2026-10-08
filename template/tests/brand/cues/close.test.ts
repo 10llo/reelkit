@@ -1,3 +1,4 @@
+import { DROP_LAND } from "../../../src/brand/motion";
 import { describe, expect, it } from "vitest";
 import { CONTACT_AT, closeContacts, closeCues } from "../../../src/blocks/Close.cues";
 import { STAGGER, beatTiming } from "../../../src/frame/timing";
@@ -21,7 +22,7 @@ describe("closeCues", () => {
   it("boings once per contact, STAGGER apart", () => {
     const talent = { ...BRAND_TALENT, handles: all };
     const boings = closeCues(props, timing, talent).filter((c) => c.name === "boing");
-    expect(boings.map((c) => c.at)).toEqual([0, 1, 2, 3].map((i) => timing.at(CONTACT_AT) + i * STAGGER));
+    expect(boings.map((c) => c.at)).toEqual([0, 1, 2, 3].map((i) => timing.at(CONTACT_AT) + i * STAGGER + DROP_LAND));
   });
   it("has no boing without handles", () => {
     const talent = { ...BRAND_TALENT, handles: { instagram: "", tiktok: "", whatsapp: "", facebook: "" } };

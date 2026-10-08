@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { JELLY_FRAMES, WIGGLE_FRAMES, drop, jelly, popIn, slap, wiggle, wiggleDeg } from "../../src/brand/motion";
+import { DROP_LAND, JELLY_FRAMES, WIGGLE_FRAMES, drop, jelly, popIn, slap, wiggle, wiggleDeg } from "../../src/brand/motion";
 
 const scaleOf = (s: unknown): [number, number] => {
   const [x, y = x] = String(s).split(" ").map(Number);
@@ -39,6 +39,15 @@ describe("drop", () => {
       expect(x).toBeGreaterThanOrEqual(1);
       expect(sy).toBeLessThanOrEqual(1);
     }
+  });
+});
+
+describe("DROP_LAND", () => {
+  it.each([120, 200, 260])("is the first frame on the ground and squashed (distance %i)", (distance) => {
+    const yOf = (f: number) => Number(String(drop(f, FPS, 10, distance).translate).split(" ")[1].replace("px", ""));
+    expect(yOf(10 + DROP_LAND - 1)).toBeLessThan(0);
+    expect(yOf(10 + DROP_LAND)).toBe(0);
+    expect(scaleOf(drop(10 + DROP_LAND, FPS, 10, distance).scale)[0]).toBeGreaterThan(1);
   });
 });
 

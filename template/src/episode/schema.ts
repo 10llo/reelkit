@@ -42,6 +42,6 @@ export const episodeSchema = z.object({
   coverFrame: z.number().int().min(0).default(60),
   musicSrc: z.string().default(""),
   /** Brand sound effects; false silences every cue (music and the talent clip are unaffected). */
-  sfx: z.boolean().default(true),
+  sfx: z.boolean().default(true).describe("Brand sound effects; false silences every cue (music and the talent clip are unaffected)."),
 });
 export type Episode = z.infer<typeof episodeSchema>;

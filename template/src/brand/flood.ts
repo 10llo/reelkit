@@ -26,9 +26,9 @@ export const floodScale = (canvas: Canvas) => (Math.hypot(canvas.width, canvas.h
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 
 /** Background at `frame`: the settled scene color, plus the paw growing toward the next scene's color. */
-export const floodAt = (frame: number, sceneStarts: readonly number[] | null, canvas: Canvas): FloodState => {
+export const floodAt = (frame: number, sceneStarts: readonly number[] | null, canvas: Canvas, flatBase: string = SCENE_BG[0]): FloodState => {
   if (!sceneStarts) {
-    return { base: SCENE_BG[0], flood: null };
+    return { base: flatBase, flood: null };
   }
   let base: string = SCENE_BG[0];
   for (let k = 1; k < sceneStarts.length; k++) {

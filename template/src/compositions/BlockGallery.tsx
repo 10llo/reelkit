@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { AbsoluteFill, Series, useVideoConfig, type CalculateMetadataFunction } from "remotion";
 import { SfxContext } from "../brand/SfxCues";
-import { INK, applyBrand } from "../brand/tokens";
+import { INK, SCENE_BG, applyBrand } from "../brand/tokens";
 import type { Accented } from "../blocks/schema-parts";
 import { fetchJson } from "../episode/fetchJson";
 import type { Talent } from "../episode/talent";
@@ -53,6 +53,7 @@ export const BlockGallery: React.FC<GalleryProps> = ({ layoutName, talent }) => 
               <Series>
                 {SAMPLES.map((sample, i) => (
                   <Series.Sequence key={i} name={sample.block} durationInFrames={sample.durationInFrames} premountFor={fps}>
+                    {sample.block === "Close" ? <AbsoluteFill style={{ backgroundColor: SCENE_BG[4] }} /> : null}
                     <SceneRenderer
                       name={`gallery-${sample.block}`}
                       scene={{ title: sample.title ?? undefined, beats: [beats[i]], split: 0.5 }}

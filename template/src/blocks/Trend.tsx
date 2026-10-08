@@ -1,5 +1,6 @@
 import { measureText } from "@remotion/layout-utils";
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { jelly } from "../brand/motion";
 import { stickerStyle } from "../brand/sticker";
 import { inkShadow } from "../brand/tokens";
 import { usePalette, useTalent } from "../frame/contexts";
@@ -59,6 +60,7 @@ export const Trend: BlockComponent<"Trend"> = ({ props, timing }) => {
               stroke={c.text}
               strokeWidth={4}
               opacity={interpolate(dot, [0, 0.2], [0, 1], CLAMP)}
+              style={i === n - 1 ? { ...jelly(frame, at(LINE_TO)), transformBox: "fill-box", transformOrigin: "center" } : undefined}
             />
           );
         })}

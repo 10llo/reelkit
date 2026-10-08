@@ -10,6 +10,8 @@ const DROP = { damping: 9, stiffness: 170 };
 const POP_IN = { damping: 12, stiffness: 180 };
 const SQUASH = 0.18;
 const DROP_SQUASH = 1.5;
+/** Frames after `at` when `drop()` first reaches the ground (DROP spring); time `boing`/`tick` here. */
+export const DROP_LAND = 5;
 export const WIGGLE_FRAMES = 18;
 export const JELLY_FRAMES = 16;
 

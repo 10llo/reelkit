@@ -1,3 +1,4 @@
+import { DROP_LAND } from "../../../src/brand/motion";
 import { describe, expect, it } from "vitest";
 import { FIRST_AT, chipStagger, chipsCues } from "../../../src/blocks/Chips.cues";
 import { RING_FROM, RING_TO, timerCues } from "../../../src/blocks/Timer.cues";
@@ -37,7 +38,7 @@ it("Process ticks per step and dings the highlight", () => {
   const props = sampleProps("Process");
   const cues = processCues(props, t, BRAND_TALENT);
   const n = props.steps.length;
-  expect(cues.filter((c) => c.name === "tick").map((c) => c.at)).toEqual(props.steps.map((_, i) => processStepAt(t, i, n)));
+  expect(cues.filter((c) => c.name === "tick").map((c) => c.at)).toEqual(props.steps.map((_, i) => processStepAt(t, i, n) + DROP_LAND));
   expect(cues.some((c) => c.name === "ding" && c.at === t.at(PROCESS_HL))).toBe(props.highlightStep !== undefined);
 });
 

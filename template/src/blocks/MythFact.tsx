@@ -1,5 +1,5 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { wiggleDeg } from "../brand/motion";
+import { popIn, wiggleDeg } from "../brand/motion";
 import { stickerStyle } from "../brand/sticker";
 import { usePalette } from "../frame/contexts";
 import { bodyStyle, headStyle } from "../frame/theme";
@@ -38,7 +38,6 @@ export const MythFact: BlockComponent<"MythFact"> = ({ props, timing }) => {
   const myth = enter(frame, fps, at(MYTH_AT));
   const strike = interpolate(frame, [at(STRIKE_FROM), at(STRIKE_TO)], [0, 1], CLAMP);
   const stamp = pop(frame, fps, at(STAMP_AT));
-  const fact = enter(frame, fps, at(FACT_AT));
   const card: React.CSSProperties = {
     position: "relative",
     display: "flex",
@@ -90,7 +89,7 @@ export const MythFact: BlockComponent<"MythFact"> = ({ props, timing }) => {
           />
         ) : null}
       </div>
-      <div style={{ ...card, rotate: "1.5deg", opacity: fact, translate: `0px ${interpolate(fact, [0, 1], [60, 0])}px` }}>
+      <div style={{ ...card, rotate: "1.5deg", ...popIn(frame, fps, at(FACT_AT)) }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <Tag label={props.factTag} color={c.safe} filled ink={c.bg} />
           <Icon name="check" size={56} color={c.safe} />

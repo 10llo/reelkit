@@ -1,3 +1,4 @@
+import { DROP_LAND } from "../brand/motion";
 import type { Talent } from "../episode/talent";
 import { STAGGER, type BeatTiming } from "../frame/timing";
 import type { SocialIconName } from "../icons/names";
@@ -25,5 +26,5 @@ export const contactAt = (timing: BeatTiming, i: number) => timing.at(CONTACT_AT
 
 export const closeCues: CueFn<"Close"> = (props, timing, talent) => [
   ...props.actions.map((_, i) => ({ name: "tick" as const, at: timing.at(ACTIONS_AT) + i * STAGGER })),
-  ...closeContacts(talent.handles).map((_, i) => ({ name: "boing" as const, at: contactAt(timing, i) })),
+  ...closeContacts(talent.handles).map((_, i) => ({ name: "boing" as const, at: contactAt(timing, i) + DROP_LAND })),
 ];
