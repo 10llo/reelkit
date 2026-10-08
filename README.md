@@ -52,6 +52,8 @@ Every command stops for your approval at its decisions: the angle, the script, c
 
 Updating: `/plugin marketplace update reelkit`, restart Claude Code, then `/reelkit:setup --update`. That last step updates the workspace template (new blocks and fixes) without touching talents or episodes; replaced files are backed up in `.reelkit-backup/`.
 
+**0.5.0 — Consultorio Pop.** Videos now use a light sticker style with Fredoka/Nunito, a paw transition between scenes, subtle sound effects (turn them off with `"sfx": false` in `episode.json`) and social icons in the close. Your talent's `accent`, `danger` and `safe` are kept; `bg`, `bg2` and `text` now come from the brand. For Dogtora Dani, set `accent` `#FF6B57`, `danger` `#E5484D`, `safe` `#2FBF71` and add `"extra": { "teal": "#2EC4B6", "sun": "#FFC93C" }` in `talents/dani.json`.
+
 ## Developing the plugin
 
 - `template/` is the Remotion project copied into each workspace: `npm test`, `npm run lint`, `npm run check`, `npm run check:gallery`, `npm run reelkit -- <command>`.

@@ -18,7 +18,7 @@ export const DoDont: BlockComponent<"DoDont"> = ({ props, timing }) => {
   const { at } = timing;
 
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignSelf: "start" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignSelf: "start", padding: "0 8px 8px 0" /* room for the hard shadows the stage would clip */ }}>
       {props.cards.map((card, i) => {
         const slide = enter(frame, fps, at(slideAt(i)));
         const stampFrame = at(stampAt(i));

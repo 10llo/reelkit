@@ -56,7 +56,7 @@ export const SceneRenderer: React.FC<{
   return (
     <FitStage name={name} style={{ opacity: fadeOutAtEnd ? fadeOut(frame, duration) : 1 }}>
       {scene.title ? (
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: 14 /* tilted title corner would be clipped by the stage */ }}>
           <div
             style={{
               ...headStyle(72),
@@ -72,7 +72,7 @@ export const SceneRenderer: React.FC<{
         </div>
       ) : null}
       {scene.title ? <SfxCues cues={[{ name: "pop", at: 0 }]} /> : null}
-      <div style={{ display: "grid", marginTop: scene.title ? 30 : 0 }}>
+      <div style={{ display: "grid", marginTop: scene.title ? 20 : 0 }}>
         {scene.beats.map((beat, i) => (
           <div key={i} style={{ gridArea: "1 / 1", ...beatStyle(i) }}>
             <BlockView beat={beat} timing={beats[i]} />

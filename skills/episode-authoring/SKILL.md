@@ -73,7 +73,7 @@ Two beats in a step when the line has two ideas (e.g. `Compare` then `Timer`).
 
 ## 6. Rules the schema can't show
 
-- Colours are `#RRGGBB` or a palette token: `bg`, `bg2`, `accent`, `text`, `danger`, `safe`, or a name in the talent's `colors.extra`.
+- Colours are `#RRGGBB` or a palette token: `bg`, `bg2`, `accent`, `text`, `danger`, `safe`, or a name in the talent's `colors.extra`. The brand sets bg (cream), bg2 (white sticker) and text (ink); prefer accent, danger, safe or an extra for meaning.
 - Two tone vocabularies: titles and accented text use `accent` / `danger` / `safe`; gauge zones and status items use `ok` / `warn` / `danger`.
 - Per-word limits: long single words (e.g. "metilxantinas") overflow narrow columns; `validate` names the field and the limit — shorten or rephrase.
 - `Anatomy`: at most 3 callouts per side. `Trend`: the y axis starts automatically unless you set `yMin`.

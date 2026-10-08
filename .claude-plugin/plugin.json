@@ -1,7 +1,7 @@
 {
   "name": "reelkit",
   "description": "Short vertical explainer videos for professionals: trend research, a timed script for the talent, a Remotion video from a block library, talent-clip caption sync with local Whisper, and exports for TikTok, Reels, WhatsApp and Facebook.",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": { "name": "pablocastanogarcia" },
   "homepage": "https://github.com/10llo/reelkit",
   "repository": "https://github.com/10llo/reelkit",

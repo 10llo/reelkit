@@ -129,7 +129,7 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
   };
 
   return (
-    <div style={{ width: W, display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div style={{ width: W, display: "flex", flexDirection: "column", alignItems: "center", paddingBottom: 8 /* hard shadow of the last row */ }}>
       <div
         style={{
           maxWidth: 860,

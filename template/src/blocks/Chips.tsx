@@ -15,7 +15,8 @@ export const Chips: BlockComponent<"Chips"> = ({ props, timing }) => {
         display: "grid",
         gridTemplateColumns: `repeat(${chipColumns(props.items, props.columns)}, max-content)`,
         justifyContent: "center",
-        gap: "20px 28px",
+        gap: "14px 28px",
+        paddingBottom: 14, // room for the last row's hard shadow, which the stage would clip
       }}
     >
       {props.items.map((item, i) => (

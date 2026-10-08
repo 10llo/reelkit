@@ -61,12 +61,12 @@ export const Hook: BlockComponent<"Hook"> = ({ props, timing }) => {
 
   // Frame 0 is the thumbnail: headline and chip are fully visible, no entrance.
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", paddingTop: 22 /* tilted sticker corner would be clipped by the stage */ }}>
       <div style={{ ...stickerStyle(c), padding: "22px 44px 26px", rotate: `${TILT}deg` }}>
         <div style={{ ...headStyle(88), color: c.text, lineHeight: 1 }}>{props.line1}</div>
         <div
           style={{
-            ...headStyle(100),
+            ...headStyle(92),
             color: c.accent,
             lineHeight: 1,
             whiteSpace: "nowrap",
