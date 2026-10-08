@@ -1,20 +1,14 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { stickerStyle } from "../brand/sticker";
 import { resolveColor } from "../episode/talent";
 import { usePalette } from "../frame/contexts";
 import { bodyStyle } from "../frame/theme";
 import { CLAMP, enter, pop } from "../frame/timing";
 import { Icon } from "../icons";
 import { QuantityBars } from "./parts/QuantityBars";
+import { CHIP_AT, CONCLUSION_AT, FOOTNOTE_AT, HIGHLIGHT_AT, quantityRowTimes } from "./Quantity.cues";
 import { highlightIndex } from "./Quantity.schema";
 import type { BlockComponent } from "./types";
-
-// Fractions of a 255-frame reference beat.
-const CHIP_AT = 18 / 255;
-const ROWS_FROM = 36;
-const ROWS_SPAN = 150;
-const HIGHLIGHT_AT = 190 / 255;
-const CONCLUSION_AT = 202 / 255;
-const FOOTNOTE_AT = 208 / 255;
 
 export const Quantity: BlockComponent<"Quantity"> = ({ props, timing }) => {
   const frame = useCurrentFrame();
@@ -24,20 +18,14 @@ export const Quantity: BlockComponent<"Quantity"> = ({ props, timing }) => {
   const chip = enter(frame, fps, at(CHIP_AT));
   const conclusion = pop(frame, fps, at(CONCLUSION_AT));
   const footnote = enter(frame, fps, at(FOOTNOTE_AT));
-  const max = Math.max(...props.rows.map((r) => r.value));
-  const step = ROWS_SPAN / props.rows.length;
-  const rows = props.rows.map((row, i) => {
-    const from = ROWS_FROM + step * i;
-    const length = step * (0.4 + 0.6 * (row.value / max));
-    return {
-      label: row.label,
-      value: row.value,
-      color: resolveColor(row.color, c),
-      outline: row.outline ? resolveColor(row.outline, c) : undefined,
-      from: at(from / 255),
-      to: at((from + length) / 255),
-    };
-  });
+  const times = quantityRowTimes(props.rows, timing);
+  const rows = props.rows.map((row, i) => ({
+    label: row.label,
+    value: row.value,
+    color: resolveColor(row.color, c),
+    outline: row.outline ? resolveColor(row.outline, c) : undefined,
+    ...times[i],
+  }));
 
   return (
     <div>
@@ -50,9 +38,7 @@ export const Quantity: BlockComponent<"Quantity"> = ({ props, timing }) => {
               alignItems: "center",
               gap: 14,
               padding: "8px 30px 8px 20px",
-              borderRadius: 999,
-              backgroundColor: c.bg2,
-              border: `2px solid ${c.text}33`,
+              ...stickerStyle(c, { radius: 999, border: 4, shadow: 6 }),
               color: c.text,
               whiteSpace: "nowrap",
               opacity: chip,

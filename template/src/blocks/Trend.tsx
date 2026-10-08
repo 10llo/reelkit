@@ -1,17 +1,16 @@
 import { measureText } from "@remotion/layout-utils";
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { jelly } from "../brand/motion";
+import { stickerStyle } from "../brand/sticker";
+import { inkShadow } from "../brand/tokens";
 import { usePalette, useTalent } from "../frame/contexts";
 import { FONT_HEAD, WEIGHT_HEAD, headStyle } from "../frame/theme";
 import { CLAMP, pop } from "../frame/timing";
 import { BOTTOM, H, LEFT, RIGHT, TOP, W, layoutTrendLabels } from "./parts/trendLayout";
+import { ANNOTATE_AT, AREA_FROM, AREA_TO, LINE_FROM, LINE_TO } from "./Trend.cues";
 import { trendScale } from "./Trend.schema";
 import type { BlockComponent } from "./types";
 
-const LINE_FROM = 0.08;
-const LINE_TO = 0.55;
-const AREA_FROM = 0.3;
-const AREA_TO = 0.6;
-const ANNOTATE_AT = 0.68;
 
 export const Trend: BlockComponent<"Trend"> = ({ props, timing }) => {
   const frame = useCurrentFrame();
@@ -58,9 +57,10 @@ export const Trend: BlockComponent<"Trend"> = ({ props, timing }) => {
               cy={py(p.y)}
               r={10}
               fill={c.accent}
-              stroke={c.bg}
+              stroke={c.text}
               strokeWidth={4}
               opacity={interpolate(dot, [0, 0.2], [0, 1], CLAMP)}
+              style={i === n - 1 ? { ...jelly(frame, at(LINE_TO)), transformBox: "fill-box", transformOrigin: "center" } : undefined}
             />
           );
         })}
@@ -111,6 +111,7 @@ export const Trend: BlockComponent<"Trend"> = ({ props, timing }) => {
           ...headStyle(64),
           color: c.accent,
           whiteSpace: "nowrap",
+          textShadow: inkShadow(4, c),
           opacity: draw > 0 ? 1 : 0,
         }}
       >
@@ -125,9 +126,7 @@ export const Trend: BlockComponent<"Trend"> = ({ props, timing }) => {
             top: bubble.y,
             ...headStyle(40),
             color: c.text,
-            backgroundColor: c.bg2,
-            border: `3px solid ${c.accent}`,
-            borderRadius: 18,
+            ...stickerStyle(c, { radius: 18, border: 4, shadow: 5, borderColor: c.accent }),
             padding: "8px 20px 2px",
             whiteSpace: "nowrap",
             opacity: interpolate(noteIn, [0, 0.2], [0, 1], CLAMP),

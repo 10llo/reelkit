@@ -1,10 +1,13 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import type { Tone } from "./schema-parts";
+import { popIn, slap, wiggleDeg } from "../brand/motion";
+import { stickerStyle } from "../brand/sticker";
 import { usePalette } from "../frame/contexts";
 import { fitWordsFontSize } from "../frame/fit";
 import { FONT_BODY, FONT_HEAD, WEIGHT_BODY, WEIGHT_HEAD, bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop, pulse } from "../frame/timing";
 import { Icon } from "../icons";
+import { EMPHASIS_AT, FOLLOW_NO, FOLLOW_YES, LINES_FROM, LINES_TO, NO_AT, QUESTION_AT, TAGS_AT, YES_AT, toneSfx } from "./Decision.cues";
 import { isFollowUp, type DecisionBranch } from "./Decision.schema";
 import { toneColor } from "./parts/tone";
 import type { BlockComponent } from "./types";
@@ -14,13 +17,6 @@ const COL = 474;
 const SUB = 236;
 const OUTCOME = COL - 24;
 const LEFT_CENTER = (W - 2 * COL) / 4 + COL / 2;
-const QUESTION_AT = 0.04;
-const LINES_FROM = 0.16;
-const LINES_TO = 0.26;
-const TAGS_AT = 0.26;
-const YES_AT = 0.32;
-const NO_AT = 0.42;
-const EMPHASIS_AT = 0.8;
 const TONE_ICON = { ok: "check", warn: "warning", danger: "x" } as const;
 
 export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
@@ -28,7 +24,6 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
   const { fps } = useVideoConfig();
   const c = usePalette();
   const { at } = timing;
-  const question = enter(frame, fps, at(QUESTION_AT));
   const lines = interpolate(frame, [at(LINES_FROM), at(LINES_TO)], [0, 1], CLAMP);
   const tags = pop(frame, fps, at(TAGS_AT));
   const emphasis = (t: Tone, compact: boolean) => (t === "danger" ? pulse(frame, at(EMPHASIS_AT), 16, compact ? 1.03 : 1.06) : 1);
@@ -69,23 +64,24 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
     </svg>
   );
 
-  const outcomeBox = (label: string, t: Tone, width: number, compact: boolean, p: number) => (
+  const outcomeBox = (label: string, t: Tone, width: number, compact: boolean, p: number, cueFrame: number) => (
     <div
       style={{
         width,
         boxSizing: "border-box",
         padding: compact ? "14px 10px 10px" : "18px 22px 14px",
-        borderRadius: 24,
-        border: `5px solid ${toneColor(t, c)}`,
-        backgroundColor: `${toneColor(t, c)}22`,
+        ...stickerStyle(c, { radius: 24, border: 5, shadow: 6, borderColor: toneColor(t, c), fill: `${toneColor(t, c)}22` }),
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         gap: 6,
         textAlign: "center",
-        opacity: p,
-        translate: `0px ${interpolate(p, [0, 1], [24, 0])}px`,
-        scale: emphasis(t, compact),
+        ...(toneSfx(t) === "chime"
+          ? popIn(frame, fps, cueFrame)
+          : { opacity: p, translate: `0px ${interpolate(p, [0, 1], [24, 0])}px` }),
+        ...(t === "danger" ? { rotate: `${wiggleDeg(frame, cueFrame)}deg` } : null),
+        // popIn's scale is the entrance; the danger pulse only applies once it has landed.
+        ...(t === "danger" ? { scale: emphasis(t, compact) } : null),
       }}
     >
       {compact ? null : <Icon name={TONE_ICON[t]} size={56} color={toneColor(t, c)} />}
@@ -104,10 +100,10 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
     const p = enter(frame, fps, at(branchAt));
     if (!isFollowUp(b)) {
       return (
-        <div style={{ width: COL, display: "flex", justifyContent: "center" }}>{outcomeBox(b.label, b.tone, OUTCOME, false, p)}</div>
+        <div style={{ width: COL, display: "flex", justifyContent: "center" }}>{outcomeBox(b.label, b.tone, OUTCOME, false, p, at(branchAt))}</div>
       );
     }
-    const innerLines = interpolate(frame, [at(branchAt + 0.06), at(branchAt + 0.11)], [0, 1], CLAMP);
+    const innerLines = interpolate(frame, [at(branchAt + FOLLOW_YES - 0.05), at(branchAt + FOLLOW_YES)], [0, 1], CLAMP);
     return (
       <div style={{ width: COL, display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div
@@ -115,9 +111,7 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
             width: COL,
             boxSizing: "border-box",
             padding: "14px 18px 8px",
-            borderRadius: 22,
-            backgroundColor: c.bg2,
-            border: `3px solid ${c.text}55`,
+            ...stickerStyle(c, { radius: 22, border: 4, shadow: 5 }),
             ...headStyle(fitWordsFontSize(b.question, COL - 36 - 6, 44, FONT_HEAD, WEIGHT_HEAD)),
             color: c.text,
             textAlign: "center",
@@ -130,28 +124,25 @@ export const Decision: BlockComponent<"Decision"> = ({ props, timing }) => {
           {connector(60, COL, SUB / 2, COL - SUB / 2, innerLines)}
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", width: COL }}>
-          {outcomeBox(b.yes.label, b.yes.tone, SUB, true, enter(frame, fps, at(branchAt + 0.11)))}
-          {outcomeBox(b.no.label, b.no.tone, SUB, true, enter(frame, fps, at(branchAt + 0.16)))}
+          {outcomeBox(b.yes.label, b.yes.tone, SUB, true, enter(frame, fps, at(branchAt + FOLLOW_YES)), at(branchAt + FOLLOW_YES))}
+          {outcomeBox(b.no.label, b.no.tone, SUB, true, enter(frame, fps, at(branchAt + FOLLOW_NO)), at(branchAt + FOLLOW_NO))}
         </div>
       </div>
     );
   };
 
   return (
-    <div style={{ width: W, display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div style={{ width: W, display: "flex", flexDirection: "column", alignItems: "center", paddingBottom: 8 /* hard shadow of the last row */ }}>
       <div
         style={{
           maxWidth: 860,
           boxSizing: "border-box",
           padding: "18px 32px 10px",
-          borderRadius: 28,
-          backgroundColor: c.bg2,
-          border: `4px solid ${c.accent}`,
+          ...stickerStyle(c, { radius: 28 }),
           ...headStyle(fitWordsFontSize(props.question, 860 - 64 - 8, 52, FONT_HEAD, WEIGHT_HEAD)),
           color: c.text,
           textAlign: "center",
-          opacity: question,
-          scale: interpolate(question, [0, 1], [0.9, 1]),
+          ...slap(frame, fps, at(QUESTION_AT), -2),
         }}
       >
         {props.question}

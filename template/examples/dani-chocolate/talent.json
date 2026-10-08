@@ -7,13 +7,14 @@
   "country": "CO",
   "locale": "es-CO",
   "colors": {
-    "bg": "#1A1023",
-    "bg2": "#2A1838",
-    "accent": "#FF7A1A",
-    "text": "#FFF3E0",
-    "danger": "#FF4D4D",
-    "safe": "#3DDC97",
-    "extra": { "chocoWhite": "#F3E3C7", "chocoMilk": "#A8693D", "chocoSemi": "#6B3F23", "chocoDark": "#3B2114" }
+    "bg": "#FFF4E6",
+    "bg2": "#FFFFFF",
+    "accent": "#FF6B57",
+    "text": "#2B1B3D",
+    "danger": "#E5484D",
+    "safe": "#2FBF71",
+    "extra": { "teal": "#2EC4B6", "sun": "#FFC93C", "chocoWhite": "#F3E3C7", "chocoMilk": "#A8693D", "chocoSemi": "#6B3F23", "chocoDark": "#3B2114" }
   },
+  "handles": { "instagram": "@dogtora.dani", "tiktok": "@dogtora.dani", "whatsapp": "300 000 0000", "facebook": "Dogtora Dani" },
   "disclaimer": ["Contenido educativo.", "No reemplaza la consulta veterinaria."]
 }

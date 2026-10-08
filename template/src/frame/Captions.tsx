@@ -4,16 +4,26 @@ import { measureText } from "@remotion/layout-utils";
 import { continueRender, delayRender, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import {
   ACTIVE_SCALE,
+  HIGHLIGHT_PAD,
   LINE_HEIGHT,
   layoutPage,
   paginate,
   wordsFromCaptions,
   wordsFromScript,
 } from "./captions-model";
+import { HIGHLIGHT } from "../brand/tokens";
+import { stickerStyle } from "../brand/sticker";
 import { useLayout, usePalette } from "./contexts";
 import { resolveSrc } from "./resolveSrc";
-import { FONT_HEAD, WEIGHT_HEAD } from "./theme";
+import { FONT_BODY, WEIGHT_CAPTION } from "./theme";
 import { CLAMP, enter } from "./timing";
+
+const PAD_X = 22;
+const PAD_Y = 10;
+const STICKER = { radius: 24, border: 5, shadow: 6 };
+// Room the sticker takes from the captions box, so text never pushes it out.
+const INSET_X = 2 * (PAD_X + STICKER.border) + STICKER.shadow;
+const INSET_Y = 2 * (PAD_Y + STICKER.border) + STICKER.shadow;
 
 const useCaptionFile = (captionsSrc: string) => {
   const [captions, setCaptions] = useState<Caption[] | null>(null);
@@ -44,7 +54,7 @@ const useCaptionFile = (captionsSrc: string) => {
 };
 
 const measure = (text: string, fontSize: number) =>
-  measureText({ text, fontFamily: FONT_HEAD, fontWeight: WEIGHT_HEAD, fontSize }).width;
+  measureText({ text, fontFamily: FONT_BODY, fontWeight: WEIGHT_CAPTION, fontSize }).width;
 
 export const Captions: React.FC<{
   readonly script: string[];
@@ -64,7 +74,7 @@ export const Captions: React.FC<{
   );
   const page = pages.find((p) => frame >= p.from && frame < p.to);
   const layout = useMemo(
-    () => (page ? layoutPage(page, measure, box, captionsBaseSize) : null),
+    () => (page ? layoutPage(page, measure, { width: box.width - INSET_X, height: box.height - INSET_Y }, captionsBaseSize) : null),
     [page, box, captionsBaseSize],
   );
   if (!page || !layout) {
@@ -85,16 +95,16 @@ export const Captions: React.FC<{
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "flex-start",
-        fontFamily: FONT_HEAD,
-        fontWeight: WEIGHT_HEAD,
+        fontFamily: FONT_BODY,
+        fontWeight: WEIGHT_CAPTION,
         fontSize: layout.fontSize,
         lineHeight: LINE_HEIGHT,
         color: c.text,
-        textShadow: "0 4px 14px rgba(0,0,0,0.5)",
         opacity: appear,
         translate: `0px ${interpolate(appear, [0, 1], [16, 0], CLAMP)}px`,
       }}
     >
+      <div style={{ ...stickerStyle(c, STICKER), padding: `${PAD_Y}px ${PAD_X}px` }}>
       {layout.lines.map((line, li) => (
         <div key={li} style={{ whiteSpace: "nowrap" }}>
           {line.map((word, wi) => {
@@ -104,8 +114,11 @@ export const Captions: React.FC<{
                 key={wi}
                 style={{
                   display: "inline-block",
-                  marginRight: wi < line.length - 1 ? layout.gapPx : 0,
-                  color: active ? c.accent : c.text,
+                  color: c.text,
+                  backgroundColor: active ? HIGHLIGHT : "transparent",
+                  borderRadius: 10,
+                  padding: `0 ${HIGHLIGHT_PAD}px`,
+                  margin: `0 ${wi < line.length - 1 ? layout.gapPx - HIGHLIGHT_PAD : -HIGHLIGHT_PAD}px 0 -${HIGHLIGHT_PAD}px`,
                   scale: active ? ACTIVE_SCALE : 1,
                   transformOrigin: "left center",
                 }}
@@ -116,6 +129,7 @@ export const Captions: React.FC<{
           })}
         </div>
       ))}
+      </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { Icon } from "../icons";
+import { ON_COLOR, STICKER_FILL } from "../brand/tokens";
 import { useLayout, usePalette } from "./contexts";
 import { fitFontSize } from "./fit";
 import { FONT_HEAD, WEIGHT_HEAD } from "./theme";
@@ -63,10 +64,11 @@ export const StepTracker: React.FC<{
               height: PILL_H,
               borderRadius: PILL_H / 2,
               boxSizing: "border-box",
-              border: `3px solid ${active || done ? c.accent : c.text}`,
-              backgroundColor: active ? c.accent : "transparent",
-              opacity: active || done ? 1 : 0.4,
-              color: active ? c.bg : done ? c.accent : c.text,
+              border: `4px solid ${c.text}`,
+              backgroundColor: active ? c.accent : STICKER_FILL,
+              boxShadow: `5px 5px 0 ${c.text}`,
+              opacity: active || done ? 1 : 0.55,
+              color: active ? ON_COLOR : c.text,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

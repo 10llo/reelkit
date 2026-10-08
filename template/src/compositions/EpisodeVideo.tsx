@@ -1,5 +1,9 @@
 import { Audio } from "@remotion/media";
+import { useMemo } from "react";
 import { AbsoluteFill, Series, interpolate, useVideoConfig } from "remotion";
+import { floodCues } from "../brand/flood";
+import { SfxContext, SfxCues } from "../brand/SfxCues";
+import { applyBrand } from "../brand/tokens";
 import type { EpisodeProps } from "../episode/load";
 import { Background } from "../frame/Background";
 import { Captions } from "../frame/Captions";
@@ -28,6 +32,7 @@ export const EpisodeVideo: React.FC<EpisodeProps & { readonly hideCaptions?: boo
 }) => {
   const { fps } = useVideoConfig();
   const fontsReady = useFontsReady();
+  const palette = useMemo(() => (talent ? applyBrand(talent.colors) : null), [talent]);
   if (!episode || !talent || !sceneStarts) {
     throw new Error("Episode props were not loaded; calculateMetadata must run first.");
   }
@@ -37,10 +42,12 @@ export const EpisodeVideo: React.FC<EpisodeProps & { readonly hideCaptions?: boo
 
   return (
     <LayoutContext.Provider value={LAYOUTS[layoutName]}>
-      <PaletteContext.Provider value={talent.colors}>
+      <PaletteContext.Provider value={palette!}>
         <TalentContext.Provider value={talent}>
+          <SfxContext.Provider value={{ enabled: !checkMode && episode.sfx }}>
           <AbsoluteFill>
-            <Background total={total} />
+            <Background total={total} sceneStarts={sceneStarts} />
+            <SfxCues cues={floodCues(sceneStarts)} />
             {fontsReady ? (
               <>
                 <Series>
@@ -88,6 +95,7 @@ export const EpisodeVideo: React.FC<EpisodeProps & { readonly hideCaptions?: boo
             ) : null}
             {showGuides ? <Guides /> : null}
           </AbsoluteFill>
+          </SfxContext.Provider>
         </TalentContext.Provider>
       </PaletteContext.Provider>
     </LayoutContext.Provider>

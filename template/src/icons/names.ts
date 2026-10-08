@@ -1,4 +1,7 @@
 // Node-safe list of every icon name (used by zod schemas). Grouped by domain; Task 2 adds the rest.
+export const SOCIAL_ICON_NAMES = ["instagram", "tiktok", "whatsapp", "facebook"] as const;
+export type SocialIconName = (typeof SOCIAL_ICON_NAMES)[number];
+
 // Engineering, energy, technology, money, education, nature and transport domains are deferred.
 export const ICON_NAMES = [
   // core (Plan 1)
@@ -19,6 +22,8 @@ export const ICON_NAMES = [
   "shield", "stop", "ban", "siren", "poison",
   // actions and arrows
   "arrowRight", "arrowUp", "arrowDown", "refresh", "plus", "minus", "search", "star", "question",
+  // social networks (close)
+  ...SOCIAL_ICON_NAMES,
 ] as const;
 export type IconName = (typeof ICON_NAMES)[number];
 

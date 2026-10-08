@@ -1,14 +1,13 @@
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { jelly } from "../brand/motion";
+import { inkShadow } from "../brand/tokens";
 import { usePalette, useTalent } from "../frame/contexts";
 import { bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop } from "../frame/timing";
 import { CountUpText } from "./parts/CountUpText";
+import { COUNT_END, LABEL_AT, NUMBER_AT, SOURCE_AT } from "./BigStat.cues";
 import type { BlockComponent } from "./types";
 
-const NUMBER_AT = 0.1;
-const COUNT_END = 0.45;
-const LABEL_AT = 0.3;
-const SOURCE_AT = 0.45;
 
 export const BigStat: BlockComponent<"BigStat"> = ({ props, timing }) => {
   const frame = useCurrentFrame();
@@ -30,6 +29,7 @@ export const BigStat: BlockComponent<"BigStat"> = ({ props, timing }) => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+      <div style={{ ...jelly(frame, at(COUNT_END)) }}>
       <div
         style={{
           ...headStyle(200),
@@ -38,11 +38,13 @@ export const BigStat: BlockComponent<"BigStat"> = ({ props, timing }) => {
           whiteSpace: "nowrap",
           opacity: interpolate(numberIn, [0, 0.2], [0, 1], CLAMP),
           scale: interpolate(numberIn, [0, 1], [0.6, 1]),
+          textShadow: inkShadow(6, c),
         }}
       >
         {props.prefix ? <span style={{ fontSize: 100 }}>{props.prefix}</span> : null}
         <CountUpText current={format.format(props.value * count)} final={format.format(props.value)} />
         {props.unit ? <span style={{ fontSize: 100, marginLeft: 12 }}>{props.unit}</span> : null}
+      </div>
       </div>
       <div
         style={{

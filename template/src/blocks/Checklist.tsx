@@ -1,15 +1,15 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { popIn } from "../brand/motion";
+import { stickerStyle } from "../brand/sticker";
 import { usePalette } from "../frame/contexts";
 import { bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop } from "../frame/timing";
+import { CHECK_DELAY, PILL_AFTER, rowAt } from "./Checklist.cues";
 import type { BlockComponent } from "./types";
 
 const CHECK_CIRCLE = 72;
 const CHECK_DRAW_FRAMES = 10;
 const CHECK_PATH_LENGTH = 90;
-// Fractions of a 105-frame reference beat.
-const rowAt = (i: number) => (12 + 21 * i) / 105;
-const PILL_AFTER = 15 / 105;
 
 export const Checklist: BlockComponent<"Checklist"> = ({ props, timing }) => {
   const frame = useCurrentFrame();
@@ -24,7 +24,7 @@ export const Checklist: BlockComponent<"Checklist"> = ({ props, timing }) => {
       {props.rows.map((row, i) => {
         const start = at(rowAt(i));
         const p = enter(frame, fps, start);
-        const draw = interpolate(frame, [start + 4, start + 4 + CHECK_DRAW_FRAMES], [0, 1], CLAMP);
+        const draw = interpolate(frame, [start + CHECK_DELAY, start + CHECK_DELAY + CHECK_DRAW_FRAMES], [0, 1], CLAMP);
         return (
           <div
             key={`${i}-${row}`}
@@ -41,9 +41,8 @@ export const Checklist: BlockComponent<"Checklist"> = ({ props, timing }) => {
                 width: CHECK_CIRCLE,
                 height: CHECK_CIRCLE,
                 flexShrink: 0,
-                borderRadius: "50%",
-                border: `5px solid ${c.safe}`,
-                boxSizing: "border-box",
+                ...stickerStyle(c, { radius: CHECK_CIRCLE / 2, border: 5, shadow: 5 }),
+                ...popIn(frame, fps, start + CHECK_DELAY),
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -74,9 +73,7 @@ export const Checklist: BlockComponent<"Checklist"> = ({ props, timing }) => {
             marginLeft: CHECK_CIRCLE + 26,
             marginTop: 4,
             padding: "10px 30px 6px",
-            borderRadius: 999,
-            backgroundColor: c.accent,
-            color: c.bg,
+            ...stickerStyle(c, { tone: "accent", radius: 999, border: 4, shadow: 6 }),
             whiteSpace: "nowrap",
             opacity: interpolate(pill, [0, 0.2], [0, 1], CLAMP),
             scale: interpolate(pill, [0, 1], [0.5, 1]),

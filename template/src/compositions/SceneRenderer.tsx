@@ -1,9 +1,13 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { slap } from "../brand/motion";
+import { stickerStyle } from "../brand/sticker";
+import { SfxCues } from "../brand/SfxCues";
+import { cuesFor } from "../blocks/cues";
 import { BLOCKS } from "../blocks/registry";
 import { isBlockName } from "../blocks/schemas";
 import type { Beat, Scene } from "../episode/schema";
 import { AccentText } from "../frame/AccentText";
-import { usePalette } from "../frame/contexts";
+import { usePalette, useTalent } from "../frame/contexts";
 import { FitStage } from "../frame/FitStage";
 import { headStyle } from "../frame/theme";
 import { ENTER_FRAMES, enter, fadeOut, splitBeats, type BeatTiming } from "../frame/timing";
@@ -13,7 +17,13 @@ const BlockView: React.FC<{ readonly beat: Beat; readonly timing: BeatTiming }> 
     throw new Error(`Unknown block "${beat.block}"`);
   }
   const Component = BLOCKS[beat.block] as React.FC<{ props: unknown; timing: BeatTiming }>;
-  return <Component props={beat.props} timing={timing} />;
+  const talent = useTalent();
+  return (
+    <>
+      <Component props={beat.props} timing={timing} />
+      <SfxCues cues={cuesFor(beat.block, beat.props, timing, talent)} />
+    </>
+  );
 };
 
 /**
@@ -31,7 +41,6 @@ export const SceneRenderer: React.FC<{
   const c = usePalette();
   const beats = splitBeats(duration, scene.beats.length, scene.split);
   const second = beats[1];
-  const title = enter(frame, fps, 0);
   const aOut = second ? enter(frame, fps, second.from) : 0;
   const bIn = second ? enter(frame, fps, second.from + ENTER_FRAMES) : 0;
 
@@ -47,20 +56,23 @@ export const SceneRenderer: React.FC<{
   return (
     <FitStage name={name} style={{ opacity: fadeOutAtEnd ? fadeOut(frame, duration) : 1 }}>
       {scene.title ? (
-        <div
-          style={{
-            ...headStyle(88),
-            color: c.text,
-            textAlign: "center",
-            whiteSpace: "nowrap",
-            opacity: title,
-            translate: `0px ${interpolate(title, [0, 1], [30, 0])}px`,
-          }}
-        >
-          <AccentText value={scene.title} />
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: 14 /* tilted title corner would be clipped by the stage */ }}>
+          <div
+            style={{
+              ...headStyle(72),
+              ...stickerStyle(c),
+              padding: "14px 32px 8px",
+              textAlign: "center",
+              whiteSpace: "nowrap",
+              ...slap(frame, fps, 0),
+            }}
+          >
+            <AccentText value={scene.title} />
+          </div>
         </div>
       ) : null}
-      <div style={{ display: "grid", marginTop: scene.title ? 30 : 0 }}>
+      {scene.title ? <SfxCues cues={[{ name: "pop", at: 0 }]} /> : null}
+      <div style={{ display: "grid", marginTop: scene.title ? 20 : 0 }}>
         {scene.beats.map((beat, i) => (
           <div key={i} style={{ gridArea: "1 / 1", ...beatStyle(i) }}>
             <BlockView beat={beat} timing={beats[i]} />

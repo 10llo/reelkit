@@ -1,7 +1,10 @@
 import { Easing, interpolate, useCurrentFrame } from "remotion";
+import { jelly } from "../brand/motion";
+import { STICKER_FILL, inkShadow } from "../brand/tokens";
 import { usePalette, useTalent } from "../frame/contexts";
 import { bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, pulse } from "../frame/timing";
+import { LEGEND_AT, NEEDLE_FROM, NEEDLE_TO, ZONES_FROM, ZONES_TO } from "./Gauge.cues";
 import { zoneIndex } from "./Gauge.schema";
 import { CountUpText, widestText } from "./parts/CountUpText";
 import { toneColor } from "./parts/tone";
@@ -13,11 +16,6 @@ const CX = W / 2;
 const CY = 240;
 const R = 200;
 const STROKE = 50;
-const ZONES_FROM = 0.04;
-const ZONES_TO = 0.25;
-const NEEDLE_FROM = 0.3;
-const NEEDLE_TO = 0.55;
-const LEGEND_AT = 0.6;
 
 const point = (t: number, r = R) => ({ x: CX - r * Math.cos(Math.PI * t), y: CY - r * Math.sin(Math.PI * t) });
 
@@ -59,7 +57,7 @@ export const Gauge: BlockComponent<"Gauge"> = ({ props, timing }) => {
             );
           })}
           <line x1={CX} y1={CY} x2={needle.x} y2={needle.y} stroke={activeColor} strokeWidth={12} strokeLinecap="round" opacity={sweep > 0 ? 1 : 0} />
-          <circle cx={CX} cy={CY} r={22} fill={c.text} />
+          <circle cx={CX} cy={CY} r={22} fill={c.text} stroke={STICKER_FILL} strokeWidth={6} />
         </svg>
         <div style={{ position: "absolute", left: CX - R - 100, top: CY + 10, width: 200, textAlign: "center", ...headStyle(40), color: c.text, opacity: 0.6 }}>
           {format.format(props.min)}
@@ -68,7 +66,7 @@ export const Gauge: BlockComponent<"Gauge"> = ({ props, timing }) => {
           {format.format(props.max)}
         </div>
       </div>
-      <div style={{ ...headStyle(96), color: activeColor, whiteSpace: "nowrap", marginTop: 40 }}>
+      <div style={{ ...headStyle(80), color: activeColor, whiteSpace: "nowrap", marginTop: 40, textShadow: inkShadow(5, c), ...jelly(frame, at(NEEDLE_TO)) }}>
         <CountUpText current={format.format(shown)} final={widestText([format.format(props.min), format.format(props.value)])} />
         {props.unit ? <span style={{ fontSize: 56, marginLeft: 10 }}>{props.unit}</span> : null}
       </div>

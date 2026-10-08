@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { layoutPage, paginate, wordsFromCaptions, wordsFromScript, type Page } from "../src/frame/captions-model";
+import { ACTIVE_SCALE, HIGHLIGHT_PAD, layoutPage, paginate, wordsFromCaptions, wordsFromScript, type Page } from "../src/frame/captions-model";
 
 const STARTS = [0, 90, 300, 510, 765];
 
@@ -75,5 +75,11 @@ describe("layoutPage", () => {
     const l = layoutPage(page("otorrinolaringólogo", "sí"), measure, { width: 900, height: 360 }, 64);
     expect(l.gapPx).toBeGreaterThanOrEqual(0.08 * measure("otorrinolaringólogo", l.fontSize));
     expect(l.gapPx).toBeGreaterThanOrEqual(0.3 * l.fontSize);
+  });
+  it("leaves at least 10px between the scaled highlight box and the next word", () => {
+    const l = layoutPage(page("otorrinolaringólogo", "sí"), measure, { width: 900, height: 360 }, 64);
+    const w = measure("otorrinolaringólogo", l.fontSize);
+    const highlightRight = ACTIVE_SCALE * (w + 2 * HIGHLIGHT_PAD) - HIGHLIGHT_PAD;
+    expect(w + l.gapPx - highlightRight).toBeGreaterThanOrEqual(10);
   });
 });

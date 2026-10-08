@@ -1,17 +1,16 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { popIn } from "../brand/motion";
+import { stickerStyle } from "../brand/sticker";
 import { usePalette } from "../frame/contexts";
 import { fitWordsFontSize } from "../frame/fit";
 import { FONT_HEAD, WEIGHT_HEAD, headStyle } from "../frame/theme";
-import { CLAMP, enter, pop } from "../frame/timing";
+import { CLAMP, enter } from "../frame/timing";
 import { Icon } from "../icons";
 import { CYCLE_LABEL_H, CYCLE_LABEL_W, CYCLE_NODE, CYCLE_RADIUS, cycleLayout } from "./Cycle.schema";
+import { CENTER_AT, DOT_FROM, RING_FROM, RING_TO, cycleNodeAt } from "./Cycle.cues";
 import type { BlockComponent } from "./types";
 
 const WIDTH = 960;
-const RING_FROM = 0.05;
-const RING_TO = 0.45;
-const CENTER_AT = 0.48;
-const DOT_FROM = 0.55;
 const GAP = 16;
 
 export const Cycle: BlockComponent<"Cycle"> = ({ props, timing }) => {
@@ -26,7 +25,7 @@ export const Cycle: BlockComponent<"Cycle"> = ({ props, timing }) => {
   const cy = centerY;
   const ring = interpolate(frame, [at(RING_FROM), at(RING_TO)], [0, 1], CLAMP);
   const circumference = 2 * Math.PI * CYCLE_RADIUS;
-  const nodeFrame = (i: number) => at(RING_FROM + ((RING_TO - RING_FROM) * (2 * i + 1)) / (2 * n));
+  const nodeFrame = (i: number) => cycleNodeAt(timing, i, n);
   const center = enter(frame, fps, at(CENTER_AT));
   const travel = interpolate(frame, [at(DOT_FROM), at(1)], [0, 1], CLAMP);
   const dotAngle = ((-90 + dir * 360 * travel) * Math.PI) / 180;
@@ -81,7 +80,6 @@ export const Cycle: BlockComponent<"Cycle"> = ({ props, timing }) => {
         />
       </svg>
       {nodes.map((node, i) => {
-        const p = pop(frame, fps, nodeFrame(i));
         const label = enter(frame, fps, nodeFrame(i) + 4);
         const nx = cx + node.x;
         const ny = cy + node.y;
@@ -102,15 +100,11 @@ export const Cycle: BlockComponent<"Cycle"> = ({ props, timing }) => {
                 top: ny - CYCLE_NODE / 2,
                 width: CYCLE_NODE,
                 height: CYCLE_NODE,
-                borderRadius: "50%",
-                backgroundColor: c.bg2,
-                border: `5px solid ${c.accent}`,
-                boxSizing: "border-box",
+                ...stickerStyle(c, { radius: CYCLE_NODE / 2, border: 5, shadow: 5 }),
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                opacity: interpolate(p, [0, 0.2], [0, 1], CLAMP),
-                scale: interpolate(p, [0, 1], [0.4, 1]),
+                ...popIn(frame, fps, nodeFrame(i)),
               }}
             >
               <Icon name={props.stages[i].icon} size={64} color={c.accent} accent={c.text} />

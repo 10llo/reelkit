@@ -3,18 +3,21 @@ import { usePalette } from "../frame/contexts";
 import { fitFontSize } from "../frame/fit";
 import { FONT_HEAD, WEIGHT_HEAD, bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop } from "../frame/timing";
+import { stickerStyle } from "../brand/sticker";
 import { Icon } from "../icons";
+import {
+  CATEGORY_AT,
+  ICON_AT,
+  MEANING_AT,
+  MEANING_SPAN,
+  PRONUNCIATION_AT,
+  TERM_FROM,
+  TERM_TO,
+  UNDERLINE_FROM,
+  UNDERLINE_TO,
+} from "./Definition.cues";
 import type { BlockComponent } from "./types";
 
-const ICON_AT = 0.04;
-const TERM_FROM = 0.1;
-const TERM_TO = 0.3;
-const UNDERLINE_FROM = 0.3;
-const UNDERLINE_TO = 0.4;
-const CATEGORY_AT = 0.2;
-const PRONUNCIATION_AT = 0.28;
-const MEANING_AT = 0.4;
-const MEANING_SPAN = 0.35;
 const ICON_BOX = 200;
 const TERM_MAX_WIDTH = 960 - ICON_BOX - 40;
 const TERM_SIZE = 96;
@@ -41,10 +44,7 @@ export const Definition: BlockComponent<"Definition"> = ({ props, timing }) => {
             width: ICON_BOX,
             height: ICON_BOX,
             flexShrink: 0,
-            borderRadius: "50%",
-            backgroundColor: c.bg2,
-            border: `5px solid ${c.accent}`,
-            boxSizing: "border-box",
+            ...stickerStyle(c, { radius: ICON_BOX / 2 }),
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -59,9 +59,7 @@ export const Definition: BlockComponent<"Definition"> = ({ props, timing }) => {
             <div
               style={{
                 ...headStyle(40),
-                color: c.bg,
-                backgroundColor: c.accent,
-                borderRadius: 999,
+                ...stickerStyle(c, { tone: "accent", radius: 999, border: 4, shadow: 5 }),
                 padding: "6px 22px 0",
                 whiteSpace: "nowrap",
                 opacity: category,

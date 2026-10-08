@@ -3,6 +3,7 @@ import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { ICONS } from "../src/icons";
 import { ICON_NAMES } from "../src/icons/names";
+import { SOCIAL_COLORS } from "../src/icons/sets/social";
 
 it("registers a component for exactly the declared icon names", () => {
   expect(Object.keys(ICONS).sort()).toEqual([...ICON_NAMES].sort());
@@ -31,5 +32,12 @@ it("includes the home, time, people, warning and action icons", () => {
   for (const name of ["house", "calendar", "person", "hand", "shield", "ban", "arrowRight", "question"]) {
     expect(ICON_NAMES).toContain(name);
   }
-  expect(ICON_NAMES.length).toBe(68);
+  expect(ICON_NAMES.length).toBe(72);
+});
+
+it("includes the social icons with their official colors", () => {
+  for (const name of ["instagram", "tiktok", "whatsapp", "facebook"]) {
+    expect(ICON_NAMES).toContain(name);
+  }
+  expect(SOCIAL_COLORS).toEqual({ instagram: "#D62976", tiktok: "#111111", whatsapp: "#25D366", facebook: "#1877F2" });
 });

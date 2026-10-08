@@ -1,4 +1,6 @@
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { jelly } from "../../brand/motion";
+import { inkShadow } from "../../brand/tokens";
 import { usePalette, useTalent } from "../../frame/contexts";
 import { FONT_HEAD, WEIGHT_HEAD, bodyStyle } from "../../frame/theme";
 import { CLAMP, enter, pulse } from "../../frame/timing";
@@ -10,7 +12,7 @@ const MAX_BAR = 620;
 const BAR_H = 46;
 const SQUARE = 38;
 const SQUARE_GAP = 6;
-const NUMBER_SIZE = 80;
+const NUMBER_SIZE = 72;
 const ROW_H = Math.round(NUMBER_SIZE * 0.9);
 
 export const QuantityBars: React.FC<{
@@ -70,12 +72,15 @@ export const QuantityBars: React.FC<{
                         flexShrink: 0,
                         borderRadius: 8,
                         backgroundColor: row.color,
-                        boxShadow: "inset 0 -5px 0 rgba(0,0,0,0.25), inset 0 3px 0 rgba(255,255,255,0.12)",
+                        boxShadow: `inset 0 -5px 0 rgba(0,0,0,0.18)`,
+                        border: `3px solid ${c.text}`,
+                        boxSizing: "border-box",
                       }}
                     />
                   ))}
                 </div>
               </div>
+              <div style={{ ...jelly(frame, row.to), transformOrigin: "left center" }}>
               <div
                 style={{
                   marginLeft: 22,
@@ -87,11 +92,13 @@ export const QuantityBars: React.FC<{
                   color: isHighlight && frame >= highlightAt ? c.danger : c.accent,
                   scale: isHighlight ? pulse(frame, highlightAt, 14, 1.15) : 1,
                   transformOrigin: "left center",
+                  textShadow: inkShadow(4, c),
                 }}
               >
                 {approx ? "≈ " : ""}
                 <CountUpText current={format.format(shown)} final={format.format(row.value)} align="left" />
                 {unit ? ` ${unit}` : ""}
+              </div>
               </div>
             </div>
           </div>

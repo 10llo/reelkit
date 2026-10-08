@@ -1,15 +1,15 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { drop } from "../brand/motion";
+import { stickerStyle } from "../brand/sticker";
 import { usePalette } from "../frame/contexts";
 import { fitWordsFontSize } from "../frame/fit";
 import { FONT_HEAD, WEIGHT_HEAD, headStyle } from "../frame/theme";
-import { CLAMP, enter, pop, pulse } from "../frame/timing";
+import { CLAMP, enter, pulse } from "../frame/timing";
 import { Icon } from "../icons";
+import { HIGHLIGHT_AT, processStepAt } from "./Process.cues";
 import type { BlockComponent } from "./types";
 
 const ROW = 960;
-const FIRST = 0.06;
-const SPAN = 0.45;
-const HIGHLIGHT_AT = 0.72;
 const LINK_DELAY = 6;
 const LINK_FRAMES = 8;
 const BADGE = 52;
@@ -23,7 +23,7 @@ export const Process: BlockComponent<"Process"> = ({ props, timing }) => {
   const col = ROW / n;
   const circle = Math.min(150, col - 60);
   const r = circle / 2;
-  const stepAt = (i: number) => at(FIRST + (SPAN * i) / n);
+  const stepAt = (i: number) => processStepAt(timing, i, n);
   const hl = props.highlightStep;
   const highlightFrame = at(HIGHLIGHT_AT);
   const dim = hl === undefined ? 1 : interpolate(frame, [highlightFrame, highlightFrame + 10], [1, 0.55], CLAMP);
@@ -60,7 +60,6 @@ export const Process: BlockComponent<"Process"> = ({ props, timing }) => {
       </svg>
       <div style={{ display: "flex" }}>
         {props.steps.map((step, i) => {
-          const p = pop(frame, fps, stepAt(i));
           const label = enter(frame, fps, stepAt(i) + 4);
           const isHighlight = i === hl;
           return (
@@ -74,14 +73,12 @@ export const Process: BlockComponent<"Process"> = ({ props, timing }) => {
                   width: circle,
                   height: circle,
                   borderRadius: "50%",
-                  backgroundColor: c.bg2,
-                  border: `5px solid ${isHighlight && frame >= highlightFrame ? c.accent : `${c.text}33`}`,
-                  boxSizing: "border-box",
+                  ...stickerStyle(c, { radius: circle / 2, border: 5, shadow: 6, borderColor: isHighlight && frame >= highlightFrame ? c.accent : c.text }),
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  opacity: interpolate(p, [0, 0.2], [0, 1], CLAMP),
-                  scale: interpolate(p, [0, 1], [0.4, 1]) * (isHighlight ? pulse(frame, highlightFrame, 14, 1.12) : 1),
+                  ...drop(frame, fps, processStepAt(timing, i, n), 120),
+                  ...(isHighlight && frame >= highlightFrame ? { scale: pulse(frame, highlightFrame, 14, 1.12) } : {}),
                 }}
               >
                 <Icon name={step.icon} size={Math.round(circle * 0.56)} color={c.accent} accent={c.text} />
@@ -92,11 +89,9 @@ export const Process: BlockComponent<"Process"> = ({ props, timing }) => {
                     top: -8,
                     width: BADGE,
                     height: BADGE,
-                    borderRadius: "50%",
-                    backgroundColor: c.accent,
-                    color: c.bg,
+                    ...stickerStyle(c, { tone: "accent", radius: BADGE / 2, border: 4, shadow: 3 }),
                     ...headStyle(40),
-                    lineHeight: `${BADGE + 4}px`,
+                    lineHeight: `${BADGE - 8 + 4}px`,
                     textAlign: "center",
                   }}
                 >

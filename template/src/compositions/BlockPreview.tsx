@@ -1,4 +1,7 @@
+import { useMemo } from "react";
 import { AbsoluteFill, type CalculateMetadataFunction } from "remotion";
+import { SfxContext } from "../brand/SfxCues";
+import { SCENE_BG, applyBrand } from "../brand/tokens";
 import type { Accented } from "../blocks/schema-parts";
 import { fetchJson } from "../episode/fetchJson";
 import type { Talent } from "../episode/talent";
@@ -35,15 +38,17 @@ export const calculateBlockPreviewMetadata: CalculateMetadataFunction<BlockPrevi
 /** One block on the real frame, for developing and reviewing blocks. */
 export const BlockPreview: React.FC<BlockPreviewProps> = ({ layoutName, block, props, title, durationInFrames, talent }) => {
   const ready = useFontsReady();
+  const palette = useMemo(() => (talent ? applyBrand(talent.colors) : null), [talent]);
   if (!talent) {
     throw new Error("Talent was not loaded; calculateMetadata must run first.");
   }
   return (
     <LayoutContext.Provider value={LAYOUTS[layoutName]}>
-      <PaletteContext.Provider value={talent.colors}>
+      <PaletteContext.Provider value={palette!}>
         <TalentContext.Provider value={talent}>
+          <SfxContext.Provider value={{ enabled: true }}>
           <AbsoluteFill>
-            <Background total={durationInFrames} />
+            <Background total={durationInFrames} base={block === "Close" ? SCENE_BG[4] : undefined} />
             {ready ? (
               <SceneRenderer
                 name={`preview-${block}`}
@@ -54,6 +59,7 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({ layoutName, block, p
             ) : null}
             <TalentSlot pillName={talent.pillName} clipSrc="" trimStartFrames={0} />
           </AbsoluteFill>
+          </SfxContext.Provider>
         </TalentContext.Provider>
       </PaletteContext.Provider>
     </LayoutContext.Provider>

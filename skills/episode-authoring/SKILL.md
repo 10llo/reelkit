@@ -48,7 +48,7 @@ Use only props, icons and enum values the catalog lists.
 | `scenes.step1` … `step3` | `title` (`{ text, accent?, tone? }`, text ≤ 40 characters, `accent` must appear in `text`) and 1–2 beats; `split` (0.3–0.7) is when beat 2 takes over |
 | `scenes.close` | one beat with the `Close` block (contacts come from the talent profile) |
 | `facts` | every on-screen number or claim, with the source page |
-| `clip`, `captionsSrc`, `coverFrame`, `musicSrc` | leave the defaults (`coverFrame` 60) |
+| `clip`, `captionsSrc`, `coverFrame`, `musicSrc`, `sfx` | leave the defaults (`coverFrame` 60; `sfx` true, set `false` only if the user asks for no sound effects) |
 
 ## 5. Choose blocks by what the line says
 
@@ -73,7 +73,7 @@ Two beats in a step when the line has two ideas (e.g. `Compare` then `Timer`).
 
 ## 6. Rules the schema can't show
 
-- Colours are `#RRGGBB` or a palette token: `bg`, `bg2`, `accent`, `text`, `danger`, `safe`, or a name in the talent's `colors.extra`.
+- Colours are `#RRGGBB` or a palette token: `bg`, `bg2`, `accent`, `text`, `danger`, `safe`, or a name in the talent's `colors.extra`. The brand sets bg (cream), bg2 (white sticker) and text (ink); prefer accent, danger, safe or an extra for meaning.
 - Two tone vocabularies: titles and accented text use `accent` / `danger` / `safe`; gauge zones and status items use `ok` / `warn` / `danger`.
 - Per-word limits: long single words (e.g. "metilxantinas") overflow narrow columns; `validate` names the field and the limit — shorten or rephrase.
 - `Anatomy`: at most 3 callouts per side. `Trend`: the y axis starts automatically unless you set `yMin`.

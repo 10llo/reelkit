@@ -1,14 +1,14 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { popIn } from "../brand/motion";
 import { usePalette } from "../frame/contexts";
 import { fitFontSize, fitWordsFontSize } from "../frame/fit";
 import { FONT_BODY, FONT_HEAD, WEIGHT_BODY, WEIGHT_HEAD, bodyStyle, headStyle } from "../frame/theme";
-import { CLAMP, enter, pop } from "../frame/timing";
+import { CLAMP, enter } from "../frame/timing";
 import { Icon } from "../icons";
+import { LINE_FROM, LINE_TO, timelineDotAt } from "./Timeline.cues";
 import type { BlockComponent } from "./types";
 
 const ROW = 960;
-const LINE_FROM = 0.05;
-const LINE_TO = 0.55;
 const DOT = 32;
 const NOW_DOT = 44;
 const DOT_ROW = 64;
@@ -23,7 +23,7 @@ export const Timeline: BlockComponent<"Timeline"> = ({ props, timing }) => {
   const col = ROW / n;
   const xs = props.events.map((_, i) => (i + 0.5) * col);
   const hasIcons = props.events.some((e) => e.icon);
-  const dotFrame = (i: number) => at(LINE_FROM + ((LINE_TO - LINE_FROM) * i) / (n - 1));
+  const dotFrame = (i: number) => timelineDotAt(timing, i, n);
   const line = interpolate(frame, [at(LINE_FROM), at(LINE_TO)], [0, 1], CLAMP);
 
   const column = (i: number, child: React.ReactNode) => (
@@ -78,7 +78,6 @@ export const Timeline: BlockComponent<"Timeline"> = ({ props, timing }) => {
         {props.events.map((_, i) => {
           const isNow = i === props.nowMarker;
           const size = isNow ? NOW_DOT : DOT;
-          const p = pop(frame, fps, dotFrame(i));
           const halo = isNow && frame >= dotFrame(i) ? 0.5 + 0.5 * Math.sin((frame - dotFrame(i)) * 0.2) : 0;
           return (
             <div key={i}>
@@ -107,10 +106,9 @@ export const Timeline: BlockComponent<"Timeline"> = ({ props, timing }) => {
                   height: size,
                   borderRadius: "50%",
                   backgroundColor: isNow ? c.accent : c.text,
-                  border: `4px solid ${c.bg}`,
+                  border: `4px solid ${c.text}`,
                   boxSizing: "border-box",
-                  opacity: interpolate(p, [0, 0.2], [0, 1], CLAMP),
-                  scale: interpolate(p, [0, 1], [0.3, 1]),
+                  ...popIn(frame, fps, dotFrame(i)),
                 }}
               />
             </div>

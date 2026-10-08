@@ -35,7 +35,7 @@ List `<dir>/talents/*.json`. If there are none, or the user wants another talent
 - `displayName` (e.g. "Dogtora Dani"), `pillName` (≤ 18 characters, shown on the slot), `profession`, `city`, `country` (ISO code, e.g. CO), `locale` (e.g. es-CO).
 - `voiceNotes`: how they speak (formal/informal, `tú`/`usted`, words they avoid).
 - `handles`: ask for Instagram, TikTok, WhatsApp and Facebook one by one; leave a handle empty when they have none — never invent a handle or a phone number.
-- `colors`: `bg`, `bg2`, `accent`, `text`, `danger`, `safe` as `#RRGGBB`; propose a palette from their brand colours and let them change it; optional named `extra` colours.
+- `colors`: `bg`, `bg2`, `accent`, `text`, `danger`, `safe` as `#RRGGBB`; propose a palette from their brand colours and let them change it; optional named `extra` colours. In the current brand (Consultorio Pop) bg, bg2 and text are set by the brand (cream, white, ink); ask mainly for accent, danger and safe, which must read on cream and white.
 - `disclaimer`: two short lines; propose one that fits the profession ("Contenido educativo." / "No reemplaza la consulta veterinaria.") and let them edit it.
 - `recordingNotes`: anything about where and how they record (optional).
 
