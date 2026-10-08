@@ -1,15 +1,12 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { wiggleDeg } from "../brand/motion";
+import { stickerStyle } from "../brand/sticker";
 import { usePalette } from "../frame/contexts";
 import { bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop } from "../frame/timing";
 import { Icon } from "../icons";
+import { FACT_AT, MYTH_AT, STAMP_AT, STRIKE_FROM, STRIKE_TO } from "./MythFact.cues";
 import type { BlockComponent } from "./types";
-
-const MYTH_AT = 0.05;
-const STRIKE_FROM = 0.35;
-const STRIKE_TO = 0.45;
-const STAMP_AT = 0.45;
-const FACT_AT = 0.55;
 
 const Tag: React.FC<{ readonly label: string; readonly color: string; readonly filled: boolean; readonly ink: string }> = ({
   label,
@@ -48,9 +45,7 @@ export const MythFact: BlockComponent<"MythFact"> = ({ props, timing }) => {
     flexDirection: "column",
     gap: 14,
     padding: "26px 36px",
-    borderRadius: 32,
-    backgroundColor: c.bg2,
-    border: `2px solid ${c.text}22`,
+    ...stickerStyle(c, { radius: 32 }),
   };
 
   return (
@@ -59,6 +54,7 @@ export const MythFact: BlockComponent<"MythFact"> = ({ props, timing }) => {
         style={{
           ...card,
           paddingRight: 36 + 120 + 20,
+          rotate: `${-2 + wiggleDeg(frame, at(STAMP_AT))}deg`,
           opacity: myth * interpolate(frame, [at(STAMP_AT), at(STAMP_AT) + 6], [1, 0.55], CLAMP),
           translate: `0px ${interpolate(myth, [0, 1], [30, 0])}px`,
         }}
@@ -94,7 +90,7 @@ export const MythFact: BlockComponent<"MythFact"> = ({ props, timing }) => {
           />
         ) : null}
       </div>
-      <div style={{ ...card, opacity: fact, translate: `0px ${interpolate(fact, [0, 1], [60, 0])}px` }}>
+      <div style={{ ...card, rotate: "1.5deg", opacity: fact, translate: `0px ${interpolate(fact, [0, 1], [60, 0])}px` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <Tag label={props.factTag} color={c.safe} filled ink={c.bg} />
           <Icon name="check" size={56} color={c.safe} />

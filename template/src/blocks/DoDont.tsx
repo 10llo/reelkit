@@ -1,15 +1,15 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { wiggleDeg } from "../brand/motion";
+import { stickerStyle } from "../brand/sticker";
 import { usePalette } from "../frame/contexts";
 import { bodyStyle } from "../frame/theme";
 import { CLAMP, enter, pop } from "../frame/timing";
 import { Icon } from "../icons";
+import { slideAt, stampAt } from "./DoDont.cues";
 import type { BlockComponent } from "./types";
 
 const CARD = { width: 450, height: 300, radius: 32 };
 const STAMP_SIZE = 210;
-// Fractions of a 105-frame reference beat.
-const slideAt = (i: number) => (18 + 12 * i) / 105;
-const stampAt = (i: number) => (42 + 18 * i) / 105;
 
 export const DoDont: BlockComponent<"DoDont"> = ({ props, timing }) => {
   const frame = useCurrentFrame();
@@ -31,10 +31,8 @@ export const DoDont: BlockComponent<"DoDont"> = ({ props, timing }) => {
               position: "relative",
               width: CARD.width,
               height: CARD.height,
-              borderRadius: CARD.radius,
-              backgroundColor: c.bg2,
-              border: `2px solid ${c.text}22`,
-              boxSizing: "border-box",
+              ...stickerStyle(c, { radius: CARD.radius }),
+              rotate: `${(i === 0 ? -2 : 2) + (isNo ? wiggleDeg(frame, stampFrame) : 0)}deg`,
               opacity: slide,
               translate: `${interpolate(slide, [0, 1], [-160, 0])}px 0px`,
             }}
