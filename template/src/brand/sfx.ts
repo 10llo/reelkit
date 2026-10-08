@@ -35,8 +35,8 @@ export const mergeCues = (cues: readonly Cue[]): Cue[] => {
 
 export const activeCues = (cues: readonly Cue[], enabled: boolean): Cue[] => (enabled ? mergeCues(cues) : []);
 
-// Subtle: files peak at -3 dBFS; the master keeps SFX ~15 dB under the voice. One knob to tune presence.
-export const SFX_MASTER = 0.18;
+// Subtle: files peak at -3 dBFS; the master keeps SFX ~20 dB under the voice. One knob to tune presence.
+export const SFX_MASTER = 0.1;
 export const SFX_GAIN: Record<SfxName, number> = {
   whoosh: 0.8,
   pop: 1,
