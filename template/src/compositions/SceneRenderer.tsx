@@ -12,17 +12,11 @@ import { FitStage } from "../frame/FitStage";
 import { headStyle } from "../frame/theme";
 import { ENTER_FRAMES, enter, fadeOut, splitBeats, type BeatTiming } from "../frame/timing";
 
-const BlockView: React.FC<{
-  readonly beat: Beat;
-  readonly timing: BeatTiming;
-}> = ({ beat, timing }) => {
+const BlockView: React.FC<{ readonly beat: Beat; readonly timing: BeatTiming }> = ({ beat, timing }) => {
   if (!isBlockName(beat.block)) {
     throw new Error(`Unknown block "${beat.block}"`);
   }
-  const Component = BLOCKS[beat.block] as React.FC<{
-    props: unknown;
-    timing: BeatTiming;
-  }>;
+  const Component = BLOCKS[beat.block] as React.FC<{ props: unknown; timing: BeatTiming }>;
   const talent = useTalent();
   return (
     <>
@@ -55,14 +49,8 @@ export const SceneRenderer: React.FC<{
       return {};
     }
     return i === 0
-      ? {
-          opacity: 1 - aOut,
-          translate: `0px ${interpolate(aOut, [0, 1], [0, -80])}px`,
-        }
-      : {
-          opacity: bIn,
-          translate: `0px ${interpolate(bIn, [0, 1], [60, 0])}px`,
-        };
+      ? { opacity: 1 - aOut, translate: `0px ${interpolate(aOut, [0, 1], [0, -80])}px` }
+      : { opacity: bIn, translate: `0px ${interpolate(bIn, [0, 1], [60, 0])}px` };
   };
 
   return (
@@ -71,9 +59,9 @@ export const SceneRenderer: React.FC<{
         <div style={{ display: "flex", justifyContent: "center" }}>
           <div
             style={{
-              ...headStyle(84),
+              ...headStyle(72),
               ...stickerStyle(c),
-              padding: "14px 40px 8px",
+              padding: "14px 32px 8px",
               textAlign: "center",
               whiteSpace: "nowrap",
               ...slap(frame, fps, 0),

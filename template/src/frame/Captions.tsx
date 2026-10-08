@@ -2,7 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import type { Caption } from "@remotion/captions";
 import { measureText } from "@remotion/layout-utils";
 import { continueRender, delayRender, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { ACTIVE_SCALE, LINE_HEIGHT, layoutPage, paginate, wordsFromCaptions, wordsFromScript } from "./captions-model";
+import {
+  ACTIVE_SCALE,
+  HIGHLIGHT_PAD,
+  LINE_HEIGHT,
+  layoutPage,
+  paginate,
+  wordsFromCaptions,
+  wordsFromScript,
+} from "./captions-model";
 import { HIGHLIGHT } from "../brand/tokens";
 import { stickerStyle } from "../brand/sticker";
 import { useLayout, usePalette } from "./contexts";
@@ -46,12 +54,7 @@ const useCaptionFile = (captionsSrc: string) => {
 };
 
 const measure = (text: string, fontSize: number) =>
-  measureText({
-    text,
-    fontFamily: FONT_BODY,
-    fontWeight: WEIGHT_CAPTION,
-    fontSize,
-  }).width;
+  measureText({ text, fontFamily: FONT_BODY, fontWeight: WEIGHT_CAPTION, fontSize }).width;
 
 export const Captions: React.FC<{
   readonly script: string[];
@@ -71,10 +74,7 @@ export const Captions: React.FC<{
   );
   const page = pages.find((p) => frame >= p.from && frame < p.to);
   const layout = useMemo(
-    () =>
-      page
-        ? layoutPage(page, measure, { width: box.width - INSET_X, height: box.height - INSET_Y }, captionsBaseSize)
-        : null,
+    () => (page ? layoutPage(page, measure, { width: box.width - INSET_X, height: box.height - INSET_Y }, captionsBaseSize) : null),
     [page, box, captionsBaseSize],
   );
   if (!page || !layout) {
@@ -104,36 +104,31 @@ export const Captions: React.FC<{
         translate: `0px ${interpolate(appear, [0, 1], [16, 0], CLAMP)}px`,
       }}
     >
-      <div
-        style={{
-          ...stickerStyle(c, STICKER),
-          padding: `${PAD_Y}px ${PAD_X}px`,
-        }}
-      >
-        {layout.lines.map((line, li) => (
-          <div key={li} style={{ whiteSpace: "nowrap" }}>
-            {line.map((word, wi) => {
-              const active = frame >= word.from && frame < word.to;
-              return (
-                <span
-                  key={wi}
-                  style={{
-                    display: "inline-block",
-                    color: c.text,
-                    backgroundColor: active ? HIGHLIGHT : "transparent",
-                    borderRadius: 10,
-                    padding: "0 6px",
-                    margin: `0 ${wi < line.length - 1 ? layout.gapPx - 6 : -6}px 0 -6px`,
-                    scale: active ? ACTIVE_SCALE : 1,
-                    transformOrigin: "left center",
-                  }}
-                >
-                  {word.text}
-                </span>
-              );
-            })}
-          </div>
-        ))}
+      <div style={{ ...stickerStyle(c, STICKER), padding: `${PAD_Y}px ${PAD_X}px` }}>
+      {layout.lines.map((line, li) => (
+        <div key={li} style={{ whiteSpace: "nowrap" }}>
+          {line.map((word, wi) => {
+            const active = frame >= word.from && frame < word.to;
+            return (
+              <span
+                key={wi}
+                style={{
+                  display: "inline-block",
+                  color: c.text,
+                  backgroundColor: active ? HIGHLIGHT : "transparent",
+                  borderRadius: 10,
+                  padding: `0 ${HIGHLIGHT_PAD}px`,
+                  margin: `0 ${wi < line.length - 1 ? layout.gapPx - HIGHLIGHT_PAD : -HIGHLIGHT_PAD}px 0 -${HIGHLIGHT_PAD}px`,
+                  scale: active ? ACTIVE_SCALE : 1,
+                  transformOrigin: "left center",
+                }}
+              >
+                {word.text}
+              </span>
+            );
+          })}
+        </div>
+      ))}
       </div>
     </div>
   );

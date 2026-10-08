@@ -82,9 +82,7 @@ export const StepTracker: React.FC<{
               scale: active ? pulse(frame, activeFrom, 10, 1.06) : 1,
             }}
           >
-            {done ? (
-              <Icon name="check" size={34} color={c.accent} style={{ scale: checkScale, marginTop: -4 }} />
-            ) : null}
+            {done ? <Icon name="check" size={34} color={c.accent} style={{ scale: checkScale, marginTop: -4 }} /> : null}
             {label}
           </div>
         );

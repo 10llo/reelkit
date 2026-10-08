@@ -14,6 +14,8 @@ const PAGE_GAP_SECONDS = 0.5;
 export const ACTIVE_SCALE = 1.08;
 export const LINE_HEIGHT = 1.1;
 export const WORD_GAP = 0.3; // em
+// Horizontal padding of the active word's highlight box (px, each side).
+export const HIGHLIGHT_PAD = 6;
 
 /** Phase 1: spread each scene's words evenly across the scene, after a lead-in. */
 export const wordsFromScript = (script: string[], starts: number[], total: number): Word[][] =>
@@ -69,11 +71,11 @@ export const layoutPage = (
   box: { width: number; height: number },
   baseSize: number,
 ): PageLayout => {
-  // Leave room for the active word's scale.
-  const maxWidth = box.width / ACTIVE_SCALE;
+  // Leave room for the active word's scale and highlight padding.
+  const maxWidth = box.width / ACTIVE_SCALE - 2 * HIGHLIGHT_PAD;
   for (let fontSize = baseSize; fontSize >= MIN_SIZE; fontSize -= 2) {
     const widest = Math.max(...page.words.map((w) => measure(w.text, fontSize)));
-    const space = Math.max(WORD_GAP * fontSize, (ACTIVE_SCALE - 1) * widest + 4);
+    const space = Math.max(WORD_GAP * fontSize, (ACTIVE_SCALE - 1) * (widest + 2 * HIGHLIGHT_PAD) + 2 * HIGHLIGHT_PAD * ACTIVE_SCALE + 4);
     const lines: Word[][] = [];
     let lineWidth = 0;
     let fits = true;

@@ -27,16 +27,7 @@ export const TalentSlot: React.FC<{
   const scale = interpolate(enter(frame, fps, 0), [0, 1], [0.96, 1], CLAMP);
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: slot.x,
-        top: slot.y,
-        width: slot.width,
-        height: slot.height,
-        scale,
-      }}
-    >
+    <div style={{ position: "absolute", left: slot.x, top: slot.y, width: slot.width, height: slot.height, scale }}>
       {/* The sticker's white margin: fills the keep-out ring so scene floods never change pixels around the clip. */}
       <div
         style={{
@@ -66,21 +57,12 @@ export const TalentSlot: React.FC<{
             trimBefore={trimStartFrames}
             objectFit="cover"
             premountFor={fps}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectPosition: OBJECT_POSITION,
-            }}
+            style={{ width: "100%", height: "100%", objectPosition: OBJECT_POSITION }}
           />
         ) : null}
       </div>
       <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          borderRadius: slot.radius,
-          border: `${slotBorder}px solid ${c.text}`,
-        }}
+        style={{ position: "absolute", inset: 0, borderRadius: slot.radius, border: `${slotBorder}px solid ${c.text}` }}
       />
       <div
         style={{
