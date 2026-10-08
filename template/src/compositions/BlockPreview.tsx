@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { AbsoluteFill, type CalculateMetadataFunction } from "remotion";
+import { SfxContext } from "../brand/SfxCues";
 import { applyBrand } from "../brand/tokens";
 import type { Accented } from "../blocks/schema-parts";
 import { fetchJson } from "../episode/fetchJson";
@@ -45,6 +46,7 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({ layoutName, block, p
     <LayoutContext.Provider value={LAYOUTS[layoutName]}>
       <PaletteContext.Provider value={palette!}>
         <TalentContext.Provider value={talent}>
+          <SfxContext.Provider value={{ enabled: true }}>
           <AbsoluteFill>
             <Background total={durationInFrames} />
             {ready ? (
@@ -57,6 +59,7 @@ export const BlockPreview: React.FC<BlockPreviewProps> = ({ layoutName, block, p
             ) : null}
             <TalentSlot pillName={talent.pillName} clipSrc="" trimStartFrames={0} />
           </AbsoluteFill>
+          </SfxContext.Provider>
         </TalentContext.Provider>
       </PaletteContext.Provider>
     </LayoutContext.Provider>

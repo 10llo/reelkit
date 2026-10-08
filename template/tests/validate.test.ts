@@ -105,3 +105,15 @@ describe("union errors are actionable", () => {
     expect(m).toMatch(/yes\.yes\.tone/);
   });
 });
+
+describe("sfx flag", () => {
+  it("defaults to true", () => {
+    expect(validateEpisode(minimalEpisode()).sfx).toBe(true);
+  });
+  it("accepts false", () => {
+    expect(validateEpisode({ ...minimalEpisode(), sfx: false }).sfx).toBe(false);
+  });
+  it("rejects a non-boolean", () => {
+    expect(() => validateEpisode({ ...minimalEpisode(), sfx: "no" })).toThrow(/sfx/);
+  });
+});

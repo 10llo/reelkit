@@ -1,6 +1,7 @@
 import { Audio } from "@remotion/media";
 import { useMemo } from "react";
 import { AbsoluteFill, Series, interpolate, useVideoConfig } from "remotion";
+import { SfxContext } from "../brand/SfxCues";
 import { applyBrand } from "../brand/tokens";
 import type { EpisodeProps } from "../episode/load";
 import { Background } from "../frame/Background";
@@ -42,6 +43,7 @@ export const EpisodeVideo: React.FC<EpisodeProps & { readonly hideCaptions?: boo
     <LayoutContext.Provider value={LAYOUTS[layoutName]}>
       <PaletteContext.Provider value={palette!}>
         <TalentContext.Provider value={talent}>
+          <SfxContext.Provider value={{ enabled: !checkMode && episode.sfx }}>
           <AbsoluteFill>
             <Background total={total} />
             {fontsReady ? (
@@ -91,6 +93,7 @@ export const EpisodeVideo: React.FC<EpisodeProps & { readonly hideCaptions?: boo
             ) : null}
             {showGuides ? <Guides /> : null}
           </AbsoluteFill>
+          </SfxContext.Provider>
         </TalentContext.Provider>
       </PaletteContext.Provider>
     </LayoutContext.Provider>

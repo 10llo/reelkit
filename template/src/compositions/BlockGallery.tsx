@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { AbsoluteFill, Series, useVideoConfig, type CalculateMetadataFunction } from "remotion";
+import { SfxContext } from "../brand/SfxCues";
 import { INK, applyBrand } from "../brand/tokens";
 import type { Accented } from "../blocks/schema-parts";
 import { fetchJson } from "../episode/fetchJson";
@@ -45,6 +46,7 @@ export const BlockGallery: React.FC<GalleryProps> = ({ layoutName, talent }) => 
     <LayoutContext.Provider value={LAYOUTS[layoutName]}>
       <PaletteContext.Provider value={palette!}>
         <TalentContext.Provider value={talent}>
+          <SfxContext.Provider value={{ enabled: true }}>
           <AbsoluteFill>
             <Background total={TOTAL} />
             {ready ? (
@@ -66,6 +68,7 @@ export const BlockGallery: React.FC<GalleryProps> = ({ layoutName, talent }) => 
             ) : null}
             <TalentSlot pillName={talent.pillName} clipSrc="" trimStartFrames={0} />
           </AbsoluteFill>
+          </SfxContext.Provider>
         </TalentContext.Provider>
       </PaletteContext.Provider>
     </LayoutContext.Provider>

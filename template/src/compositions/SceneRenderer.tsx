@@ -1,9 +1,11 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { SfxCues } from "../brand/SfxCues";
+import { cuesFor } from "../blocks/cues";
 import { BLOCKS } from "../blocks/registry";
 import { isBlockName } from "../blocks/schemas";
 import type { Beat, Scene } from "../episode/schema";
 import { AccentText } from "../frame/AccentText";
-import { usePalette } from "../frame/contexts";
+import { usePalette, useTalent } from "../frame/contexts";
 import { FitStage } from "../frame/FitStage";
 import { headStyle } from "../frame/theme";
 import { ENTER_FRAMES, enter, fadeOut, splitBeats, type BeatTiming } from "../frame/timing";
@@ -13,7 +15,13 @@ const BlockView: React.FC<{ readonly beat: Beat; readonly timing: BeatTiming }> 
     throw new Error(`Unknown block "${beat.block}"`);
   }
   const Component = BLOCKS[beat.block] as React.FC<{ props: unknown; timing: BeatTiming }>;
-  return <Component props={beat.props} timing={timing} />;
+  const talent = useTalent();
+  return (
+    <>
+      <Component props={beat.props} timing={timing} />
+      <SfxCues cues={cuesFor(beat.block, beat.props, timing, talent)} />
+    </>
+  );
 };
 
 /**
@@ -60,6 +68,7 @@ export const SceneRenderer: React.FC<{
           <AccentText value={scene.title} />
         </div>
       ) : null}
+      {scene.title ? <SfxCues cues={[{ name: "pop", at: 0 }]} /> : null}
       <div style={{ display: "grid", marginTop: scene.title ? 30 : 0 }}>
         {scene.beats.map((beat, i) => (
           <div key={i} style={{ gridArea: "1 / 1", ...beatStyle(i) }}>

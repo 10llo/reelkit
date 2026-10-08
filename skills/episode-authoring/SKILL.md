@@ -48,7 +48,7 @@ Use only props, icons and enum values the catalog lists.
 | `scenes.step1` … `step3` | `title` (`{ text, accent?, tone? }`, text ≤ 40 characters, `accent` must appear in `text`) and 1–2 beats; `split` (0.3–0.7) is when beat 2 takes over |
 | `scenes.close` | one beat with the `Close` block (contacts come from the talent profile) |
 | `facts` | every on-screen number or claim, with the source page |
-| `clip`, `captionsSrc`, `coverFrame`, `musicSrc` | leave the defaults (`coverFrame` 60) |
+| `clip`, `captionsSrc`, `coverFrame`, `musicSrc`, `sfx` | leave the defaults (`coverFrame` 60; `sfx` true, set `false` only if the user asks for no sound effects) |
 
 ## 5. Choose blocks by what the line says
 
