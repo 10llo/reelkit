@@ -91,7 +91,102 @@ describe("fetchAccount", () => {
   });
 });
 
+describe("fetchAccount failure handling", () => {
+  const ref = { network: "tiktok", handle: "a" } as const;
+  const dl = (fn: (n: number, args: string[]) => ReturnType<YtDlp>, ids: string[]): YtDlp => {
+    let n = 0;
+    return async (args) => (args.includes("--flat-playlist") ? { code: 0, stdout: LIST(ids), stderr: "" } : fn(++n, args));
+  };
+  const write = (args: string[], file = "video.mp4") => {
+    const dir = path.dirname(args[args.indexOf("-o") + 1]);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, file), "x");
+    fs.writeFileSync(path.join(dir, "video.info.json"), JSON.stringify({ id: "1" }));
+  };
+  it("a login wall at download time is needs-login", async () => {
+    const root = tmp();
+    dirs.push(root);
+    const ytdlp = dl(async () => ({ code: 1, stdout: "", stderr: "ERROR: login required" }), ["1", "2"]);
+    expect(await fetchAccount(ref, { root, count: 2, own: false, ytdlp })).toMatchObject({ status: "needs-login", reason: "login required", videos: [] });
+  });
+  it("partial download failure stays ok with a reason", async () => {
+    const root = tmp();
+    dirs.push(root);
+    const ytdlp = dl(async (n, args) => {
+      if (n === 2) return { code: 1, stdout: "", stderr: "ERROR: HTTP Error 429: Too Many Requests" };
+      write(args);
+      return { code: 0, stdout: "", stderr: "" };
+    }, ["1", "2"]);
+    expect(await fetchAccount(ref, { root, count: 2, own: false, ytdlp })).toMatchObject({ status: "ok", videos: ["1"], reason: "1 of 2 videos failed: rate limited" });
+  });
+  it("unreadable listing output is failed", async () => {
+    const root = tmp();
+    dirs.push(root);
+    const ytdlp: YtDlp = async () => ({ code: 0, stdout: "not json", stderr: "" });
+    expect(await fetchAccount(ref, { root, count: 1, own: false, ytdlp })).toMatchObject({ status: "failed", reason: "unreadable yt-dlp output" });
+  });
+  it("unreadable info json counts as a failed video", async () => {
+    const root = tmp();
+    dirs.push(root);
+    const ytdlp = dl(async (_n, args) => {
+      write(args);
+      fs.writeFileSync(path.join(path.dirname(args[args.indexOf("-o") + 1]), "video.info.json"), "{oops");
+      return { code: 0, stdout: "", stderr: "" };
+    }, ["1"]);
+    expect(await fetchAccount(ref, { root, count: 1, own: false, ytdlp })).toMatchObject({ status: "failed" });
+  });
+  it("skips entries without URL and ids with odd characters", async () => {
+    const root = tmp();
+    dirs.push(root);
+    const calls: string[][] = [];
+    const ytdlp: YtDlp = async (args) => {
+      if (args.includes("--flat-playlist"))
+        return { code: 0, stdout: JSON.stringify({ entries: [{ id: "nourl" }, { id: "../evil", url: "u" }, { id: "ok1", url: "u" }] }), stderr: "" };
+      calls.push(args);
+      write(args);
+      return { code: 0, stdout: "", stderr: "" };
+    };
+    const e = await fetchAccount(ref, { root, count: 3, own: false, ytdlp });
+    expect(calls).toHaveLength(1);
+    expect(e).toMatchObject({ status: "ok", videos: ["ok1"] });
+    const none = await fetchAccount(ref, { root: tmp(), count: 1, own: false, ytdlp: async () => ({ code: 0, stdout: JSON.stringify({ entries: [{ id: "nourl" }] }), stderr: "" }) });
+    expect(none).toMatchObject({ status: "failed", reason: "entry without URL" });
+  });
+  it("a download that is not an mp4 is a failure", async () => {
+    const root = tmp();
+    dirs.push(root);
+    const ytdlp = dl(async (_n, args) => {
+      write(args, "video.webm");
+      return { code: 0, stdout: "", stderr: "" };
+    }, ["1"]);
+    expect(await fetchAccount(ref, { root, count: 1, own: false, ytdlp })).toMatchObject({ status: "failed", reason: "not an mp4" });
+  });
+});
+
 describe("fetchAll", () => {
+  it("turns a throwing account into a failed entry and continues", async () => {
+    const root = tmp();
+    dirs.push(root);
+    const ok = fake(["1"]);
+    const ytdlp: YtDlp = async (args) =>
+      args.some((a) => a.includes("@bad")) ? { code: 0, stdout: "not json", stderr: "" } : ok(args);
+    const { entries } = await fetchAll(
+      [{ ref: { network: "tiktok", handle: "bad" }, own: false }, { ref: { network: "tiktok", handle: "a" }, own: false }],
+      { root, count: 1, ytdlp },
+    );
+    expect(entries.map((e) => e.status)).toEqual(["failed", "ok"]);
+    expect(entries[0].reason).toBe("unreadable yt-dlp output");
+  });
+  it("catches an exception thrown by yt-dlp itself", async () => {
+    const root = tmp();
+    dirs.push(root);
+    const ytdlp: YtDlp = async (args) => {
+      if (args[0] === "--version") return { code: 0, stdout: "", stderr: "" };
+      throw new Error("boom");
+    };
+    const { entries } = await fetchAll([{ ref: { network: "tiktok", handle: "a" }, own: false }], { root, count: 1, ytdlp });
+    expect(entries[0]).toMatchObject({ status: "failed", reason: "boom" });
+  });
   it("keeps going when one account fails", async () => {
     const root = tmp();
     dirs.push(root);

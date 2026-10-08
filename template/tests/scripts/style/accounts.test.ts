@@ -21,6 +21,12 @@ describe("parseAccount", () => {
   it("rejects a bare handle (the plugin command asks for the network)", () => {
     expect(() => parseAccount("@dogtora.dani")).toThrow(/tiktok:@handle/);
   });
+  it("rejects prototype keys as network prefixes", () => {
+    expect(() => parseAccount("constructor:x")).toThrow();
+  });
+  it.each(["p/abc", "reel/abc", "reels/", "tv/abc", "stories/x/1", "explore/tags"])("rejects Instagram post link %s", (tail) => {
+    expect(() => parseAccount(`https://www.instagram.com/${tail}`)).toThrow(/post link, not a profile/);
+  });
   it("rejects other sites and empty handles", () => {
     expect(() => parseAccount("https://youtube.com/@x")).toThrow();
     expect(() => parseAccount("tiktok:@")).toThrow();

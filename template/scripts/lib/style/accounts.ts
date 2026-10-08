@@ -6,12 +6,14 @@ const USAGE = 'Use tiktok:@handle, instagram:handle, or a profile URL (https://w
 const HANDLE = /^[a-z0-9._]{1,30}$/;
 const PREFIX: Record<string, Network> = { tiktok: "tiktok", tt: "tiktok", instagram: "instagram", ig: "instagram" };
 
+const POST_SEGMENTS = new Set(["p", "reel", "reels", "tv", "stories", "explore"]);
+
 const clean = (raw: string): string => raw.replace(/^@/, "").toLowerCase();
 
 export const parseAccount = (spec: string): AccountRef => {
   const s = spec.trim();
   const prefixed = /^([a-z]+):(?!\/\/)(.*)$/i.exec(s);
-  if (prefixed && PREFIX[prefixed[1].toLowerCase()]) {
+  if (prefixed && Object.prototype.hasOwnProperty.call(PREFIX, prefixed[1].toLowerCase())) {
     const handle = clean(prefixed[2]);
     if (!HANDLE.test(handle)) throw new Error(`"${spec}" has no valid handle. ${USAGE}`);
     return { network: PREFIX[prefixed[1].toLowerCase()], handle };
@@ -19,6 +21,9 @@ export const parseAccount = (spec: string): AccountRef => {
   const url = /^(?:https?:\/\/)?(?:www\.|m\.)?(tiktok\.com\/@|instagram\.com\/)([^/?#]+)/i.exec(s);
   if (url) {
     const handle = clean(url[2]);
+    if (url[1].toLowerCase().startsWith("instagram") && POST_SEGMENTS.has(handle)) {
+      throw new Error(`${spec} is a post link, not a profile. Use the profile URL (https://www.instagram.com/<handle>/) or instagram:<handle>.`);
+    }
     if (!HANDLE.test(handle)) throw new Error(`"${spec}" has no valid handle. ${USAGE}`);
     return { network: url[1].toLowerCase().startsWith("tiktok") ? "tiktok" : "instagram", handle };
   }
@@ -54,7 +59,10 @@ const FILE = "accounts.json";
 
 export const readAccounts = (dir: string): AccountsFile | null => {
   const file = path.join(dir, FILE);
-  return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as AccountsFile) : null;
+  if (!fs.existsSync(file)) return null;
+  const data = JSON.parse(fs.readFileSync(file, "utf8")) as AccountsFile;
+  for (const a of data.accounts) a.failedVideos ??= [];
+  return data;
 };
 
 export const writeAccounts = (dir: string, data: AccountsFile) => {

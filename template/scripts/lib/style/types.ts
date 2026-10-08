@@ -22,6 +22,7 @@ export type AccountEntry = {
   profileUrl: string;
   videos: string[];
   median: Median | null;
+  failedVideos: { id: string; reason: string }[];
 };
 
 export type AccountsFile = { createdAt: string; accounts: AccountEntry[] };

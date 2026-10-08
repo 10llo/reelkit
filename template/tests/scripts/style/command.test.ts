@@ -67,3 +67,17 @@ it("analyze fails clearly without accounts.json", async () => {
 it("unknown subcommand prints usage", async () => {
   expect(await run(parseArgs(["nope"]), {})).toBe(2);
 });
+
+it("fetch keeps own: true when a retry re-fetches the own account as a plain one", async () => {
+  const dir = tmp();
+  await run(parseArgs(["fetch", dir, "tiktok:@a", "--own=instagram:b", "--videos=1"]), { ytdlp: okYt });
+  await run(parseArgs(["fetch", dir, "instagram:b", "--videos=1", "--cookies-from-browser=chrome"]), { ytdlp: okYt });
+  expect(readAccounts(dir)!.accounts.find((a) => a.id === "instagram-b")!.own).toBe(true);
+});
+
+it("fetch exits 2 on a bare --own and on a bad --videos", async () => {
+  expect(await run(parseArgs(["fetch", tmp(), "tiktok:@a", "--own"]), { ytdlp: okYt })).toBe(2);
+  for (const v of ["0", "abc", "-3", "1.5"]) {
+    expect(await run(parseArgs(["fetch", tmp(), "tiktok:@a", `--videos=${v}`]), { ytdlp: okYt })).toBe(2);
+  }
+});

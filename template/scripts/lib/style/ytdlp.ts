@@ -81,6 +81,7 @@ const entry = (ref: AccountRef, own: boolean, patch: Partial<AccountEntry>): Acc
   profileUrl: profileUrl(ref),
   videos: [],
   median: null,
+  failedVideos: [],
   ...patch,
 });
 
@@ -90,25 +91,59 @@ export const fetchAccount = async (ref: AccountRef, opts: FetchOptions): Promise
     const { status, reason } = classifyError(list.stderr);
     return entry(ref, opts.own, { status, reason });
   }
-  const entries = ((JSON.parse(list.stdout) as { entries?: { id: string; url?: string; webpage_url?: string }[] }).entries ?? []).slice(0, opts.count);
+  let entries: { id: string; url?: string; webpage_url?: string }[];
+  try {
+    entries = ((JSON.parse(list.stdout) as { entries?: typeof entries }).entries ?? []).slice(0, opts.count);
+  } catch {
+    return entry(ref, opts.own, { status: "failed", reason: "unreadable yt-dlp output" });
+  }
   const videos: string[] = [];
-  let lastError: string | null = null;
+  let last: { status: "needs-login" | "failed"; reason: string } | null = null;
+  let failed = 0;
+  const fail = (c: { status: "needs-login" | "failed"; reason: string }) => {
+    last = c;
+    failed++;
+  };
   for (const item of entries) {
+    if (typeof item?.id !== "string" || !/^[\w-]+$/.test(item.id)) {
+      fail({ status: "failed", reason: "unexpected video id" });
+      continue;
+    }
+    const videoUrl = item.webpage_url ?? item.url;
     const dir = path.join(opts.root, accountId(ref), item.id);
     const done = fs.existsSync(path.join(dir, "video.mp4")) && fs.existsSync(path.join(dir, "info.json"));
     if (!done) {
-      const res = await opts.ytdlp(downloadArgs(item.webpage_url ?? item.url ?? "", dir, opts.cookies));
-      const rawInfo = path.join(dir, "video.info.json");
-      if (res.code !== 0 || !fs.existsSync(rawInfo)) {
-        lastError = classifyError(res.stderr).reason;
+      if (!videoUrl) {
+        fail({ status: "failed", reason: "entry without URL" });
         continue;
       }
-      fs.writeFileSync(path.join(dir, "info.json"), `${JSON.stringify(trimInfo(JSON.parse(fs.readFileSync(rawInfo, "utf8"))), null, 2)}\n`);
+      const res = await opts.ytdlp(downloadArgs(videoUrl, dir, opts.cookies));
+      const rawInfo = path.join(dir, "video.info.json");
+      if (res.code !== 0 || !fs.existsSync(rawInfo)) {
+        fail(classifyError(res.stderr));
+        continue;
+      }
+      if (!fs.existsSync(path.join(dir, "video.mp4"))) {
+        fail({ status: "failed", reason: "not an mp4" });
+        continue;
+      }
+      try {
+        fs.writeFileSync(path.join(dir, "info.json"), `${JSON.stringify(trimInfo(JSON.parse(fs.readFileSync(rawInfo, "utf8"))), null, 2)}\n`);
+      } catch {
+        fail({ status: "failed", reason: "unreadable video info" });
+        continue;
+      }
       fs.rmSync(rawInfo);
     }
     videos.push(item.id);
   }
-  return videos.length ? entry(ref, opts.own, { videos }) : entry(ref, opts.own, { status: "failed", reason: lastError ?? "no videos found" });
+  if (videos.length) {
+    const partial = failed ? `${failed} of ${entries.length} videos failed: ${(last as { reason: string } | null)?.reason}` : null;
+    return entry(ref, opts.own, { videos, reason: partial });
+  }
+  const l = last as { status: "needs-login" | "failed"; reason: string } | null;
+  if (l?.status === "needs-login") return entry(ref, opts.own, { status: "needs-login", reason: l.reason });
+  return entry(ref, opts.own, { status: "failed", reason: l?.reason ?? "no videos found" });
 };
 
 export const fetchAll = async (
@@ -119,7 +154,11 @@ export const fetchAll = async (
   const probe = await opts.ytdlp(["--version"]);
   if (probe.code === 127) return { entries: [], missingBinary: true };
   for (const { ref, own } of refs) {
-    entries.push(await fetchAccount(ref, { ...opts, own }));
+    try {
+      entries.push(await fetchAccount(ref, { ...opts, own }));
+    } catch (err) {
+      entries.push(entry(ref, own, { status: "failed", reason: (err as Error).message }));
+    }
   }
   return { entries, missingBinary: false };
 };

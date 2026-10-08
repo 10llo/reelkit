@@ -41,14 +41,14 @@ export const analyzeVideo = async (dir: string, deps: AnalyzeDeps): Promise<Vide
   const last = Math.max(0, duration - 0.05);
 
   const cutTimes = range(Math.floor(duration * CUT_FPS), (i) => i / CUT_FPS);
-  const cutFrames = (await framesOf(file, cutTimes, CUT_WIDTH, "cut-detection")).map(toGray);
-  const cuts = detectCuts(cutFrames, cutTimes.slice(0, cutFrames.length));
+  const cutSamples = await framesOf(file, cutTimes, CUT_WIDTH, "cut-detection");
+  const cuts = detectCuts(cutSamples.map((s) => toGray(s.frame)), cutSamples.map((s) => s.t));
 
-  const paletteFrames = await framesOf(file, range(PALETTE_FRAMES, (i) => (last * i) / (PALETTE_FRAMES - 1)), CUT_WIDTH, "palette");
-  const sheetTimes = range(SHEET_FRAMES, (i) => (last * i) / (SHEET_FRAMES - 1));
-  fs.writeFileSync(path.join(dir, "sheet.png"), composeSheet(await framesOf(file, sheetTimes, SHEET_WIDTH, "sheet"), sheetTimes.map(label), 4));
-  const hookTimes = range(HOOK_SECONDS * 2, (i) => Math.min(i * 0.5, last));
-  fs.writeFileSync(path.join(dir, "hook.png"), composeSheet(await framesOf(file, hookTimes, SHEET_WIDTH, "hook"), hookTimes.map(label), 6));
+  const paletteFrames = (await framesOf(file, range(PALETTE_FRAMES, (i) => (last * i) / (PALETTE_FRAMES - 1)), CUT_WIDTH, "palette")).map((s) => s.frame);
+  const sheet = await framesOf(file, range(SHEET_FRAMES, (i) => (last * i) / (SHEET_FRAMES - 1)), SHEET_WIDTH, "sheet");
+  fs.writeFileSync(path.join(dir, "sheet.png"), composeSheet(sheet.map((s) => s.frame), sheet.map((s) => label(s.t)), 4));
+  const hook = await framesOf(file, range(HOOK_SECONDS * 2, (i) => Math.min(i * 0.5, last)), SHEET_WIDTH, "hook");
+  fs.writeFileSync(path.join(dir, "hook.png"), composeSheet(hook.map((s) => s.frame), hook.map((s) => label(s.t)), 6));
 
   let wave: Float32Array = new Float32Array(0);
   let words: TranscriptWord[] = [];
@@ -102,12 +102,24 @@ export const analyzeFolder = async (root: string, deps: AnalyzeDeps): Promise<Ac
   for (const account of file.accounts) {
     if (account.status !== "ok") continue;
     const metrics: VideoMetrics[] = [];
-    for (const id of account.videos) {
-      const dir = path.join(root, account.id, id);
-      if (!fs.existsSync(path.join(dir, "video.mp4"))) continue;
-      console.log(`→ ${account.id}/${id}`);
-      metrics.push(await analyzeVideo(dir, deps));
+    const failedVideos: { id: string; reason: string }[] = [];
+    const dirs = account.videos.map((id) => ({ id, dir: path.join(root, account.id, id) }));
+    const withVideo = dirs.filter((d) => fs.existsSync(path.join(d.dir, "video.mp4")));
+    if (withVideo.length === 0 && dirs.length > 0 && dirs.every((d) => fs.existsSync(path.join(d.dir, "metrics.json")))) {
+      // Videos were deleted after a first analysis: keep the medians, recomputed from the saved metrics.
+      for (const d of dirs) metrics.push(JSON.parse(fs.readFileSync(path.join(d.dir, "metrics.json"), "utf8")) as VideoMetrics);
     }
+    for (const { id, dir } of withVideo) {
+      console.log(`→ ${account.id}/${id}`);
+      try {
+        metrics.push(await analyzeVideo(dir, deps));
+      } catch (err) {
+        const reason = (err as Error).message;
+        console.error(`✗ ${account.id}/${id}: ${reason}`);
+        failedVideos.push({ id, reason });
+      }
+    }
+    account.failedVideos = failedVideos;
     account.median = summarizeAccount(metrics);
   }
   writeAccounts(root, file);

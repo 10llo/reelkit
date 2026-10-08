@@ -237,4 +237,9 @@ test("style analysis keeps its rules", () => {
   const command = read("commands/style.md");
   assert.match(command, /cookies-from-browser/);
   assert.match(command, /AskUserQuestion/);
+  assert.match(command, /--videos/);
+  assert.match(command, /whisper check/);
+  assert.match(command, /Only on a yes/);
+  assert.match(command, /delete the downloaded videos[^\n]*\n?[^\n]*clear yes/i);
+  assert.match(command, /video\.mp4/);
 });

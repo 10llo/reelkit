@@ -28,21 +28,29 @@ const fetchCommand = async (args: Args, deps: Deps): Promise<number> => {
   try {
     refs = specs.map((s) => ({ ref: parseAccount(s), own: false }));
     const own = args.flags.own;
+    if (own === true || own === "") throw new Error("--own needs an account, e.g. --own=instagram:handle.");
     if (typeof own === "string") refs.push({ ref: parseAccount(own), own: true });
   } catch (err) {
     console.error(`✗ ${(err as Error).message}`);
     return 2;
   }
   const count = Number(flagString(args, "videos", "5"));
+  if (!Number.isInteger(count) || count < 1) {
+    console.error(`✗ --videos must be a positive whole number (got ${String(args.flags.videos)}).`);
+    return 2;
+  }
   const cookies = typeof args.flags["cookies-from-browser"] === "string" ? (args.flags["cookies-from-browser"] as string) : undefined;
   const root = path.resolve(dir);
-  const { entries, missingBinary } = await fetchAll(refs, { root, count: Number.isFinite(count) && count > 0 ? count : 5, cookies, ytdlp: deps.ytdlp ?? systemYtDlp });
+  const { entries, missingBinary } = await fetchAll(refs, { root, count, cookies, ytdlp: deps.ytdlp ?? systemYtDlp });
   if (missingBinary) {
     console.error("✗ yt-dlp is not installed. Install it: brew install yt-dlp (macOS) or pip install yt-dlp (Windows/Linux).");
     return 2;
   }
   const previous = readAccounts(root)?.accounts ?? [];
-  const merged = [...previous.filter((p) => !entries.some((e) => e.id === p.id)), ...entries];
+  const merged = [
+    ...previous.filter((p) => !entries.some((e) => e.id === p.id)),
+    ...entries.map((e) => (previous.some((p) => p.id === e.id && p.own) ? { ...e, own: true } : e)),
+  ];
   writeAccounts(root, { createdAt: (deps.now ?? (() => new Date()))().toISOString(), accounts: merged });
   for (const e of entries) {
     console.log(`${e.status === "ok" ? "✓" : "✗"} ${e.id}${e.own ? " (own)" : ""}: ${e.status === "ok" ? `${e.videos.length} video(s)` : e.reason}`);

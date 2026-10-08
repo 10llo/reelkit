@@ -2,16 +2,25 @@ import { VideoSampleSink } from "mediabunny";
 import { openMedia } from "../audio";
 import type { Rgba } from "./palette";
 
+/** Pairs each timestamp with its decoded frame, dropping timestamps whose frame is missing. */
+export const alignSamples = (timestamps: number[], samples: (Rgba | null)[]): { t: number; frame: Rgba }[] =>
+  timestamps.flatMap((t, i) => (samples[i] ? [{ t, frame: samples[i] as Rgba }] : []));
+
 /** Decodes the frame at each timestamp and downsizes it (nearest neighbour) to `width`, keeping the aspect ratio. */
-export const sampleFrames = async (file: string, timestamps: number[], width: number): Promise<Rgba[]> => {
+export const sampleFrames = async (file: string, timestamps: number[], width: number): Promise<{ t: number; frame: Rgba }[]> => {
   const input = openMedia(file);
   try {
     const track = await input.getPrimaryVideoTrack();
     if (!track) throw new Error(`${file} has no video track`);
     const sink = new VideoSampleSink(track);
-    const out: Rgba[] = [];
-    for await (const sample of sink.samplesAtTimestamps(timestamps)) {
-      if (!sample) continue;
+    const first = await track.getFirstTimestamp();
+    const times = timestamps.map((t) => Math.max(t, first));
+    const out: (Rgba | null)[] = [];
+    for await (const sample of sink.samplesAtTimestamps(times)) {
+      if (!sample) {
+        out.push(null);
+        continue;
+      }
       const sw = sample.displayWidth;
       const sh = sample.displayHeight;
       const full = new Uint8Array(sample.allocationSize({ format: "RGBA" } as never));
@@ -29,7 +38,7 @@ export const sampleFrames = async (file: string, timestamps: number[], width: nu
       }
       out.push({ width: w, height: h, data });
     }
-    return out;
+    return alignSamples(times, out);
   } finally {
     input.dispose();
   }
