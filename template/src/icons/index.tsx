@@ -5,6 +5,7 @@ import { FOOD_ICONS } from "./sets/food";
 import { HEALTH_ICONS } from "./sets/health";
 import { HOME_ICONS } from "./sets/home";
 import { PEOPLE_ICONS } from "./sets/people";
+import { SOCIAL_ICONS } from "./sets/social";
 import { TIME_ICONS } from "./sets/time";
 import { VETERINARY_ICONS } from "./sets/veterinary";
 import { WARNING_ICONS } from "./sets/warnings";
@@ -23,6 +24,7 @@ export const ICONS = {
   ...PEOPLE_ICONS,
   ...WARNING_ICONS,
   ...ACTION_ICONS,
+  ...SOCIAL_ICONS,
 } satisfies Record<IconName, IconComponent>;
 
 export const Icon: React.FC<IconProps & { readonly name: IconName }> = ({ name, ...rest }) => {
