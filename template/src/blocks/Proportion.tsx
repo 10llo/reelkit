@@ -1,23 +1,19 @@
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { jelly } from "../brand/motion";
+import { inkShadow } from "../brand/tokens";
 import { usePalette, useTalent } from "../frame/contexts";
 import { SMALL_TEXT_ATTR } from "../frame/minFont";
 import { fitFontSize, fitWordsFontSize } from "../frame/fit";
 import { FONT_BODY, FONT_HEAD, WEIGHT_BODY, WEIGHT_HEAD, bodyStyle, headStyle } from "../frame/theme";
 import { CLAMP, enter } from "../frame/timing";
 import { Icon } from "../icons";
+import { FILL_AT, FILL_SPAN, FILL_TO, LABEL_AT, SOURCE_AT, TRACK_FROM, TRACK_TO } from "./Proportion.cues";
 import { gridShape } from "./Proportion.schema";
 import { CountUpText } from "./parts/CountUpText";
 import type { BlockComponent } from "./types";
 
 const VISUAL = 380;
 const TEXT_W = 540;
-const TRACK_FROM = 0.05;
-const TRACK_TO = 0.2;
-const FILL_AT = 0.3;
-const FILL_TO = 0.55;
-const FILL_SPAN = 0.25;
-const LABEL_AT = 0.4;
-const SOURCE_AT = 0.55;
 const DONUT_R = 150;
 const DONUT_STROKE = 54;
 
@@ -171,7 +167,16 @@ export const Proportion: BlockComponent<"Proportion"> = ({ props, timing }) => {
             columnGap: 16,
           }}
         >
-          <span style={{ ...headStyle(140), color: c.accent, lineHeight: 1 }}>
+          <span
+            style={{
+              ...headStyle(140),
+              color: c.accent,
+              lineHeight: 1,
+              textShadow: inkShadow(6, c),
+              display: "inline-block",
+              ...jelly(frame, at(FILL_TO)),
+            }}
+          >
             <CountUpText
               current={format.format(Math.round(props.numerator * fill))}
               final={format.format(props.numerator)}

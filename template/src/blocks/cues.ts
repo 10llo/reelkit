@@ -2,10 +2,15 @@ import type { Cue } from "../brand/sfx";
 import type { Talent } from "../episode/talent";
 import type { BeatTiming } from "../frame/timing";
 import type { CueFn } from "./cue-types";
+import { bigStatCues } from "./BigStat.cues";
 import { closeCues } from "./Close.cues";
 import { compareCues } from "./Compare.cues";
 import { definitionCues } from "./Definition.cues";
+import { gaugeCues } from "./Gauge.cues";
 import { hookCues } from "./Hook.cues";
+import { proportionCues } from "./Proportion.cues";
+import { quantityCues } from "./Quantity.cues";
+import { trendCues } from "./Trend.cues";
 import { versusCues } from "./Versus.cues";
 import type { BlockName } from "./schemas";
 
@@ -16,6 +21,11 @@ export const BLOCK_CUES: { [K in BlockName]?: CueFn<K> } = {
   Definition: definitionCues,
   Compare: compareCues,
   Versus: versusCues,
+  BigStat: bigStatCues,
+  Gauge: gaugeCues,
+  Proportion: proportionCues,
+  Quantity: quantityCues,
+  Trend: trendCues,
 };
 
 export const cuesFor = (block: BlockName, props: unknown, timing: BeatTiming, talent: Talent): Cue[] => {
