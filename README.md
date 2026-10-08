@@ -13,6 +13,8 @@ Requirements: macOS, Linux or Windows with Node 20+, npm, git, ~3 GB free disk, 
 /plugin install reelkit@reelkit
 ```
 
+Optional: `yt-dlp` for `/reelkit:style` (`brew install yt-dlp`).
+
 Restart Claude Code, then run:
 
 ```
@@ -39,6 +41,7 @@ Run these from a Claude Code session started in your studio folder (`cd ~/reelki
 | `/reelkit:clip <video> [episode]` | Takes the talent's recording, transcribes it locally, corrects the captions to the script's spelling with the real timing, re-times the scenes, and shows you a review before applying anything. |
 | `/reelkit:export [episode]` | Renders the 9:16 master, the WhatsApp version (under 16 MB), the 4:5 feed version, both covers and an `.srt`, and checks every file. |
 | `/reelkit:status [episode]` | Lists your episodes, where each one is, and the next command to run. |
+| `/reelkit:style <@account…> [--own=@account]` | Downloads recent public videos of reference creators (and optionally your own account) with yt-dlp, measures their style (cuts, pace, hook, colour, music under the voice) and writes a report with proposals for new styles and blocks. |
 
 Every command stops for your approval at its decisions: the angle, the script, caption corrections, and what to do if the recording runs long.
 
