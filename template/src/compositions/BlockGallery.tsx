@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { AbsoluteFill, Series, useVideoConfig, type CalculateMetadataFunction } from "remotion";
+import { INK, applyBrand } from "../brand/tokens";
 import type { Accented } from "../blocks/schema-parts";
 import { fetchJson } from "../episode/fetchJson";
 import type { Talent } from "../episode/talent";
@@ -36,12 +37,13 @@ export const BlockGallery: React.FC<GalleryProps> = ({ layoutName, talent }) => 
     () => SAMPLES.map((s, i) => validateBeat({ block: s.block, props: s.props }, `gallery[${i}]`)),
     [],
   );
+  const palette = useMemo(() => (talent ? applyBrand(talent.colors) : null), [talent]);
   if (!talent) {
     throw new Error("Talent was not loaded; calculateMetadata must run first.");
   }
   return (
     <LayoutContext.Provider value={LAYOUTS[layoutName]}>
-      <PaletteContext.Provider value={talent.colors}>
+      <PaletteContext.Provider value={palette!}>
         <TalentContext.Provider value={talent}>
           <AbsoluteFill>
             <Background total={TOTAL} />
@@ -55,7 +57,7 @@ export const BlockGallery: React.FC<GalleryProps> = ({ layoutName, talent }) => 
                       duration={sample.durationInFrames}
                       fadeOutAtEnd={false}
                     />
-                    <div style={{ position: "absolute", left: 60, top: 40, ...bodyStyle(32), color: talent.colors.text, opacity: 0.6 }}>
+                    <div style={{ position: "absolute", left: 60, top: 40, ...bodyStyle(32), color: INK, opacity: 0.6 }}>
                       {i + 1}/{SAMPLES.length} · {sample.block}
                     </div>
                   </Series.Sequence>

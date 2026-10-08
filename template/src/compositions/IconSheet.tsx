@@ -8,9 +8,9 @@ import { FONT_BODY } from "../frame/theme";
 const COLS = 7;
 const CELL_W = 150;
 const CELL_H = 110;
-const BG = "#1A1023";
-const FG = "#FFF3E0";
-const ACCENT = "#FF7A1A";
+const BG = "#FFF4E6";
+const FG = "#2B1B3D";
+const ACCENT = "#FF6B57";
 
 export const IconSheet: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: BG, padding: 15 }}>

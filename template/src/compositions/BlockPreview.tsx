@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import { AbsoluteFill, type CalculateMetadataFunction } from "remotion";
+import { applyBrand } from "../brand/tokens";
 import type { Accented } from "../blocks/schema-parts";
 import { fetchJson } from "../episode/fetchJson";
 import type { Talent } from "../episode/talent";
@@ -35,12 +37,13 @@ export const calculateBlockPreviewMetadata: CalculateMetadataFunction<BlockPrevi
 /** One block on the real frame, for developing and reviewing blocks. */
 export const BlockPreview: React.FC<BlockPreviewProps> = ({ layoutName, block, props, title, durationInFrames, talent }) => {
   const ready = useFontsReady();
+  const palette = useMemo(() => (talent ? applyBrand(talent.colors) : null), [talent]);
   if (!talent) {
     throw new Error("Talent was not loaded; calculateMetadata must run first.");
   }
   return (
     <LayoutContext.Provider value={LAYOUTS[layoutName]}>
-      <PaletteContext.Provider value={talent.colors}>
+      <PaletteContext.Provider value={palette!}>
         <TalentContext.Provider value={talent}>
           <AbsoluteFill>
             <Background total={durationInFrames} />
