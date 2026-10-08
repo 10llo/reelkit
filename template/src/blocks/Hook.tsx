@@ -1,19 +1,16 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { usePalette } from "../frame/contexts";
 import { bodyStyle, headStyle } from "../frame/theme";
-import { CLAMP, pop, pulse } from "../frame/timing";
+import { CLAMP, pop } from "../frame/timing";
+import { jelly } from "../brand/motion";
+import { stickerStyle } from "../brand/sticker";
+import { TILT } from "../brand/tokens";
 import { resolveColor } from "../episode/talent";
 import { Icon } from "../icons";
+import { BITES, HERO_AT, PULSE_FROM, SHAKE_END, STAMP_AT } from "./Hook.cues";
 import { BiteGrid } from "./parts/BiteGrid";
 import type { BlockComponent, BlockProps } from "./types";
 
-// Fractions of the hook beat (reference: frames of a 90-frame hook).
-const BITES = [10 / 90, 22 / 90, 34 / 90];
-const HERO_AT = 10 / 90;
-const SHAKE_END = 40 / 90;
-const STAMP_AT = 40 / 90;
-const PULSE_FROM = 45 / 90;
-const PULSE_TO = 60 / 90;
 const HERO_WIDTH = 420;
 const ICON_SIZE = 260;
 
@@ -65,27 +62,27 @@ export const Hook: BlockComponent<"Hook"> = ({ props, timing }) => {
   // Frame 0 is the thumbnail: headline and chip are fully visible, no entrance.
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-      <div style={{ ...headStyle(88), color: c.text, lineHeight: 1 }}>{props.line1}</div>
-      <div
-        style={{
-          ...headStyle(120),
-          color: c.accent,
-          lineHeight: 1,
-          whiteSpace: "nowrap",
-          scale: pulse(frame, at(PULSE_FROM), at(PULSE_TO) - at(PULSE_FROM), 1.05),
-        }}
-      >
-        {props.line2}
+      <div style={{ ...stickerStyle(c), padding: "22px 44px 26px", rotate: `${TILT}deg` }}>
+        <div style={{ ...headStyle(88), color: c.text, lineHeight: 1 }}>{props.line1}</div>
+        <div
+          style={{
+            ...headStyle(100),
+            color: c.accent,
+            lineHeight: 1,
+            whiteSpace: "nowrap",
+            ...jelly(frame, at(PULSE_FROM)),
+          }}
+        >
+          {props.line2}
+        </div>
       </div>
       {props.chip ? (
         <div
           style={{
             ...bodyStyle(40),
-            color: c.text,
-            marginTop: 18,
+            ...stickerStyle(c, { tone: "ink", radius: 999, border: 4, shadow: 6 }),
+            marginTop: 26,
             padding: "8px 30px",
-            borderRadius: 999,
-            border: `3px solid ${c.text}`,
             whiteSpace: "nowrap",
           }}
         >

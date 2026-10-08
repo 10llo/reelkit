@@ -3,16 +3,15 @@ import { usePalette } from "../frame/contexts";
 import { fitFontSize, fitWordsFontSize } from "../frame/fit";
 import { FONT_HEAD, WEIGHT_HEAD, headStyle } from "../frame/theme";
 import { CLAMP, enter, pop } from "../frame/timing";
+import { popIn } from "../brand/motion";
+import { stickerStyle } from "../brand/sticker";
+import { inkShadow } from "../brand/tokens";
 import { Icon } from "../icons";
+import { ROWS_FROM, ROWS_SPAN, SIDES_AT, VS_AT, WINNER_AT } from "./Versus.cues";
 import type { BlockComponent } from "./types";
 
 const SIDE = 340;
 const MIDDLE = 280;
-const SIDES_AT = 0.04;
-const VS_AT = 0.12;
-const ROWS_FROM = 0.22;
-const ROWS_SPAN = 0.4;
-const WINNER_AT = 0.72;
 const VS_SIZE = 110;
 
 export const Versus: BlockComponent<"Versus"> = ({ props, timing }) => {
@@ -21,7 +20,6 @@ export const Versus: BlockComponent<"Versus"> = ({ props, timing }) => {
   const c = usePalette();
   const { at } = timing;
   const sides = enter(frame, fps, at(SIDES_AT));
-  const vs = pop(frame, fps, at(VS_AT));
   const winners = pop(frame, fps, at(WINNER_AT));
   const loserDim = interpolate(
     frame,
@@ -108,6 +106,7 @@ export const Versus: BlockComponent<"Versus"> = ({ props, timing }) => {
             fitFontSize(text, SIDE - 60, 48, FONT_HEAD, WEIGHT_HEAD),
           ),
           color: isWinner && frame >= at(WINNER_AT) ? c.accent : c.text,
+          ...(isWinner && frame >= at(WINNER_AT) ? { textShadow: inkShadow(3, c) } : {}),
           whiteSpace: "nowrap",
         }}
       >
@@ -138,14 +137,12 @@ export const Versus: BlockComponent<"Versus"> = ({ props, timing }) => {
               padding: "0 24px",
               boxSizing: "border-box",
               whiteSpace: "nowrap",
-              borderRadius: VS_SIZE / 2,
-              backgroundColor: c.accent,
-              color: c.bg,
+              ...stickerStyle(c, { tone: "accent", radius: VS_SIZE / 2, border: 5, shadow: 6 }),
               ...headStyle(48),
-              lineHeight: `${VS_SIZE + 6}px`,
+              lineHeight: `${VS_SIZE - 10 + 6}px`,
               textAlign: "center",
-              opacity: interpolate(vs, [0, 0.2], [0, 1], CLAMP),
-              scale: interpolate(vs, [0, 1], [0.3, 1]),
+              ...popIn(frame, fps, at(VS_AT)),
+              rotate: "-6deg",
             }}
           >
             {props.vsLabel}
