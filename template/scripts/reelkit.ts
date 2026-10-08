@@ -12,6 +12,7 @@ const COMMANDS: Record<string, () => Promise<Command>> = {
   catalog: () => import("./commands/catalog"),
   episode: () => import("./commands/episode"),
   talent: () => import("./commands/talent"),
+  style: () => import("./commands/style"),
 };
 
 const USAGE = `Usage: npm run reelkit -- <command> [...]

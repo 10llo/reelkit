@@ -34,7 +34,7 @@ const skillFiles = () =>
 const pluginFiles = () => [...listMarkdown("commands"), ...skillFiles(), ...listMarkdown("agents")];
 
 test("helpers read the code they lint against", () => {
-  assert.deepEqual([...cliCommands()].sort(), ["catalog", "episode", "export", "script", "status", "sync", "talent", "validate", "whisper"]);
+  assert.deepEqual([...cliCommands()].sort(), ["catalog", "episode", "export", "script", "status", "style", "sync", "talent", "validate", "whisper"]);
   assert.ok(npmScripts().includes("check"));
   assert.equal(blockNames().length, 20);
 });
