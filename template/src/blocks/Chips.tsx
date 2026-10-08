@@ -1,17 +1,14 @@
 import { useCurrentFrame, useVideoConfig } from "remotion";
 import { enter } from "../frame/timing";
+import { FIRST_AT, chipStagger } from "./Chips.cues";
 import { Chip } from "./parts/Chip";
 import { chipColumns } from "./Chips.schema";
 import type { BlockComponent } from "./types";
 
-const FIRST_AT = 0.1;
-const MAX_STAGGER = 9;
-const ENTER_SPAN = 0.5;
-
 export const Chips: BlockComponent<"Chips"> = ({ props, timing }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const stagger = Math.min(MAX_STAGGER, (timing.duration * ENTER_SPAN) / props.items.length);
+  const stagger = chipStagger(timing.duration, props.items.length);
   return (
     <div
       style={{
@@ -26,6 +23,7 @@ export const Chips: BlockComponent<"Chips"> = ({ props, timing }) => {
           key={`${i}-${item.label}`}
           icon={item.icon}
           label={item.label}
+          tilt={i % 2 ? 2 : -2}
           progress={enter(frame, fps, timing.at(FIRST_AT) + i * stagger)}
         />
       ))}

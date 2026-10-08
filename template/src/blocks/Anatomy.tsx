@@ -6,6 +6,7 @@ import { CLAMP, enter, pop, pulse } from "../frame/timing";
 import { Icon } from "../icons";
 import { Diagram } from "../icons/diagrams";
 import { ANATOMY_COLUMN, calloutSlots } from "./Anatomy.schema";
+import { HIGHLIGHT_AT, SUBJECT_AT, calloutStart } from "./Anatomy.cues";
 import type { BlockComponent } from "./types";
 
 const COLUMN = ANATOMY_COLUMN;
@@ -16,10 +17,6 @@ const H = SUBJECT + 40;
 const SUBJECT_X = COLUMN + GAP;
 const SUBJECT_Y = 20;
 const LABEL_H = 92;
-const SUBJECT_AT = 0.04;
-const CALLOUTS_FROM = 0.18;
-const CALLOUTS_SPAN = 0.45;
-const HIGHLIGHT_AT = 0.75;
 const LINE_FRAMES = 8;
 
 export const Anatomy: BlockComponent<"Anatomy"> = ({ props, timing }) => {
@@ -42,7 +39,7 @@ export const Anatomy: BlockComponent<"Anatomy"> = ({ props, timing }) => {
       edgeX: side === "left" ? COLUMN + 8 : SUBJECT_X + SUBJECT + GAP - 8,
       labelY,
       side,
-      start: at(CALLOUTS_FROM + (CALLOUTS_SPAN * i) / count),
+      start: calloutStart(timing, i, count),
     };
   });
 
@@ -82,7 +79,7 @@ export const Anatomy: BlockComponent<"Anatomy"> = ({ props, timing }) => {
               cy={g.anchorY}
               r={11}
               fill={c.accent}
-              stroke={c.bg}
+              stroke={c.text}
               strokeWidth={4}
               opacity={interpolate(p, [0, 0.2], [0, 1], CLAMP) * (isHighlight ? 1 : dim)}
               style={{
