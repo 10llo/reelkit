@@ -1,4 +1,6 @@
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { slap } from "../brand/motion";
+import { stickerStyle } from "../brand/sticker";
 import { SfxCues } from "../brand/SfxCues";
 import { cuesFor } from "../blocks/cues";
 import { BLOCKS } from "../blocks/registry";
@@ -10,11 +12,17 @@ import { FitStage } from "../frame/FitStage";
 import { headStyle } from "../frame/theme";
 import { ENTER_FRAMES, enter, fadeOut, splitBeats, type BeatTiming } from "../frame/timing";
 
-const BlockView: React.FC<{ readonly beat: Beat; readonly timing: BeatTiming }> = ({ beat, timing }) => {
+const BlockView: React.FC<{
+  readonly beat: Beat;
+  readonly timing: BeatTiming;
+}> = ({ beat, timing }) => {
   if (!isBlockName(beat.block)) {
     throw new Error(`Unknown block "${beat.block}"`);
   }
-  const Component = BLOCKS[beat.block] as React.FC<{ props: unknown; timing: BeatTiming }>;
+  const Component = BLOCKS[beat.block] as React.FC<{
+    props: unknown;
+    timing: BeatTiming;
+  }>;
   const talent = useTalent();
   return (
     <>
@@ -39,7 +47,6 @@ export const SceneRenderer: React.FC<{
   const c = usePalette();
   const beats = splitBeats(duration, scene.beats.length, scene.split);
   const second = beats[1];
-  const title = enter(frame, fps, 0);
   const aOut = second ? enter(frame, fps, second.from) : 0;
   const bIn = second ? enter(frame, fps, second.from + ENTER_FRAMES) : 0;
 
@@ -48,24 +55,32 @@ export const SceneRenderer: React.FC<{
       return {};
     }
     return i === 0
-      ? { opacity: 1 - aOut, translate: `0px ${interpolate(aOut, [0, 1], [0, -80])}px` }
-      : { opacity: bIn, translate: `0px ${interpolate(bIn, [0, 1], [60, 0])}px` };
+      ? {
+          opacity: 1 - aOut,
+          translate: `0px ${interpolate(aOut, [0, 1], [0, -80])}px`,
+        }
+      : {
+          opacity: bIn,
+          translate: `0px ${interpolate(bIn, [0, 1], [60, 0])}px`,
+        };
   };
 
   return (
     <FitStage name={name} style={{ opacity: fadeOutAtEnd ? fadeOut(frame, duration) : 1 }}>
       {scene.title ? (
-        <div
-          style={{
-            ...headStyle(88),
-            color: c.text,
-            textAlign: "center",
-            whiteSpace: "nowrap",
-            opacity: title,
-            translate: `0px ${interpolate(title, [0, 1], [30, 0])}px`,
-          }}
-        >
-          <AccentText value={scene.title} />
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <div
+            style={{
+              ...headStyle(84),
+              ...stickerStyle(c),
+              padding: "14px 40px 8px",
+              textAlign: "center",
+              whiteSpace: "nowrap",
+              ...slap(frame, fps, 0),
+            }}
+          >
+            <AccentText value={scene.title} />
+          </div>
         </div>
       ) : null}
       {scene.title ? <SfxCues cues={[{ name: "pop", at: 0 }]} /> : null}
