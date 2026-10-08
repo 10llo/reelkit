@@ -7,7 +7,7 @@
     {
       "name": "reelkit",
       "description": "Short vertical explainer videos for professionals: research, script, video, clip sync, exports.",
-      "version": "0.5.0",
+      "version": "0.6.0",
       "source": "./",
       "category": "productivity"
     }
