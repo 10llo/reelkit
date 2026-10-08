@@ -60,7 +60,7 @@ test("claude plugin validate accepts the plugin and the marketplace", (t) => {
   assert.doesNotMatch(out, /✘/);
 });
 
-test("README covers install, setup and the five commands", () => {
+test("README covers install, setup and the commands", () => {
   const readme = read("README.md");
   for (const text of [
     "/plugin marketplace add 10llo/reelkit",
@@ -70,12 +70,13 @@ test("README covers install, setup and the five commands", () => {
     "/reelkit:clip",
     "/reelkit:export",
     "/reelkit:status",
+    "/reelkit:style",
   ]) {
     assert.ok(readme.includes(text), `README is missing ${text}`);
   }
 });
 
-const SKILLS = ["trend-research", "script-writing", "episode-authoring", "block-authoring", "caption-sync", "social-export"];
+const SKILLS = ["trend-research", "script-writing", "episode-authoring", "block-authoring", "caption-sync", "social-export", "style-analysis"];
 
 test("every skill and agent exists with a name and a description", () => {
   for (const skill of SKILLS) {
@@ -227,4 +228,13 @@ test("clip and export run shell steps in the studio, clip sends unfinished episo
   }
   assert.ok(read("README.md").includes("/plugin marketplace update reelkit"), "README does not explain updating");
   assert.match(read("skills/block-authoring/SKILL.md"), /clone github\.com\/10llo\/reelkit[\s\S]*pull request/);
+});
+
+test("style analysis keeps its rules", () => {
+  const skill = read("skills/style-analysis/SKILL.md");
+  assert.match(skill, /metrics\.json/);
+  assert.match(skill, /copies|copy/i);
+  const command = read("commands/style.md");
+  assert.match(command, /cookies-from-browser/);
+  assert.match(command, /AskUserQuestion/);
 });

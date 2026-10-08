@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { checkCommand, checkDisk, checkNode, checkWorkspace, formatResults, npmCommand } from "../doctor.mjs";
+import { checkCommand, checkDisk, checkOptionalCommand, checkNode, checkWorkspace, formatResults, npmCommand } from "../doctor.mjs";
 
 test("node version", () => {
   assert.equal(checkNode("22.1.0").ok, true);
@@ -51,4 +51,11 @@ test("disk check falls back to an existing parent", () => {
 test("npm runs through a shell as npm.cmd on Windows", () => {
   assert.deepEqual(npmCommand("win32"), { cmd: "npm.cmd", shell: true });
   assert.deepEqual(npmCommand("darwin"), { cmd: "npm", shell: false });
+});
+
+test("optional command is a warning, not a failure", () => {
+  const missing = checkOptionalCommand("reelkit-no-such-command", "brew install it");
+  assert.deepEqual(missing, { ok: false, optional: true, label: "reelkit-no-such-command not found (optional)", fix: "brew install it" });
+  assert.equal(formatResults([missing]), "⚠ reelkit-no-such-command not found (optional) → brew install it");
+  assert.equal(checkOptionalCommand("node", "").ok, true);
 });

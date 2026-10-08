@@ -31,6 +31,11 @@ export const checkCommand = (name, fix) => {
   }
 };
 
+export const checkOptionalCommand = (name, fix) => {
+  const result = checkCommand(name, fix);
+  return result.ok ? result : { ok: false, optional: true, label: `${name} not found (optional)`, fix };
+};
+
 export const checkDisk = (dir, statfs = fs.statfsSync) => {
   let existing = dir;
   while (!fs.existsSync(existing) && path.dirname(existing) !== existing) {
@@ -58,12 +63,13 @@ export const runDoctor = (dir) =>
     checkNode(),
     checkCommand("npm", "npm comes with Node: reinstall Node from https://nodejs.org"),
     checkCommand("git", "Install git: xcode-select --install (macOS) or https://git-scm.com"),
+    checkOptionalCommand("yt-dlp", "Only for /reelkit:style — brew install yt-dlp (macOS) or pip install yt-dlp"),
     checkDisk(dir),
     checkWorkspace(dir),
   ].filter(Boolean);
 
 export const formatResults = (results) =>
-  results.map((r) => (r.ok ? `✓ ${r.label}` : `✗ ${r.label} → ${r.fix}`)).join("\n");
+  results.map((r) => (r.ok ? `✓ ${r.label}` : `${r.optional ? "⚠" : "✗"} ${r.label} → ${r.fix}`)).join("\n");
 
 const isMain = () => {
   try {
@@ -76,5 +82,5 @@ const isMain = () => {
 if (isMain()) {
   const results = runDoctor(path.resolve(process.argv[2] ?? "."));
   console.log(formatResults(results));
-  process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+  process.exitCode = results.every((r) => r.ok || r.optional) ? 0 : 1;
 }
